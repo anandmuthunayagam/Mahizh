@@ -3,6 +3,11 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const collectionRoutes = require("./routes/collectionRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
+const authRoutes = require("./routes/authRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+
+
+
 require("dotenv").config();
 
 const app = express();
@@ -13,6 +18,8 @@ app.use(express.json());
 
 app.use("/api/collections", collectionRoutes);
 app.use("/api/expenses", expenseRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
