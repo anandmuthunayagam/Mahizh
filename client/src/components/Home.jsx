@@ -21,7 +21,9 @@ function Home() {
       })
       .then((res) => setHomes(res.data))
       .catch(console.error);
+      
   }, [month, year]);
+  
 
   return (
     <>
@@ -71,7 +73,7 @@ function Home() {
             </TextField>
           
       </Box>
-
+      
       {/* Cards */}
       <Grid container spacing={3} style={{justifyContent: "space-between"}}>
         {homes.map((home) => (

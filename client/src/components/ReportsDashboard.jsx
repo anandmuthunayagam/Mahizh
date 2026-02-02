@@ -17,16 +17,16 @@ function ReportsDashboard() {
   useEffect(() => {
     const fetchReport = async () => {
       try {
-        setError("");
-        const res = await axios.get(
-          `/dashboard?month=${month}&year=${year}`
-        );
-        setData(res.data);
-      } catch (err) {
-        console.error("ReportsDashboard error:", err);
-        setError("Reports under construction");
-        setData(null);
-      }
+          setError("");
+          const res = await axios.get(
+            `/dashboard?month=${month}&year=${year}`
+          );
+          setData(res.data);
+          } catch (err) {
+              console.error("ReportsDashboard error:", err);
+              setError("Reports under construction");
+              setData(null);
+              }
     };
 
     fetchReport();

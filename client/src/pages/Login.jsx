@@ -99,10 +99,18 @@ function Login() {
               boxShadow: "0 4px 12px rgba(56,189,248,0.4)",
             }}
           />
-
+          <Box style={{ display: "flex", gap: "5px" }}>
           <Typography variant="h5" fontWeight={600}>
-            Mahizh Connect
+            Mahizh
           </Typography>
+
+          <Typography variant="h5" fontWeight={600} color="rgb(56, 189, 248)">
+            Connect
+          </Typography>
+        </Box>
+          
+            
+          
 
           <Typography
             variant="body2"

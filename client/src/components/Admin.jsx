@@ -1,5 +1,6 @@
 import React from "react";
 import CreateUser from "./createUser";
+import OwnerResidentForm from "./OwnerResidentForm";
 
 const isLoggedIn = () => {
   return !!localStorage.getItem("token");
@@ -16,8 +17,15 @@ function Admin(){
                     <>
                     <CreateUser />
                     </>
-              
+                     
                 )}
+        {isAdmin() && (
+                    <>
+                    <OwnerResidentForm />
+                    </>
+                     
+                )}
+                
         </>
     )
 

@@ -5,6 +5,8 @@ const collectionRoutes = require("./routes/collectionRoutes");
 const expenseRoutes = require("./routes/expenseRoutes");
 const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const ownerResidentRoutes = require("./routes/ownerResidentRoutes");
+const reportsRoutes = require("./routes/reportsRoutes")
 
 
 
@@ -20,6 +22,8 @@ app.use("/api/collections", collectionRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/owner-residents", ownerResidentRoutes);
+app.use("/api/reports", reportsRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
