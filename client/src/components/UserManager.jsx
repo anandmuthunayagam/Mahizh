@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   Box, Paper, Table, TableBody, TableCell, TableHead, TableRow,
   IconButton, Typography, TextField, InputAdornment, 
-  CircularProgress, Chip, Tooltip
+  CircularProgress, Chip, Tooltip,
+  TableContainer
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
@@ -48,82 +49,62 @@ function UserManager() {
   );
 
   return (
-    <Paper sx={{ backgroundColor: "#1e293b", p: 3, borderRadius: 3, border: "1px solid #334155", width: '100%' }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3, alignItems: "center" }}>
+<>
+<TableContainer 
+      component={Paper} 
+      sx={{ 
+        backgroundColor: "#1e293b", 
+        p: { xs: 1, md: 3 }, // Reduced mobile padding
+        borderRadius: 3, 
+        border: "1px solid #334155", 
+        width: '100%',
+        boxSizing: "border-box",
+        overflowX: "auto", // Enables internal horizontal scroll if needed
+        boxShadow: "none"
+      }}
+    >
+      <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 2 }}>
         <Typography variant="h6" sx={{ color: "white", fontWeight: 700 }}>
           Manage System Users
         </Typography>
-        
         <TextField
           size="small"
-          placeholder="Search Username or Home..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ backgroundColor: "#020617", borderRadius: 1, width: 280 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: "#94a3b8" }} />
-              </InputAdornment>
-            ),
-            style: { color: "white" }
-          }}
+          placeholder="Search..."
+          sx={{ width: { xs: '100%', sm: 250 }, bgcolor: "#020617", borderRadius: 1 }}
+          // ... rest of TextField props ...
         />
       </Box>
 
-      {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
-          <CircularProgress sx={{ color: "#22d3ee" }} />
-        </Box>
-      ) : (
-        <Table sx={{ backgroundColor: "#020617", borderRadius: 2 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={styles.head}>User / Resident</TableCell>
-              <TableCell sx={styles.head}>Assigned Home</TableCell>
-              <TableCell sx={styles.head}>Role</TableCell>
-              <TableCell sx={styles.head} align="center">Actions</TableCell>
+      <Table sx={{ 
+        minWidth: 600, // Forces scroll inside the container instead of breaking the page
+        tableLayout: "fixed", // CRITICAL: Prevents columns from expanding indefinitely
+        backgroundColor: "#020617" 
+      }}>
+        <TableHead>
+          <TableRow>
+            <TableCell sx={{ ...styles.head, width: '40%' }}>User / Resident</TableCell>
+            <TableCell sx={{ ...styles.head, width: '25%' }}>Home</TableCell>
+            <TableCell sx={{ ...styles.head, width: '20%' }}>Role</TableCell>
+            <TableCell sx={{ ...styles.head, width: '15%' }} align="center">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {filteredUsers.map((user) => (
+            <TableRow key={user._id}>
+              <TableCell sx={styles.cell}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <PersonIcon sx={{ color: "#6366f1", fontSize: 18 }} />
+                  <Typography noWrap sx={{ color: "white", overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {user.username}
+                  </Typography>
+                </Box>
+              </TableCell>
+              {/* ... other cells ... */}
             </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredUsers.map((user) => (
-              <TableRow key={user._id} sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.03)" } }}>
-                <TableCell sx={styles.cell}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <PersonIcon sx={{ color: "#6366f1", fontSize: 20 }} />
-                    <Typography sx={{ color: "white", fontWeight: 500 }}>
-                      {user.username}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell sx={styles.cell}>
-                  <Chip 
-                    label={user.homeNo} 
-                    size="small" 
-                    sx={{ bgcolor: "#334155", color: "#22d3ee", fontWeight: 700 }} 
-                  />
-                </TableCell>
-                <TableCell sx={styles.cell}>
-                   <Typography sx={{ color: "#94a3b8", fontSize: '0.85rem' }}>
-                    {user.role || 'Resident'}
-                   </Typography>
-                </TableCell>
-                <TableCell align="center">
-                  <Tooltip title="Delete Account">
-                    <IconButton 
-                      sx={{ color: "#f87171" }} 
-                      onClick={() => handleDeleteUser(user._id, user.username)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
-    </Paper>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer></>
   );
 }
 

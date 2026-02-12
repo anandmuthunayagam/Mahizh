@@ -45,7 +45,7 @@ function ExpenseForm({ onSuccess }) {
         year: extractedYear    // 2025
       });
 
-      console.log("Expense API response:", res);
+      
 
       if (res?.data?.success === true) {
         setTitle("");

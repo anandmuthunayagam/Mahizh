@@ -39,7 +39,7 @@ router.get("/profile", auth(), residentOnly, async (req, res) => {
    2. PAYMENT HISTORY
 ================================ */
 router.get("/payments", auth(), residentOnly, async (req, res) => {
-    console.log("REQ.USER:", req.user);
+    
   try {
     const payments = await Collection.find({
       homeNo: req.user.homeNo,

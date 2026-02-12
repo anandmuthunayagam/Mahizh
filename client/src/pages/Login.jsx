@@ -11,11 +11,9 @@ import {
   InputAdornment,
   CircularProgress,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import mahizh from '../assets/MahizhLogo.png'
-import uniquegreen from '../assets/UniqueGreen.jpg'
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import PersonIcon from "@mui/icons-material/Person";
 

@@ -86,17 +86,7 @@ router.get("/", auth(), async (req, res) => {
   }
 });
 
-// Static home-owner mapping (can be DB later)
 
-{/*
-
-const homes = [
-  { homeNumber: "G1", ownerName: "Ramesh", ownerPhone: "9876543210",residentName: "Ramesh", residentPhone: "9876543210" },
-  { homeNumber: "F1", ownerName: "Suresh", ownerPhone: "9845011223",residentName: "Suresh", residentPhone: "9845011223" },
-  { homeNumber: "F2", ownerName: "Anitha", ownerPhone: "9900177889",residentName: "Anitha", residentPhone: "9900177889" },
-  { homeNumber: "S1", ownerName: "Prakash", ownerPhone: "9988766554", residentName: "Prakash", residentPhone: "9988766554" },
-  { homeNumber: "S2", ownerName: "Lakshmi", ownerPhone: "9734522110",residentName: "Lakshmi", residentPhone: "9734522110"},
-];*/}
 
 router.get("/home-status", auth(), async (req, res) => {
   try {

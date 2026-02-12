@@ -4,7 +4,7 @@ const OwnerResident = require("../models/OwnerResident");
 const auth = require("../middleware/auth");
 const Collection = require("../models/Collection");
 
-console.log("✅ ownerResidentRoutes.js loaded");
+
 
 router.post("/", (req, res, next) => {
   console.log("Owner-resident route HIT");

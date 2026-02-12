@@ -57,7 +57,7 @@ function TopBar() {
       sx={{
         width: `calc(100% - 240px)`,
         ml: `240px`,
-        bgcolor: "#020617",
+        bgcolor: "#0F172A",
         boxShadow: "none",
         borderBottom: "1px solid #1e293b",
       }}
@@ -66,7 +66,7 @@ function TopBar() {
         
         {/* SECTION 1: Branding (Left) */}
         <Typography variant="h5" sx={{ color: "#ffffff", fontWeight: 700, letterSpacing: "-0.5px" }}>
-          Mahizh <span style={{ color: "#38bdf8" }}>Connect</span>
+          Mahizh <span style={{ color: "rgb(56, 189, 248)" }}>Connect</span>
         </Typography>
 
         {/* SECTION 2: Search Bar (Middle) */}

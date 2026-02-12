@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ReportsDashboard from "./ReportsDashboard";
 import MonthlySummary from "./MonthlySummary";
 
 import { Box, MenuItem, TextField } from "@mui/material";
@@ -16,8 +15,7 @@ function Reports(){
     const [month, setMonth] = useState(new Date().toLocaleString('default', { month: 'long' }));
     const [year, setYear] = useState(new Date().getFullYear());
     
-    console.log(month);
-    console.log(year);
+   
 
     const months = [
   "January","February","March","April","May","June",

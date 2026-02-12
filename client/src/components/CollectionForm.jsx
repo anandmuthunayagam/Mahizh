@@ -36,7 +36,7 @@ function CollectionForm({ onSuccess }) {
         year: Number(year),       // ✅ ensure number
       });
 
-      console.log("Collection API response:", res);
+      
 
       // ✅ ONLY success path
       if (res?.data?.success === true) {

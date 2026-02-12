@@ -5,9 +5,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Box,
-  Typography,
-  Divider
+  Box
 } from "@mui/material";
 import {
   Dashboard,
@@ -18,8 +16,6 @@ import {
 } from "@mui/icons-material";
 import { NavLink, useNavigate } from "react-router-dom";
 import mahizh from '../assets/MahizhLogo.png'
-import LogoutButton from "./LogoutButton";
-import MahizhConnect from "./MahizhConnect";
 import PeopleIcon from '@mui/icons-material/People';
 
 const drawerWidth = 240;

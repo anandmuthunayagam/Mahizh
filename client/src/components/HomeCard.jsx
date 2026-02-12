@@ -75,7 +75,7 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
             alignItems="center"
             mb={1}
           >
-            <Typography variant="h6">{home.homeNo}</Typography>
+            <Typography variant="h6" fontWeight='bold' color="#B87333">{home.homeNo}</Typography>
             <Chip
               label={isPaid ? "PAID" : "PENDING"}
               color={isPaid ? "success" : "warning"}
@@ -111,6 +111,7 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
           >
             Contact: {home.owner.phone}
           </Typography>
+          <br></br>
            {/* Owner */}
           <Typography 
             noWrap // Truncates with "..."

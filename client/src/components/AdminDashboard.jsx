@@ -33,7 +33,7 @@ function AdminDashboard() {
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", width: "100vw", bgcolor: "#020617", overflow: "hidden" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", width: "100%", bgcolor: "#020617", overflow: "hidden" }}>
       
       {/* LEVEL 1: MAIN PILLARS */}
       <Box sx={{ borderBottom: 1, borderColor: "#1e293b", bgcolor: "#0f172a", px: 2 }}>
