@@ -64,6 +64,7 @@ const auth = (roles = []) => {
     try {
       // 3️⃣ Verify token (MUST match login secret)
       const decoded = jwt.verify(token, "SECRET_KEY");
+      console.log("Decoded JWT:", decoded);
 
       // 4️⃣ Role check (only if roles passed)
       if (roles.length && !roles.includes(decoded.role)) {

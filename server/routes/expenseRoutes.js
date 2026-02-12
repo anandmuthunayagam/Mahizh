@@ -2,66 +2,66 @@ const express = require("express");
 const router = express.Router();
 const Expense = require("../models/Expense");
 const auth = require("../middleware/auth");
-const {
-  addExpense,
-  getExpenses
-} = require("../controllers/expenseControllers.js");
 
-
-/**
- * GET all expenses
- */
 router.get("/", auth(), async (req, res) => {
   try {
-    const expenses = await Expense.find().sort({ createdAt: -1 });
-    return res.status(200).json(expenses);
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to fetch expenses",
-    });
-  }
-});
+    const { month, year, startDate, endDate } = req.query;
+    let query = {};
 
-/**
- * POST create expense (ADMIN)
- */
-router.post("/", auth(["admin"]), async (req, res) => {
-  try {
-    const { title, amount, date } = req.body;
+    if (month) query.month = month;
+    if (year) query.year = Number(year);
 
-    if (!title || !amount || !date) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+    if (startDate && endDate && !month) {
+      query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
     }
 
-    const expense = new Expense({
-      title,
-      amount,
-      date,
-    });
-
-    await expense.save();
-
-    // ✅ CRITICAL FIX
-    return res.status(201).json({
-      success: true,
-      message: "Expense added successfully",
-      data: expense,
-    });
+    const expenses = await Expense.find(query).sort({ date: -1 });
+    res.status(200).json(expenses);
   } catch (err) {
-    console.error("Expense POST error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Failed to add expense",
-    });
+    res.status(500).json({ message: "Fetch failed" });
   }
 });
 
-//Protect APIs
-router.post("/", auth(["admin"]), addExpense);
-router.get("/", auth(["admin", "user"]), getExpenses);
+router.post("/", auth(["admin"]), async (req, res) => {
+  try {
+    const { title, amount, date, month, year } = req.body;
+    if (!title || !amount || !date || !month || !year) {
+      return res.status(400).json({ success: false, message: "Missing fields" });
+    }
+    const expense = new Expense({ title, amount, date, month, year });
+    await expense.save();
+    return res.status(201).json({ success: true, data: expense });
+  } catch (err) {
+    return res.status(500).json({ success: false, message: "Add failed" });
+  }
+});
+
+
+/**
+ * PUT update expense (Includes month/year update support)
+ */
+router.put("/:id", auth(["admin"]), async (req, res) => {
+  try {
+    const { title, amount, date, month, year } = req.body;
+    const updatedExpense = await Expense.findByIdAndUpdate(
+      req.params.id,
+      { title, amount, date, month, year },
+      { new: true }
+    );
+    res.status(200).json({ success: true, data: updatedExpense });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Update failed" });
+  }
+});
+
+router.delete("/:id", auth(["admin"]), async (req, res) => {
+  try {
+    await Expense.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: "Deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Delete failed" });
+  }
+});
+
 
 module.exports = router;

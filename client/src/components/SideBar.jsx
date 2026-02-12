@@ -17,13 +17,20 @@ import {
   Logout
 } from "@mui/icons-material";
 import { NavLink, useNavigate } from "react-router-dom";
-import mahizh from "../assets/Mahizh.jpg";
+import mahizh from '../assets/MahizhLogo.png'
 import LogoutButton from "./LogoutButton";
 import MahizhConnect from "./MahizhConnect";
 import PeopleIcon from '@mui/icons-material/People';
 
 const drawerWidth = 240;
 
+const isLoggedIn = () => {
+  return !!localStorage.getItem("token");
+};
+
+const isAdmin = () => {
+  return localStorage.getItem("role") === "admin";
+};
 
 
 function Sidebar() {
@@ -63,41 +70,46 @@ function Sidebar() {
   {/* Gradient Ring */}
   <Box
     sx={{
-      background: "linear-gradient(135deg, #6366F1, #22D3EE)",
-      padding: "3px",
-      borderRadius: "50%",
-      boxShadow: "0 0 18px rgba(99,102,241,0.45)",
-      mb: 1,
+      
     }}
   >
     {/* Logo */}
     <Box
-      sx={{
-        backgroundColor: "#0F172A",
-        borderRadius: "50%",
-        p: 1,
-      }}
-    >
-      <img
-        src={mahizh}
-        alt="Mahizh Logo"
-        style={{
-          height: 100,
-          width: 100,
-          borderRadius: "50%",
-        }}
-      />
-    </Box>
+                component="img"
+                src={mahizh}
+                alt="Apartment Logo"
+                    
+                sx={{
+                  height: 120,
+                  width: 120,
+                  mb: 1,
+                  borderRadius: "50%",
+                  boxShadow: "0 4px 12px rgba(56,189,248,0.4)",
+                 }}
+                
+              />
   </Box>
       </Box>
 
       {/* MENU */}
       <List>
         <NavItem to="/mahizhconnect" icon={<PeopleIcon />} text="Mahizh Connect" />
-       
         <NavItem to="/dashboard" icon={<Dashboard />} text="Dashboard" />
-        <NavItem to="/admin" icon={<AdminPanelSettings />} text="Admin" />
-        <NavItem to="/reports" icon={<BarChart />} text="Reports" />
+         {isAdmin() && (
+          <>
+          
+          <NavItem to="/reports" icon={<BarChart />} text="Reports" />
+          <NavItem to="/admindashboard" icon={<AdminPanelSettings />} text="Admin Panel" />
+          </>
+         )}
+         {!isAdmin() && (
+          <>
+          <NavItem to="/myhome" icon={<Home />} text="My Home" />
+          <NavItem to="/mypayments" icon={<BarChart />} text="My Payments" />
+          </>
+         )}
+                   
+        
         <NavItem to="/login" icon={<Logout />} text="Logout" onClick={handleLogout}/>
         
       </List>

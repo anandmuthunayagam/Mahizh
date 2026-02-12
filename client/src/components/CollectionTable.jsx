@@ -1,58 +1,48 @@
 import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-} from "@mui/material";
+import { Table, TableBody, TableCell, TableHead, TableRow, Paper, Box } from "@mui/material";
 import axios from "../utils/api/axios";
 
-function CollectionTable({ refreshKey }) {
+function CollectionTable({ refreshKey, filterMonth, filterYear }) {
   const [collections, setCollections] = useState([]);
 
   useEffect(() => {
-    axios.get("/collections").then(res => setCollections(res.data));
-  }, [refreshKey]);
+    const fetchFiltered = async () => {
+      try {
+        const res = await axios.get("/collections", {
+          params: { month: filterMonth, year: filterYear }
+        });
+        setCollections(res.data);
+      } catch (err) {
+        console.error("Fetch failed", err);
+      }
+    };
+    fetchFiltered();
+  }, [refreshKey, filterMonth, filterYear]);
 
   return (
-    <Paper
-      sx={{
-        backgroundColor: "#020617",
-        borderRadius: 3,
-        p: 2,
-        mb: 4,
-        border: "1px solid #1e293b",
-      }}
-    >
-      <Typography sx={{ color: "#e5e7eb", mb: 2, fontWeight: 600 }}>
-        Collections
-      </Typography>
-
+    <Paper elevation={0} sx={{ backgroundColor: "#020617", borderRadius: 2, overflow: "hidden" }}>
       <Table>
         <TableHead>
-          <TableRow>
-            {["Home", "Month", "Year", "Amount"].map(h => (
-              <TableCell key={h} sx={{ color: "#94a3b8" }}>
+          <TableRow sx={{ bgcolor: "#1e293b" }}>
+            {["Home No", "Month", "Year", "Amount"].map((h) => (
+              <TableCell key={h} sx={{ color: "#94a3b8", fontWeight: 700, borderBottom: "none", textTransform: "uppercase", fontSize: "0.85rem" }}>
                 {h}
               </TableCell>
             ))}
           </TableRow>
         </TableHead>
-
         <TableBody>
-          {collections.map(c => (
-            <TableRow key={c._id}>
-              <TableCell sx={{ color: "white" }}>{c.homeNumber}</TableCell>
-              <TableCell sx={{ color: "white" }}>{c.month}</TableCell>
-              <TableCell sx={{ color: "white" }}>{c.year}</TableCell>
-              <TableCell sx={{ color: "#22c55e", fontWeight: 600 }}>
-                ₹{c.amount}
-              </TableCell>
+          {collections.map((c) => (
+            <TableRow key={c._id} sx={{ '&:hover': { bgcolor: "rgba(99, 102, 241, 0.05)" } }}>
+              <TableCell sx={{ color: "white", borderBottom: "1px solid #1e293b" }}>{c.homeNo}</TableCell>
+              <TableCell sx={{ color: "white", borderBottom: "1px solid #1e293b" }}>{c.month}</TableCell>
+              <TableCell sx={{ color: "white", borderBottom: "1px solid #1e293b" }}>{c.year}</TableCell>
+              <TableCell sx={{ color: "#22c55e", fontWeight: 700, borderBottom: "1px solid #1e293b" }}>₹{c.amount.toLocaleString()}</TableCell>
             </TableRow>
           ))}
+          {collections.length === 0 && (
+            <TableRow><TableCell colSpan={4} align="center" sx={{ color: "#475569", py: 4 }}>No records found for this period.</TableCell></TableRow>
+          )}
         </TableBody>
       </Table>
     </Paper>

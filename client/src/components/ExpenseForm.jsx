@@ -10,6 +10,12 @@ import {
 } from "@mui/material";
 import axios from "../utils/api/axios";
 
+// Constants for extraction
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
 function ExpenseForm({ onSuccess }) {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
@@ -18,18 +24,29 @@ function ExpenseForm({ onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!date) return alert("Please select a date"); // Validation check
     setLoading(true);
 
     try {
+      // 1. Create a Date object from the yyyy-mm-dd string
+      // Note: yyyy-mm-dd strings are treated as UTC by default in JavaScript
+      const dateObj = new Date(date);
+      
+      // 2. Extract Month Name and Year using UTC to avoid timezone shifts
+      const extractedMonth = MONTH_NAMES[dateObj.getUTCMonth()];
+      const extractedYear = dateObj.getUTCFullYear();
+
+      // 3. Send updated payload to match your new Expense.js model
       const res = await axios.post("/expenses", {
         title,
-        amount: Number(amount),   // ✅ ensure number
-        date,                     // yyyy-mm-dd
+        amount: Number(amount),
+        date,               // Original date string for the Date field
+        month: extractedMonth, // "February"
+        year: extractedYear    // 2025
       });
 
       console.log("Expense API response:", res);
 
-      // ✅ ONLY treat explicit success as success
       if (res?.data?.success === true) {
         setTitle("");
         setAmount("");
@@ -38,7 +55,6 @@ function ExpenseForm({ onSuccess }) {
         return;
       }
 
-      // ❌ backend responded but not success
       throw new Error(res?.data?.message || "Unexpected API response");
 
     } catch (err) {
@@ -51,78 +67,89 @@ function ExpenseForm({ onSuccess }) {
 
   return (
     <Paper
-      elevation={8}
+      elevation={0}
       sx={{
-        backgroundColor: "#020617",
+        backgroundColor: "#1e293b",
         borderRadius: 3,
-        p: 3,
-        maxWidth: 420,
-        border: "1px solid #1e293b",
+        p: 1,
+        maxWidth: 500,
+        border: "1px solid #334155",
+        mb: 4,
       }}
     >
-      <Typography sx={{ color: "#e5e7eb", mb: 2, fontWeight: 600 }}>
-        Add Expense
-      </Typography>
+      <Paper
+        elevation={8}
+        sx={{
+          backgroundColor: "#020617",
+          borderRadius: 3,
+          p: 1,
+          maxWidth: 420,
+          border: "1px solid #1e293b",
+        }}
+      >
+        <Box component="form" onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Expense Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            margin="normal"
+            required
+            InputLabelProps={{ style: { color: "#cbd5f5" } }}
+            InputProps={{ style: { color: "white" } }}
+          />
 
-      <Box component="form" onSubmit={handleSubmit}>
-        <TextField
-          fullWidth
-          label="Expense Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          margin="normal"
-          InputLabelProps={{ style: { color: "#cbd5f5" } }}
-          InputProps={{ style: { color: "white" } }}
-        />
+          <TextField
+            fullWidth
+            type="number"
+            label="Amount (₹)"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            margin="normal"
+            required
+            InputLabelProps={{ style: { color: "#cbd5f5" } }}
+            InputProps={{ style: { color: "white" } }}
+          />
 
-        <TextField
-          fullWidth
-          type="number"
-          label="Amount (₹)"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          margin="normal"
-          InputLabelProps={{ style: { color: "#cbd5f5" } }}
-          InputProps={{ style: { color: "white" } }}
-        />
+          <TextField
+            fullWidth
+            type="date"
+            label="Date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            margin="normal"
+            required
+            InputLabelProps={{
+              shrink: true,
+              style: { color: "#cbd5f5" },
+            }}
+            InputProps={{ style: { color: "white" } }}
+          />
 
-        <TextField
-          fullWidth
-          type="date"
-          label="Date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          margin="normal"
-          InputLabelProps={{
-            shrink: true,
-            style: { color: "#cbd5f5" },
-          }}
-          InputProps={{ style: { color: "white" } }}
-        />
+          <Button
+            type="submit"
+            fullWidth
+            disabled={loading}
+            sx={{
+              mt: 3,
+              height: 48,
+              borderRadius: 2,
+              fontWeight: 600,
+              background: "linear-gradient(135deg, #6366f1, #22d3ee)",
+              color: "white",
+              "&:hover": { opacity: 0.9 },
+            }}
+          >
+            {loading ? (
+              <CircularProgress size={22} sx={{ color: "white" }} />
+            ) : (
+              "Add Expense"
+            )}
+          </Button>
 
-        <Button
-          type="submit"
-          fullWidth
-          disabled={loading}
-          sx={{
-            mt: 3,
-            height: 48,
-            borderRadius: 2,
-            fontWeight: 600,
-            background: "linear-gradient(135deg, #6366f1, #22d3ee)",
-            color: "white",
-            "&:hover": { opacity: 0.9 },
-          }}
-        >
-          {loading ? (
-            <CircularProgress size={22} sx={{ color: "white" }} />
-          ) : (
-            "Add Expense"
-          )}
-        </Button>
-
-        <Divider sx={{ borderColor: "#1E293B", mt: 3 }} />
-      </Box>
+          <Divider sx={{ borderColor: "#1E293B", mt: 3 }} />
+        </Box>
+      </Paper>
     </Paper>
   );
 }

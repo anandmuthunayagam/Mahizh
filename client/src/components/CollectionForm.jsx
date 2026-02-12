@@ -18,7 +18,7 @@ const months = [
 ];
 
 function CollectionForm({ onSuccess }) {
-  const [homeNumber, setHomeNumber] = useState("");
+  const [homeNo, sethomeNo] = useState("");
   const [amount, setAmount] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
@@ -30,7 +30,7 @@ function CollectionForm({ onSuccess }) {
 
     try {
       const res = await axios.post("/collections", {
-        homeNumber,
+        homeNo,
         amount: Number(amount),   // ✅ ensure number
         month,
         year: Number(year),       // ✅ ensure number
@@ -40,7 +40,7 @@ function CollectionForm({ onSuccess }) {
 
       // ✅ ONLY success path
       if (res?.data?.success === true) {
-        setHomeNumber("");
+        sethomeNo("");
         setAmount("");
         setMonth("");
         setYear("");
@@ -61,6 +61,16 @@ function CollectionForm({ onSuccess }) {
 
   return (
     <Paper
+              elevation={0}
+              sx={{
+                backgroundColor: "#1e293b", // Outer card color
+                borderRadius: 3,
+                p: 1,
+                maxWidth: 500,
+                border: "1px solid #334155",
+                mb: 4,
+              }}>
+    <Paper
       elevation={8}
       sx={{
         backgroundColor: "#020617",
@@ -70,17 +80,15 @@ function CollectionForm({ onSuccess }) {
         border: "1px solid #1e293b",
       }}
     >
-      <Typography sx={{ color: "#e5e7eb", mb: 2, fontWeight: 600 }}>
-        Add Monthly Collection
-      </Typography>
+      
 
       <Box component="form" onSubmit={handleSubmit}>
         <TextField
           select
           fullWidth
           label="Home Number"
-          value={homeNumber}
-          onChange={(e) => setHomeNumber(e.target.value)}
+          value={homeNo}
+          onChange={(e) => sethomeNo(e.target.value)}
           margin="normal"
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
@@ -156,6 +164,7 @@ function CollectionForm({ onSuccess }) {
 
         <Divider sx={{ borderColor: "#1E293B", mt: 3 }} />
       </Box>
+    </Paper>
     </Paper>
   );
 }

@@ -18,7 +18,7 @@ router.get("/monthly-summary", auth(), async (req, res) => {
     );
 
     // 2️⃣ Total Expense (filter by month/year from date)
-    const expenses = await Expense.find();
+    const expenses = await Expense.find({ month, year });
     const filteredExpenses = expenses.filter(e => {
       const d = new Date(e.date);
       return (
@@ -27,14 +27,14 @@ router.get("/monthly-summary", auth(), async (req, res) => {
       );
     });
 
-    const totalExpense = filteredExpenses.reduce(
+    const totalExpense = expenses.reduce(
       (sum, e) => sum + Number(e.amount),
       0
     );
 
     // 3️⃣ Paid & Pending Homes
     const allHomes = await OwnerResident.find();
-    const paidHomes = collections.map(c => c.homeNumber);
+    const paidHomes = collections.map(c => c.homeNo);
 
     const paid = [];
     const pending = [];

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const collectionSchema = new mongoose.Schema(
   {
-    homeNumber: String,
+    homeNo: String, // Changed from homeNumber
     amount: Number,
     month: String,
     year: Number,

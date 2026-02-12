@@ -110,4 +110,36 @@ router.post("/admin/create-user", auth(["admin"]), async (req, res) => {
   }
 });
 
+//Admin → Get all users
+router.get("/admin/users", auth(["admin"]), async (req, res) => {
+  try {
+    const users = await User.find({}, { password: 0 }); // Exclude password field
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+//Admin -> Delete user
+router.delete("/admin/users/:id", auth(["admin"]), async (req, res) => {
+  try { 
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "User deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+//Admin -> Update user
+router.put("/admin/users/:id", auth(["admin"]), async (req, res) => {
+  try {
+    const { username, password, homeNo } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await User.findByIdAndUpdate(req.params.id, { username, password: hashedPassword, homeNo });
+    res.json({ message: "User updated" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}); 
 module.exports = router;
+

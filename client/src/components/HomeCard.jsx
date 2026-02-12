@@ -11,16 +11,19 @@ import {
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { motion } from "framer-motion";
 
-import G1 from "../assets/homes/G1.png";
-import F1 from "../assets/homes/F1.png";
-import F2 from "../assets/homes/F2.png";
-import S1 from "../assets/homes/S1.png";
-import S2 from "../assets/homes/S2.png";
+import G1 from "../assets/homes/Gemini_G1.png";
+import F1 from "../assets/homes/Gemini_F1.png";
+import F2 from "../assets/homes/Gemini_F2.png";
+import S1 from "../assets/homes/Gemini_S1.png";
+import S2 from "../assets/homes/Gemini_S2.png";
 
 const homeImages = { G1, F1, F2, S1, S2 };
 
 function HomeCard({ home, selectedMonth, selectedYear }) {
   const isPaid = home.status === "PAID";
+  const isAdmin = () => {
+    return localStorage.getItem("role") === "admin";
+  };
 
   const whatsappMessage = encodeURIComponent(
     `Hello ${home.ownerName},\n\n` +
@@ -60,8 +63,8 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
         <CardMedia
           component="img"
           height="160"
-          image={homeImages[home.homeNumber]}
-          alt={home.homeNumber}
+          image={homeImages[home.homeNo]}
+          alt={home.homeNo}
         />
 
         <CardContent>
@@ -72,7 +75,7 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
             alignItems="center"
             mb={1}
           >
-            <Typography variant="h6">{home.homeNumber}</Typography>
+            <Typography variant="h6">{home.homeNo}</Typography>
             <Chip
               label={isPaid ? "PAID" : "PENDING"}
               color={isPaid ? "success" : "warning"}
@@ -81,15 +84,65 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
           </Box>
 
           {/* Owner */}
-          <Typography variant="body2" sx={{ opacity: 0.8 }}>
-            Owner: {home.ownerName}
+          <Typography 
+            noWrap // Truncates with "..."
+            // OR use line-clamp for multi-line truncation:
+            sx={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontSize: '0.75rem',
+            }}
+          >
+            Owner: {home.owner.name}
           </Typography>
-          <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-            Contact: {home.ownerContact}
+          <Typography 
+            noWrap // Truncates with "..."
+            // OR use line-clamp for multi-line truncation:
+            sx={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              color:"#38bdf8",
+              fontSize: '0.75rem',
+            }}
+          >
+            Contact: {home.owner.phone}
+          </Typography>
+           {/* Owner */}
+          <Typography 
+            noWrap // Truncates with "..."
+            // OR use line-clamp for multi-line truncation:
+            sx={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              fontSize: '0.75rem',
+            }}
+          >
+            Resident: {home.resident.name}
+          </Typography>
+          <Typography 
+            noWrap // Truncates with "..."
+            // OR use line-clamp for multi-line truncation:
+            sx={{
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              color:"#38bdf8",
+              fontSize: '0.75rem',
+            }}
+          >
+            Contact: {home.resident.phone}
           </Typography>
 
           {/* WhatsApp Button */}
-          {!isPaid && (
+         
+          {isAdmin() && !isPaid ? (
             <Button
               fullWidth
               variant="contained"
@@ -100,6 +153,7 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
                 backgroundColor: "#25D366",
                 color: "#000",
                 fontWeight: "bold",
+                fontSize: '0.75rem',
                 "&:hover": {
                   backgroundColor: "#1ebe5d",
                 },
@@ -107,7 +161,8 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
             >
               Send Reminder
             </Button>
-          )}
+          ) : null}
+        
         </CardContent>
       </Card>
     </motion.div>

@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { Grid, Box, TextField, MenuItem, Typography } from "@mui/material";
+import React, { useEffect, useState, useRef } from "react";
+import { Grid, Box, TextField, MenuItem, Typography, Button, Paper, Stack, Fade } from "@mui/material";
+import ImageIcon from '@mui/icons-material/Image';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import { toPng } from 'html-to-image';
 import axios from "../utils/api/axios";
 import HomeCard from "./HomeCard";
-
+import mahizh from '../assets/MahizhLogo.png'; // Ensure path matches Dashboard.jsx
 
 const months = [
   "January","February","March","April","May","June",
@@ -12,77 +15,167 @@ const months = [
 function Home() {
   const [homes, setHomes] = useState([]);
   const [month, setMonth] = useState("January");
-  const year = 2026;
+  const [year, setYear] = useState(2026);
+  const contentRef = useRef(null);
+  const [isExporting, setIsExporting] = useState(false); // Controls header visibility for export
+  
+  const startYear = 2026;
+  const currentYearValue = new Date().getFullYear();
+  const YEARS = Array.from({ length: currentYearValue - startYear + 2 }, (_, i) => startYear + i).reverse();
 
+  const isAdmin = () => localStorage.getItem("role") === "admin";
+  
   useEffect(() => {
-    axios
-      .get("/dashboard/home-status", {
-        params: { month, year },
-      })
+    axios.get("/owner-residents/home-status", { params: { month, year } })
       .then((res) => setHomes(res.data))
       .catch(console.error);
-      
   }, [month, year]);
-  
+
+  const exportImage = async () => {
+    if (contentRef.current === null) return;
+    
+    setIsExporting(true); // 1. Show header for capture
+
+    try {
+      // 2. Small delay to allow React to render the header
+      setTimeout(async () => {
+        const dataUrl = await toPng(contentRef.current, { 
+          cacheBust: true,
+          backgroundColor: "#020617",
+          filter: (node) => !(node.classList && node.classList.contains('no-export')),
+          style: { padding: '20px' }
+        });
+        
+        const link = document.createElement('a');
+        link.download = `Mahizh_Payments_${month}.png`;
+        link.href = dataUrl;
+        link.click();
+        
+        
+        
+        setIsExporting(false); // 4. Hide header again
+      }, 150);
+    } catch (err) {
+      console.error('Export failed', err);
+      setIsExporting(false);
+    }
+  };
 
   return (
-    <>
-    <Typography variant="h5" sx={{ color: "white", mb: 3, fontWeight: 600 }}>Payment Insights</Typography>
-    
-      {/* Month Selector */}
-      <Box sx={{ mb: 3, maxWidth: 220,display:"flex",gap:"10px" }}>
-        <TextField
-            select
-            fullWidth
-            label="Month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            sx={{
-              bgcolor: "#1e1e1e",
-              borderRadius: 1,
-              "& .MuiInputLabel-root": { color: "#bbb" },
-              "& .MuiOutlinedInput-root": {
-                color: "#fff",
-                "& fieldset": { borderColor: "#444" },
-                "&:hover fieldset": { borderColor: "#777" },
-              },
-            }}
-            >
-              {months.map((m) => (
-            <MenuItem key={m} value={m}>
-              {m}
-            </MenuItem>
-          ))}
-            </TextField>
-            <TextField
-            
-            fullWidth
-            label="Year"
-            value="2026"
-            sx={{
-              bgcolor: "#1e1e1e",
-              borderRadius: 1,
-              "& .MuiInputLabel-root": { color: "#bbb" },
-              "& .MuiOutlinedInput-root": {
-                color: "#fff",
-                "& fieldset": { borderColor: "#444" },
-                "&:hover fieldset": { borderColor: "#777" },
-              },
-            }}
-            >
-            </TextField>
-          
+    <Fade in={true} timeout={800}>
+      <Box ref={contentRef} sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}>
+        
+        {/* --- PDF & IMAGE HEADER (Visible only during export) --- */}
+        <Box 
+          className="print-header" 
+          sx={{ 
+            display: isExporting ? 'flex' : 'none', 
+            mb: 4, 
+            pb: 2, 
+            borderBottom: isExporting ? '2px solid #1E293B' : 'none' 
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, width: '100%' }}>
+              {/* Logo on the left */}
+              <Box sx={{ height: 120, width: 120, borderRadius: "50%", overflow: 'hidden', border: '2px solid #38bdf8' }}>
+                <img src={mahizh} alt="Logo" style={{ width: '100%', height: '100%' }} />
+              </Box>
+
+              {/* Mahizh Connect pushed to the right */}
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'row', 
+                gap: 1, 
+                marginLeft: 'auto' 
+              }}>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: isExporting ? 'white' : 'black' }}>
+                  Mahizh
+                </Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: isExporting ? 'rgb(56, 189, 248)' : 'black' }}>
+                  Connect
+                </Typography>
+              </Box>
+          </Box>
+        </Box>
+
+        <Typography variant="h5" sx={{ color: "white", mb: 3, fontWeight: 600 }}>
+          Maintenance Collections Insights - {month} {year}
+        </Typography>
+
+        {/* Control Group (Hidden in image export) */}
+        {isAdmin() && (
+          <Box 
+            className="no-export" 
+            sx={{ mb: 4, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}
+          >
+           
+
+            <Paper sx={{ p: 1, bgcolor: "#1e1e1e", display: 'flex', gap: 1.5, borderRadius: 2, border: "1px solid #444" }}>
+              <TextField
+                select size="small" label="Month" value={month}
+                onChange={(e) => setMonth(e.target.value)}
+                sx={{ width: 130, "& .MuiOutlinedInput-root": { color: "white" } }}
+                InputLabelProps={{ style: { color: "#bbb" } }}
+              >
+                {months.map((m) => <MenuItem key={m} value={m}>{m}</MenuItem>)}
+              </TextField>
+              <TextField
+                select size="small" label="Year" value={year}
+                onChange={(e) => setYear(e.target.value)}
+                sx={{ width: 100, "& .MuiOutlinedInput-root": { color: "white" } }}
+                InputLabelProps={{ style: { color: "#bbb" } }}
+              >
+                {YEARS.map((y) => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+              </TextField>
+            </Paper>
+             <Button
+              variant="contained"
+              startIcon={<PhotoCameraIcon />}
+              onClick={exportImage}
+              sx={{
+                bgcolor: "#3b82f6",
+                fontWeight: 700,
+                textTransform: 'none',
+                height: 30,
+                minWidth: 0, // Reduces extra horizontal padding
+                '& .MuiButton-startIcon': { 
+                  margin: 0 // Removes the right margin intended for text
+                }
+              }}
+            />
+          </Box>
+        )}
+
+        <Grid container spacing={3}>
+  {homes.map((home) => (
+    <Grid 
+      item 
+      key={home.homeNo} 
+      xs={12} 
+      sm={6} 
+      md={4} 
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        // This is the "magic" fix for content-driven width issues:
+        flex: '1 1 0', 
+        minWidth: 0 
+      }}
+    >
+      <HomeCard 
+        home={home} 
+        sx={{ 
+          width: '100%', 
+          height: '100%', // Makes cards equal height in the same row
+          display: 'flex',
+          flexDirection: 'column'
+        }} 
+      />
+    </Grid>
+  ))}
+</Grid>
       </Box>
-      
-      {/* Cards */}
-      <Grid container spacing={3} style={{justifyContent: "space-between"}}>
-        {homes.map((home) => (
-          <Grid item xs={12} sm={6} md={4} key={home.homeNumber}>
-            <HomeCard home={home} />
-          </Grid>
-        ))}
-      </Grid>
-    </>
+    </Fade>
   );
 }
 

@@ -13,10 +13,21 @@ const expenseSchema = new mongoose.Schema(
     date: {
       type: Date,
       required: true
+    },
+    // New fields for easier filtering
+    month: {
+      type: String, // e.g., "January"
+      required: true
+    },
+    year: {
+      type: Number, // e.g., 2025
+      required: true
     }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Expense", expenseSchema);
+// Optional: Add an index to make filtering by month/year faster
+expenseSchema.index({ year: -1, month: 1 });
 
+module.exports = mongoose.model("Expense", expenseSchema);

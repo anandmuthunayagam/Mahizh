@@ -1,6 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Box, InputBase, alpha, styled } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useNavigate } from "react-router-dom";
 
 // --- Styled Components for Search ---
 const SearchContainer = styled("div")(({ theme }) => ({
@@ -39,6 +40,15 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 function TopBar() {
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Clear token from Login.jsx
+    localStorage.removeItem("role");  // Clear role from Login.jsx
+    navigate("/login");
+  };  
+
   const userRole = localStorage.getItem("role") || "Guest";
 
   return (
@@ -76,10 +86,14 @@ function TopBar() {
             Welcome,
           </Typography>
           <Typography
+            onClick={handleLogout}
+            title="Click to logout"
             sx={{
               color: "#38bdf8",
               fontWeight: 600,
               textTransform: "capitalize",
+              cursor: "pointer",
+              alt:"Logout",
             }}
           >
             {userRole}

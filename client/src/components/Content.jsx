@@ -10,6 +10,9 @@ import Admin from "./Admin";
 import Reports from "./Reports";
 import LogoutButton from "./LogoutButton";
 import MahizhConnect from "./MahizhConnect";
+import ResidentDashboard from "../pages/ResidentDashboard";
+import MyPayments from "../pages/MyPayment";
+import AdminDashboard from "./AdminDashboard";
 
 
 
@@ -52,6 +55,9 @@ function Content() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/myhome" element={<ResidentDashboard />} />
+          <Route path="/mypayments" element={<MyPayments />} />
+          <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/logout" element={<LogoutButton />} />
         </Routes>
       </ErrorBoundary>

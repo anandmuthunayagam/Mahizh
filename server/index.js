@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const ownerResidentRoutes = require("./routes/ownerResidentRoutes");
 const reportsRoutes = require("./routes/reportsRoutes")
+const residentRoutes = require("./routes/residentRoutes");
 
 
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/owner-residents", ownerResidentRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/resident", residentRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
