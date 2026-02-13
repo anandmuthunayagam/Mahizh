@@ -10,6 +10,7 @@ import {
   Divider,
 } from "@mui/material";
 import axios from "../utils/api/axios";
+import { useSnackbar } from "../utils/context/SnackbarContext";
 
 const homes = ["G1", "F1", "F2", "S1", "S2"];
 const months = [
@@ -23,6 +24,7 @@ function CollectionForm({ onSuccess }) {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [loading, setLoading] = useState(false);
+  const showSnackbar = useSnackbar();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,16 +46,17 @@ function CollectionForm({ onSuccess }) {
         setAmount("");
         setMonth("");
         setYear("");
-        onSuccess?.();
+        onSuccess?.(showSnackbar("Collection added successfully!", "success"));
         return;
       }
 
       // ❌ Backend responded but not success
       throw new Error(res?.data?.message || "Unexpected API response");
+      
 
     } catch (err) {
       console.error("Add collection failed:", err);
-      alert(err?.response?.data?.message || "Failed to add collection");
+      showSnackbar(err?.response?.data?.message || "Failed to add collection", "error");
     } finally {
       setLoading(false);
     }

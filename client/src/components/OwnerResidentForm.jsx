@@ -9,6 +9,7 @@ import {
   Divider,
 } from "@mui/material";
 import axios from "../utils/api/axios";
+import { useSnackbar } from "../utils/context/SnackbarContext";
 
 const homes = ["G1", "F1", "F2", "S1", "S2"];
 
@@ -19,6 +20,7 @@ function OwnerResidentForm({ onSuccess }) {
   const [residentName, setResidentName] = useState("");
   const [residentPhone, setResidentPhone] = useState("");
   const [loading, setLoading] = useState(false);
+  const showSnackbar = useSnackbar()
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,9 +36,9 @@ function OwnerResidentForm({ onSuccess }) {
       setHomeNo(""); setOwnerName(""); setOwnerPhone("");
       setResidentName(""); setResidentPhone("");
       onSuccess?.();
-      alert("Owner & Resident saved successfully");
+      showSnackbar("Owner & Resident details saved successfully!", "success");
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to save");
+      showSnackbar(err.response?.data?.message || "Failed to save", "error");
     } finally {
       setLoading(false);
     }

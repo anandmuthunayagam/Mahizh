@@ -9,6 +9,7 @@ import {
   Divider,
 } from "@mui/material";
 import axios from "../utils/api/axios";
+import { useSnackbar } from "../utils/context/SnackbarContext";
 
 // Constants for extraction
 const MONTH_NAMES = [
@@ -21,10 +22,12 @@ function ExpenseForm({ onSuccess }) {
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const showSnackbar = useSnackbar();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!date) return alert("Please select a date"); // Validation check
+    
     setLoading(true);
 
     try {
@@ -51,7 +54,7 @@ function ExpenseForm({ onSuccess }) {
         setTitle("");
         setAmount("");
         setDate("");
-        onSuccess?.();
+        onSuccess?.(showSnackbar("Expense added successfully!", "success"));
         return;
       }
 
@@ -59,7 +62,7 @@ function ExpenseForm({ onSuccess }) {
 
     } catch (err) {
       console.error("Add expense failed:", err);
-      alert(err?.response?.data?.message || "Failed to add Expense");
+      showSnackbar(err?.response?.data?.message || "Failed to add Expense", "error");
     } finally {
       setLoading(false);
     }
@@ -112,19 +115,42 @@ function ExpenseForm({ onSuccess }) {
           />
 
           <TextField
-            fullWidth
-            type="date"
-            label="Date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            margin="normal"
-            required
-            InputLabelProps={{
-              shrink: true,
-              style: { color: "#cbd5f5" },
-            }}
-            InputProps={{ style: { color: "white" } }}
-          />
+  fullWidth
+  type="date"
+  label="Date"
+  value={date}
+  onChange={(e) => setDate(e.target.value)}
+  margin="normal"
+  required
+  InputLabelProps={{
+    shrink: true,
+    style: { color: "#cbd5f5" },
+  }}
+  sx={{
+    // Main input text color
+    "& .MuiInputBase-input": {
+      color: "white",
+    },
+    // Styling the calendar icon for Chrome/Safari/Edge
+    "& input::-webkit-calendar-picker-indicator": {
+      filter: "invert(100%)", // This flips the black icon to white
+      cursor: "pointer",
+    },
+    // Background and border styling to match your theme
+    "& .MuiOutlinedInput-root": {
+      backgroundColor: "#020617",
+      "& fieldset": {
+        borderColor: "#334155",
+      },
+      "&:hover fieldset": {
+        borderColor: "#6366f1",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#22d3ee",
+      },
+    },
+  }}
+/>
 
           <Button
             type="submit"

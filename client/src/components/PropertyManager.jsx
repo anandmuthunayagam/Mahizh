@@ -8,6 +8,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import HomeIcon from "@mui/icons-material/Home";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "../utils/api/axios";
+import { useSnackbar } from "../utils/context/SnackbarContext";
 
 function PropertyManager() {
   const [properties, setProperties] = useState([]);
@@ -21,6 +22,7 @@ function PropertyManager() {
   const [ownerPhone, setOwnerPhone] = useState("");
   const [residentName, setResidentName] = useState("");
   const [residentPhone, setResidentPhone] = useState("");
+  const showSnackbar = useSnackbar();
 
   useEffect(() => { fetchProperties(); }, []);
 
@@ -29,6 +31,7 @@ function PropertyManager() {
     try {
       const res = await axios.get("/owner-residents");
       setProperties(res.data);
+      
     } catch (err) { console.error("Fetch failed", err); }
     finally { setLoading(false); }
   };
@@ -50,7 +53,10 @@ function PropertyManager() {
       });
       setEditDialogOpen(false);
       fetchProperties();
-    } catch (err) { alert("Update failed"); }
+      showSnackbar("Property details updated successfully!", "success");
+    } catch (err) { 
+      showSnackbar(err.response?.data?.message || "Update failed", "error");
+      console.error("Update failed", err);}
   };
 
   const filtered = properties.filter(p => 

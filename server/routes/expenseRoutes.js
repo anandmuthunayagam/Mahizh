@@ -8,8 +8,8 @@ router.get("/", auth(), async (req, res) => {
     const { month, year, startDate, endDate } = req.query;
     let query = {};
 
-    if (month) query.month = month;
-    if (year) query.year = Number(year);
+    if (month && month !== "All") query.month = month;
+    if (year && year !== "All") query.year = Number(year);
 
     if (startDate && endDate && !month) {
       query.date = { $gte: new Date(startDate), $lte: new Date(endDate) };

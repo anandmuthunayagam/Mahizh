@@ -10,6 +10,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import axios from "../utils/api/axios";
+import { useSnackbar } from "../utils/context/SnackbarContext";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -37,6 +38,7 @@ function ExpenseManager() {
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const showSnackbar = useSnackbar();
 
   // Re-fetch whenever filters change
   useEffect(() => {
@@ -53,6 +55,7 @@ function ExpenseManager() {
       setPage(0);
     } catch (err) {
       console.error(err);
+      showSnackbar("Failed to fetch expenses", "error");
     } finally {
       setLoading(false);
     }
@@ -66,8 +69,13 @@ function ExpenseManager() {
     if (window.confirm("Are you sure you want to delete this record?")) {
       try {
         await axios.delete(`/expenses/${id}`);
+        showSnackbar("Expense deleted successfully!", "success");
         fetchExpenses();
-      } catch (err) { alert("Delete failed"); }
+        
+      } catch (err) { 
+        showSnackbar("Failed to delete expense", "error");
+        console.error("Delete failed", err);
+      }
     }
   };
 
@@ -92,7 +100,11 @@ function ExpenseManager() {
       });
       setEditDialogOpen(false);
       fetchExpenses();
-    } catch (err) { alert("Update failed"); }
+      showSnackbar("Expense updated successfully!", "success");
+    } catch (err) { alert("Update failed");
+      showSnackbar("Failed to update expense", "error");
+      console.error("Update failed", err);  
+     }
   };
 
   const handleChangePage = (event, newPage) => setPage(newPage);

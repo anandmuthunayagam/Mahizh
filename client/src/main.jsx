@@ -3,11 +3,15 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { CssBaseline } from "@mui/material";
+import { SnackbarProvider } from "./utils/context/SnackbarContext";
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-  <CssBaseline />
-    <App />
-  </BrowserRouter>
+  <SnackbarProvider>
+    <BrowserRouter>
+      <CssBaseline />
+      <App />
+    </BrowserRouter>
+  </SnackbarProvider>
 );
 

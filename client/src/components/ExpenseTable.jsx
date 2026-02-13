@@ -9,7 +9,7 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
     const fetchFiltered = async () => {
       try {
         const res = await axios.get("/expenses", {
-          params: { month: filterMonth, year: filterYear }
+          params: { month: filterMonth === "All" ? "" : filterMonth, year: filterYear === "All" ? "" : filterYear }
         });
         setExpenses(res.data);
       } catch (err) {

@@ -10,6 +10,7 @@ import {
   Divider,
 } from "@mui/material";
 import axios from "../utils/api/axios";
+import { useSnackbar } from "../utils/context/SnackbarContext";
 
 function CreateUser() {
   const [username, setUsername] = useState("");
@@ -17,6 +18,7 @@ function CreateUser() {
   const [homeNo, setHomeNo] = useState("G1");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const showSnackbar = useSnackbar();
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
@@ -30,12 +32,15 @@ function CreateUser() {
         homeNo,
       });
 
-      setMessage(res.data.message);
+      
       setUsername("");
       setPassword("");
       setHomeNo("G1");
+      showSnackbar(res.data.message, "success");
     } catch (err) {
       setMessage(err.response?.data?.message || "Error creating user");
+      showSnackbar(err.response?.data?.message || "Error creating user", "error");
+      console.error("Create user failed:", err);
     } finally {
       setLoading(false);
     }

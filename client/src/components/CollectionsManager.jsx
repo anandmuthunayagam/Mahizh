@@ -10,6 +10,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import axios from "../utils/api/axios";
+import { useSnackbar } from "../utils/context/SnackbarContext";
 
 const HOMES = ["G1", "F1", "F2", "S1", "S2"];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -21,6 +22,8 @@ const YEARS = Array.from(
   { length: currentYearValue - startYear + 2 }, 
   (_, i) => startYear + i
 ).reverse();
+
+
 
 function CollectionsManager() {
   const [collections, setCollections] = useState([]);
@@ -44,6 +47,8 @@ function CollectionsManager() {
   const [editMonth, setEditMonth] = useState("");
   const [editYear, setEditYear] = useState("");
 
+  const showSnackbar = useSnackbar();
+
   useEffect(() => { 
     fetchCollections(); 
   }, [filterMonth, filterYear]); // Re-fetch automatically when filters change
@@ -58,6 +63,7 @@ function CollectionsManager() {
       setPage(0);
     } catch (err) { 
       console.error("Fetch failed", err); 
+      showSnackbar("Failed to fetch collections", "error");
     } finally { 
       setLoading(false); 
     }
@@ -73,7 +79,10 @@ function CollectionsManager() {
       });
       setEditDialogOpen(false);
       fetchCollections();
-    } catch (err) { alert("Update failed"); }
+      showSnackbar("Collection updated successfully!", "success");
+    } catch (err) { 
+      showSnackbar("Failed to update collection", "error");
+      console.error("Update failed", err);}
   };
 
   const handleDelete = async (id) => {
@@ -81,7 +90,10 @@ function CollectionsManager() {
       try {
         await axios.delete(`/collections/${id}`);
         fetchCollections();
-      } catch (err) { alert("Delete failed"); }
+        showSnackbar("Collection deleted successfully!", "success");
+      } catch (err) { 
+        showSnackbar("Failed to delete collection", "error");
+        console.error("Delete failed", err);}
     }
   };
 
@@ -238,7 +250,7 @@ function CollectionsManager() {
 }
 
 const styles = {
-  mainPaper: { backgroundColor: "#1e293b", p: 3, borderRadius: 3, border: "1px solid #334155" },
+  mainPaper: { backgroundColor: "#1e293b", p: 3, borderRadius: 3, border: "1px solid #334155",width: '100%' },
   head: { color: "#94a3b8", fontWeight: 700, borderBottom: "1px solid #334155", fontSize: '0.75rem', textTransform: 'uppercase' },
   cell: { color: "white", borderBottom: "1px solid #1e293b" },
   filterBtn: { height: '40px', background: "linear-gradient(135deg, #6366f1, #22d3ee)", fontWeight: 700 },

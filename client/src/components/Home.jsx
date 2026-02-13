@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Grid, Box, TextField, MenuItem, Typography, Button, Paper, Stack, Fade } from "@mui/material";
+import { Grid, Box, TextField, MenuItem, Typography, Button, Paper, Stack, Fade, Tooltip } from "@mui/material";
 import ImageIcon from '@mui/icons-material/Image';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { toPng } from 'html-to-image';
@@ -128,6 +128,7 @@ function Home() {
                 {YEARS.map((y) => <MenuItem key={y} value={y}>{y}</MenuItem>)}
               </TextField>
             </Paper>
+            <Tooltip title="Capture Screenshot">
              <Button
               variant="contained"
               startIcon={<PhotoCameraIcon />}
@@ -143,6 +144,7 @@ function Home() {
                 }
               }}
             />
+            </Tooltip>
           </Box>
         )}
 

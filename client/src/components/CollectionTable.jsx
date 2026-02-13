@@ -9,7 +9,7 @@ function CollectionTable({ refreshKey, filterMonth, filterYear }) {
     const fetchFiltered = async () => {
       try {
         const res = await axios.get("/collections", {
-          params: { month: filterMonth, year: filterYear }
+          params: { month: filterMonth === "All" ? "" : filterMonth, year: filterYear === "All" ? "" : filterYear }
         });
         setCollections(res.data);
       } catch (err) {
