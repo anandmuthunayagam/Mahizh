@@ -199,7 +199,7 @@ function Dashboard() {
         {/* --- FOOTER --- */}
         <Box className="print-footer" sx={{ mt: 4, textAlign: 'center' }}>
           <Typography variant="caption" sx={{ color: isExporting ? '#94a3b8' : '#475569' }}>
-            © {new Date().getFullYear()} Mahizh Connect System
+            © {new Date().getFullYear()} Mahizh Connect
           </Typography>
         </Box>
         

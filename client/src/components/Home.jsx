@@ -47,7 +47,7 @@ function Home() {
         });
         
         const link = document.createElement('a');
-        link.download = `Mahizh_Payments_${month}.png`;
+        link.download = `Mahizh_Collections_${month}_${year}.png`;
         link.href = dataUrl;
         link.click();
         
@@ -174,6 +174,12 @@ function Home() {
     </Grid>
   ))}
 </Grid>
+{/* --- FOOTER --- */}
+        <Box ref={contentRef} className="print-footer" sx={{ mt: 4, textAlign: 'left' }}>
+          <Typography variant="caption" sx={{ color: isExporting ? '#94a3b8' : '#000000' }}>
+            © {new Date().getFullYear()} Mahizh Connect
+          </Typography>
+        </Box>
       </Box>
     </Fade>
   );
