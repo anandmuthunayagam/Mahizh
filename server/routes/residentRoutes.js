@@ -70,7 +70,7 @@ router.get("/current-status", auth(), residentOnly, async (req, res) => {
       homeNo: req.user.homeNo,
       month,
       year,
-      status: paid ? "Paid" : "Pending",
+      status: paid ? "PAID" : "PENDING",
       amount: paid?.amount || 0,
     });
   } catch (err) {

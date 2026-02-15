@@ -25,6 +25,10 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
     return localStorage.getItem("role") === "admin";
   };
 
+console.log(selectedMonth, selectedYear);
+
+  //const homeCardString = `${selectedMonth.substring(0, 3)} '${selectedYear.toString().slice(-2)}`;
+
   const whatsappMessage = encodeURIComponent(
     `Hello ${home.ownerName},\n\n` +
       `This is a reminder for Apartment Maintenance payment.\n\n` +
@@ -62,7 +66,7 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
         {/* Image */}
         <CardMedia
           component="img"
-          height="160"
+          height="200"
           image={homeImages[home.homeNo]}
           alt={home.homeNo}
         />
@@ -76,8 +80,10 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
             mb={1}
           >
             <Typography variant="h6" fontWeight='bold' color="#B87333">{home.homeNo}</Typography>
+            
             <Chip
-              label={isPaid ? "PAID" : "PENDING"}
+              
+              label={isPaid ? "PAID" : "DUE"}
               color={isPaid ? "success" : "warning"}
               size="small"
             />

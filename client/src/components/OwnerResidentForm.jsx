@@ -75,7 +75,14 @@ function OwnerResidentForm({ onSuccess }) {
             value={homeNo} onChange={(e) => setHomeNo(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}
           >
             {homes.map((h) => <MenuItem key={h} value={h}>{h}</MenuItem>)}
           </TextField>
@@ -85,7 +92,14 @@ function OwnerResidentForm({ onSuccess }) {
             onChange={(e) => setOwnerName(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}
           />
 
           <TextField
@@ -93,7 +107,14 @@ function OwnerResidentForm({ onSuccess }) {
             onChange={(e) => setOwnerPhone(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}
           />
 
           <TextField
@@ -101,7 +122,14 @@ function OwnerResidentForm({ onSuccess }) {
             onChange={(e) => setResidentName(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
-            sx={{ mb: 2 }}
+            sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}
           />
 
           <TextField
@@ -109,7 +137,14 @@ function OwnerResidentForm({ onSuccess }) {
             onChange={(e) => setResidentPhone(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
-            sx={{ mb: 4 }}
+            sx={{ mb: 4,"& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}
           />
 
           <Button

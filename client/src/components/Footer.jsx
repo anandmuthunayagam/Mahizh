@@ -18,7 +18,7 @@ function Footer() {
     >
       {/* LEFT */}
       <Typography variant="body2">
-        © {new Date().getFullYear()} Mahizh Apartments
+        © {new Date().getFullYear()} Mahizh Connect
       </Typography>
 
       {/* RIGHT */}

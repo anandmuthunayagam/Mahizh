@@ -207,10 +207,24 @@ function Dashboard() {
             />
             </Tooltip>
             <Paper sx={{ p: 1.5, bgcolor: "#1e293b", display: 'flex', gap: 2, borderRadius: 2 }}>
-              <TextField select size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={{ width: 140, bgcolor: "#0f172a", "& .MuiOutlinedInput-root": { color: "white" } }}>
+              <TextField select size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}>
                 {MONTHS.map(m => <MenuItem key={m} value={m}>{m}</MenuItem>)}
               </TextField>
-              <TextField select size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={{ width: 100, bgcolor: "#0f172a", "& .MuiOutlinedInput-root": { color: "white" } }}>
+              <TextField select size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}>
                 {YEARS.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
               </TextField>
             </Paper>

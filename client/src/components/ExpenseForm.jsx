@@ -96,6 +96,17 @@ function ExpenseForm({ onSuccess }) {
             label="Expense Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            sx={{ 
+                 
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
             margin="normal"
             required
             InputLabelProps={{ style: { color: "#cbd5f5" } }}
@@ -108,6 +119,17 @@ function ExpenseForm({ onSuccess }) {
             label="Amount (₹)"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
+            sx={{ 
+                 
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
             margin="normal"
             required
             InputLabelProps={{ style: { color: "#cbd5f5" } }}

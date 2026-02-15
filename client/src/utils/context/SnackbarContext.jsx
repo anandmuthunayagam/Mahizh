@@ -31,7 +31,7 @@ export const SnackbarProvider = ({ children }) => {
         <Alert 
           onClose={handleClose} 
           severity={snackbar.severity} 
-          sx={{ width: '100%' }} 
+          sx={{ width: '100%', bgcolor: '#1e293b', color: 'rgb(56, 189, 248)',fontWeight: 'bold',fontSize: '16px',py: 3, px: 4,borderRadius: 5, }}
           variant="filled"
           elevation={6}
         >

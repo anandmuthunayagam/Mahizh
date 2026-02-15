@@ -103,6 +103,17 @@ function MonthlySummary() {
             onChange={(e) => setMonth(Number(e.target.value))}
             InputLabelProps={{ style: styles.label }}
             InputProps={{ style: styles.input }}
+            sx={{ 
+                  
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
           >
             {MONTHS.map((m, i) => (
               <MenuItem key={m} value={i + 1}>{m}</MenuItem>
@@ -117,6 +128,17 @@ function MonthlySummary() {
             onChange={(e) => setYear(Number(e.target.value))}
             InputLabelProps={{ style: styles.label }}
             InputProps={{ style: styles.input }}
+            sx={{ 
+                  
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
           >
             {YEARS.map((y) => (
               <MenuItem key={y} value={y}>{y}</MenuItem>

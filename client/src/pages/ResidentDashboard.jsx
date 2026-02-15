@@ -1,78 +1,118 @@
 import React, { useEffect, useState } from "react";
 import {
   Box,
-  Paper,
   Typography,
   Grid,
-  Divider,
+  CircularProgress,
+  Fade
 } from "@mui/material";
 import axios from "../utils/api/axios";
-import HomeCard from "../components/HomeCard"; // Import the existing card component
+import HomeCard from "../components/HomeCard"; 
 
 function ResidentDashboard() {
   const [profile, setProfile] = useState(null);
-  const [status, setStatus] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch profile and payment status based on logged-in user mapping
-    axios.get("/resident/profile").then(res => setProfile(res.data));
-    axios.get("/resident/current-status").then(res => setStatus(res.data));
+    const fetchAllData = async () => {
+      try {
+        setLoading(true);
+        
+        // 1. Get Resident Profile to identify the home number
+        const profileRes = await axios.get("/resident/profile");
+        const residentProfile = profileRes.data;
+        setProfile(residentProfile);
+
+        // 2. Generate list of months from January to Current Month
+        const monthsList = [
+          "January", "February", "March", "April", "May", "June",
+          "July", "August", "September", "October", "November", "December"
+        ];
+        
+        const currentMonthIndex = new Date().getMonth(); 
+        const currentYear = new Date().getFullYear();
+        
+        // Create an array of month names from January (index 0) to current
+        const relevantMonths = monthsList.slice(0, currentMonthIndex + 1);
+
+        // 3. Fetch status for each month in parallel using the Home.jsx endpoint
+        const statusPromises = relevantMonths.map(monthName => 
+          axios.get("/owner-residents/home-status", { 
+            params: { month: monthName, year: currentYear } 
+          }).then(res => {
+            // Find this specific resident's home in the returned list
+            const myHomeData = res.data.find(h => h.homeNo === residentProfile.homeNo);
+            return {
+              ...myHomeData,
+              displayMonth: monthName,
+              displayYear: currentYear
+            };
+          })
+        );
+
+        const results = await Promise.all(statusPromises);
+        
+        // REMOVED .reverse() so January is first and Current Month is last
+        setHistory(results); 
+        
+      } catch (err) {
+        console.error("Error fetching payment history:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
   }, []);
 
-  // Construct the home object for HomeCard prop
-  // This maps the resident's data to the standard 'home' format
-  const homeData = profile && status ? {
-    homeNo: profile.homeNo,
-    owner: profile.owner,
-    resident: profile.resident,
-    status: status.status, // e.g., "Paid" or "Pending"
-    month: status.month,
-    year: status.year
-  } : null;
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress sx={{ color: "#38bdf8" }} />
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ color: "white", mb: 3, fontWeight: 700 }}>
-        My Home Dashboard
-      </Typography>
+    <Fade in={true} timeout={800}>
+      <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}>
+        <Typography variant="h5" sx={{ color: "white", mb: 4, fontWeight: 700 }}>
+          My Home Card - {new Date().getFullYear()}
+        </Typography>
 
-      <Grid container spacing={3}>
-        {homeData ? (
-          <Grid item xs={12} sm={8} md={4}>
-            {/* Display the standard HomeCard for the mapped user */}
-            <HomeCard home={homeData} />
-          </Grid>
-        ) : (
-          <Typography sx={{ color: "#94a3b8", p: 2 }}>
-            Loading your home details...
+        <Grid container spacing={3}>
+          {history.map((homeData, index) => (
+            <Grid item xs={12} sm={6} md={4} key={`${homeData.displayMonth}-${index}`}>
+              <Typography variant="subtitle2" sx={{ color: "#94a3b8", mb: 1, ml: 1, fontWeight: 600 }}>
+                {homeData.displayMonth} {homeData.displayYear}
+              </Typography>
+              {homeData && (
+                <HomeCard 
+                  home={homeData}
+                  selectedMonth={homeData.displayMonth}
+                  selectedYear={homeData.displayYear}
+                  sx={{ 
+                    width: '100%',
+                    // Glow effect for unpaid (DUE) cards
+                    boxShadow: homeData.status?.toUpperCase() === "PAID" 
+                      ? "0 4px 12px rgba(0,0,0,0.4)" 
+                      : "0 0 16px rgba(255, 193, 7, 0.4)"
+                  }} 
+                />
+              )}
+            </Grid>
+          ))}
+        </Grid>
+
+        {history.length === 0 && (
+          <Typography sx={{ color: "#94a3b8", textAlign: 'center', mt: 4 }}>
+            No payment records found for this year.
           </Typography>
         )}
-      </Grid>
-
-      {/* Optional: You can keep the detailed text view below if needed */}
-      {!homeData && profile && (
-        <Paper sx={styles.container}>
-          <Typography sx={styles.text}>Home No: {profile.homeNo}</Typography>
-          <Typography sx={styles.text}>Owner: {profile.owner?.name}</Typography>
-          <Typography sx={styles.text}>Resident: {profile.resident?.name}</Typography>
-        </Paper>
-      )}
-    </Box>
+      </Box>
+    </Fade>
   );
 }
-
-const styles = {
-  container: {
-    backgroundColor: "#020617",
-    border: "1px solid #1e293b",
-    p: 3,
-    borderRadius: 3,
-    mt: 3
-  },
-  text: {
-    color: "#cbd5f5",
-    mb: 1,
-  },
-};
 
 export default ResidentDashboard;

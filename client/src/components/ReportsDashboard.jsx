@@ -82,7 +82,14 @@ function ReportsDashboard() {
           onChange={(e) => setMonth(e.target.value)}
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
-          sx={{ minWidth: 140 }}
+          sx={{ minWidth: 140,"& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}
         >
           {[...Array(12)].map((_, i) => (
             <MenuItem key={i} value={i + 1}>
@@ -98,7 +105,14 @@ function ReportsDashboard() {
           onChange={(e) => setYear(e.target.value)}
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
-          sx={{ minWidth: 140 }}
+          sx={{ minWidth: 140,"& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}
         >
           {[2024, 2025, 2026].map((y) => (
             <MenuItem key={y} value={y}>

@@ -92,6 +92,17 @@ function CollectionForm({ onSuccess }) {
           label="Home Number"
           value={homeNo}
           onChange={(e) => sethomeNo(e.target.value)}
+          sx={{ 
+                  
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
           margin="normal"
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
@@ -109,6 +120,17 @@ function CollectionForm({ onSuccess }) {
           label="Amount (₹)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          sx={{ 
+                  
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
           margin="normal"
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
@@ -120,6 +142,17 @@ function CollectionForm({ onSuccess }) {
           label="Month"
           value={month}
           onChange={(e) => setMonth(e.target.value)}
+          sx={{ 
+                 
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
           margin="normal"
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
@@ -135,6 +168,17 @@ function CollectionForm({ onSuccess }) {
           label="Year"
           value={year}
           onChange={(e) => setYear(e.target.value)}
+          sx={{ 
+                  
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
           margin="normal"
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}

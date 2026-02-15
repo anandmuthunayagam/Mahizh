@@ -257,9 +257,14 @@ const styles = {
   inputField: { 
     backgroundColor: "#020617", 
     borderRadius: 1, 
-    "& .MuiOutlinedInput-root": { color: "white" }, 
+    "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  }, 
     "& .MuiInputLabel-root": { color: "#94a3b8" },
-    "& .MuiSelect-icon": { color: "#94a3b8" }
+    "& .MuiSelect-icon": { color: "#94a3b8" },
+    "& .MuiSvgIcon-root": { color: "white" } 
   }
 };
 
