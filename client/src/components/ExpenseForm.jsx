@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import axios from "../utils/api/axios";
 import { useSnackbar } from "../utils/context/SnackbarContext";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 // Constants for extraction
 const MONTH_NAMES = [
@@ -22,49 +23,39 @@ function ExpenseForm({ onSuccess }) {
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
+  
   const showSnackbar = useSnackbar();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!date) return alert("Please select a date"); // Validation check
     
-    setLoading(true);
+    // Create FormData object
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("amount", amount);
+    formData.append("date", date);
+    // Extract month and year from the 'date' string if the state is empty
+  const dateObj = new Date(date);
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  
+  const extractedMonth = months[dateObj.getMonth()];
+  const extractedYear = dateObj.getFullYear();
+
+  formData.append("month", month || extractedMonth); // use state if exists, else extracted
+  formData.append("year", year || extractedYear);   // use state if exists, else extracted
+
+    if (file) formData.append("attachment", file); // binary file
 
     try {
-      // 1. Create a Date object from the yyyy-mm-dd string
-      // Note: yyyy-mm-dd strings are treated as UTC by default in JavaScript
-      const dateObj = new Date(date);
-      
-      // 2. Extract Month Name and Year using UTC to avoid timezone shifts
-      const extractedMonth = MONTH_NAMES[dateObj.getUTCMonth()];
-      const extractedYear = dateObj.getUTCFullYear();
-
-      // 3. Send updated payload to match your new Expense.js model
-      const res = await axios.post("/expenses", {
-        title,
-        amount: Number(amount),
-        date,               // Original date string for the Date field
-        month: extractedMonth, // "February"
-        year: extractedYear    // 2025
+      await axios.post("/expenses", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
-
-      
-
-      if (res?.data?.success === true) {
-        setTitle("");
-        setAmount("");
-        setDate("");
-        onSuccess?.(showSnackbar("Expense added successfully!", "success"));
-        return;
-      }
-
-      throw new Error(res?.data?.message || "Unexpected API response");
-
+      showSnackbar("Expense and Receipt saved!", "success");
     } catch (err) {
-      console.error("Add expense failed:", err);
-      showSnackbar(err?.response?.data?.message || "Failed to add Expense", "error");
-    } finally {
-      setLoading(false);
+      showSnackbar("Upload failed", "error");
     }
   };
 
@@ -173,6 +164,19 @@ function ExpenseForm({ onSuccess }) {
     },
   }}
 />
+<Button
+        component="label"
+        variant="outlined"
+        startIcon={<CloudUploadIcon />}
+        sx={{ mt: 2, mb: 2, color: 'white', borderColor: '#555' }}
+      >
+        {file ? file.name : "Upload Receipt"}
+        <input 
+          type="file" 
+          hidden 
+          onChange={(e) => setFile(e.target.files[0])} 
+        />
+      </Button>
 
           <Button
             type="submit"

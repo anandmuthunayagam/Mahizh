@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Button, Paper, Container } from "@mui/material";
+import { Box, Typography, Button, Paper, Container, Divider } from "@mui/material";
 import { 
   ReceiptLong, 
   Campaign, 
@@ -12,17 +12,17 @@ const features = [
   {
     title: "Bill Management",
     icon: <ReceiptLong sx={{ color: "white", fontSize: 28 }} />,
-    desc: "Track payments, dues, and billing history for all residents."
+    desc: "Track payments, dues and billing history for all residents."
   },
   {
-    title: "Digital Notice Board",
+    title: "Digital Dashboard",
     icon: <Campaign sx={{ color: "white", fontSize: 28 }} />,
-    desc: "Post announcements and updates for residents in real-time."
+    desc: "Post reporting updates for residents in real-time."
   },
   {
     title: "Expense Tracker",
     icon: <AccountBalanceWallet sx={{ color: "white", fontSize: 28 }} />,
-    desc: "Monitor expenses and updates for transparent society accounting."
+    desc: "Monitor expenses and balance updates for transparent society accounting."
   }
 ];
 
@@ -71,18 +71,62 @@ const AnimatedNetworkSVG = () => (
 </svg>
 );
 
+const NoticeCard = ({ title, date, priority }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      minWidth: "280px",
+      p: 2,
+      mx: 1,
+      bgcolor: "rgba(30, 41, 59, 0.4)",
+      borderRadius: 3,
+      border: `1px solid ${priority === 'high' ? '#ef4444' : 'rgba(51, 65, 85, 0.5)'}`,
+      backdropFilter: "blur(12px)",
+      transition: "all 0.3s ease",
+      animation: "float 5s ease-in-out infinite", // Uses your existing float animation
+      '&:hover': {
+        transform: "translateY(-5px)",
+        borderColor: "#38bdf8",
+        boxShadow: "0px 0px 15px rgba(56, 189, 248, 0.2)"
+      }
+    }}
+  >
+    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+      <Typography variant="caption" sx={{ color: "#38bdf8", fontWeight: 700 }}>
+        {date}
+      </Typography>
+      {priority === 'high' && (
+        <Box sx={{ width: 8, height: 8, bgcolor: "#ef4444", borderRadius: "50%", boxShadow: "0 0 8px #ef4444" }} />
+      )}
+    </Box>
+    <Typography variant="body1" fontWeight={600} color="white">
+      {title}
+    </Typography>
+  </Paper>
+);
+
 export default function MahizhConnect() {
   return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "#020617", color: "white", py: 8,padding:"1px" }}>
-      {/* Header Section */}
-      <Box sx={{ textAlign: "center", mb: 8 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", gap: "12px", mb: 1 }}>
-          <Typography variant="h3" fontWeight={700}>Mahizh</Typography>
-          <Typography variant="h3" fontWeight={700} sx={{ color: "#38bdf8" }}>Connect</Typography>
-        </Box>
-        <Typography variant="h6" sx={{ color: "#94a3b8" }}>Smarter Community Living, Simplified.</Typography>
-      </Box>
-
+    <Box sx={{ minHeight: "100vh", bgcolor: "#020617", color: "white", py: 4,padding:"1px" }}>
+     {/* Header Section in MahizhConnect.jsx */}
+<Box sx={{ display: "flex", justifyContent: "center", gap: "12px", mb: 1 }}>
+  <Typography variant="h4" fontWeight={700}>Mahizh</Typography>
+  <Typography 
+    variant="h4" 
+    fontWeight={700} 
+    sx={{ 
+      background: "linear-gradient(90deg, #38bdf8, #ffffff, #38bdf8)",
+      backgroundSize: "200% auto",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent",
+      animation: "shimmer 4s linear infinite" 
+    }}
+  >
+    Connect
+  </Typography>
+  
+</Box>
+<Divider></Divider>
       {/* Main Layout */}
       <Container maxWidth="lg">
         <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, alignItems: "center", gap: 6 }}>
@@ -90,26 +134,43 @@ export default function MahizhConnect() {
           {/* Left: Content Cards */}
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", gap: 3, width: "100%" }}>
             {features.map((f, i) => (
-              <Paper 
-                key={i}
-                elevation={0}
-                sx={{ 
-                  p: 3, 
-                  bgcolor: "rgba(30, 41, 59, 0.4)", 
-                  borderRadius: 4, 
-                  border: "1px solid rgba(51, 65, 85, 0.5)",
-                  display: "flex",
-                  gap: 2,
-                  backdropFilter: "blur(8px)"
-                }}
-              >
-                <Box sx={{ mt: 0.5 }}>{f.icon}</Box>
-                <Box>
-                  <Typography variant="h6" fontWeight={600} color="white">{f.title}</Typography>
-                  <Typography variant="body2" sx={{ color: "#38bdf8" }}>{f.desc}</Typography>
-                </Box>
-              </Paper>
-            ))}
+  <Paper 
+    key={i}
+    elevation={0}
+    sx={{ 
+      p: 3, 
+      bgcolor: "rgba(30, 41, 59, 0.4)", //
+      borderRadius: 4, 
+      border: "1px solid rgba(51, 65, 85, 0.5)", //
+      display: "flex",
+      gap: 2, //
+      backdropFilter: "blur(8px)", //
+      
+      // ANIMATION SETTINGS
+      animation: `fadeInUp 0.8s ease-out forwards, float 6s ease-in-out infinite`,
+      animationDelay: `${i * 0.2}s`, // Each card waits 0.2s longer than the last
+      opacity: 1, // Starts invisible, 'forwards' in animation will make it visible
+      
+      transition: "all 0.3s ease-in-out",
+      '&:hover': {
+        borderColor: "#38bdf8",
+        transform: "scale(1.03) translateY(-5px)",
+        bgcolor: "rgba(30, 41, 59, 0.7)",
+        boxShadow: "0px 10px 30px rgba(56, 189, 248, 0.2)"
+      }
+    }}
+  >
+    <Box sx={{ mt: 0.5 }}>{f.icon}</Box> {/* */}
+    <Box>
+      <Typography variant="h6" fontWeight={600} color="white">
+        {f.title} {/* */}
+      </Typography>
+      <Typography variant="body2" sx={{ color: "#38bdf8" }}>
+        {f.desc} {/* */}
+      </Typography>
+    </Box>
+  </Paper>
+))}
           </Box>
 
           {/* Right: Animated Graphic */}
@@ -137,3 +198,4 @@ export default function MahizhConnect() {
     </Box>
   );
 }
+

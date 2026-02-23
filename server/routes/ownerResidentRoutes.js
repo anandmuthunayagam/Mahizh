@@ -89,37 +89,31 @@ router.get("/homes", auth(), adminOnly, async (req, res) => {
 router.get("/home-status", auth(), async (req, res) => {
   try {
     const { month, year } = req.query;
-
-    if (!month || !year) {
-      return res.status(400).json({ message: "Month and year required" });
-    }
-
-    // ✅ 1️⃣ Fetch all homes FIRST
     const homes = await OwnerResident.find({}).lean();
+    const collections = await Collection.find({ month, year: Number(year) }).lean();
 
-    // ✅ 2️⃣ Fetch collections for month/year
-    const collections = await Collection.find({
-      month,
-      year: Number(year),
-    }).lean();
-
-    // ✅ 3️⃣ Compute PAID / PENDING
     const result = homes.map((home) => {
-      const paid = collections.some(
-        (c) => c.homeNo === home.homeNo
-      );
+      // Find the specific collection record for this month/year
+      const paymentRecord = collections.find((c) => c.homeNo === home.homeNo);
 
       return {
         homeNo: home.homeNo,
-        owner: home.owner,
-        resident: home.resident,
-        status: paid ? "PAID" : "PENDING",
+        // IF PAID: Use the names frozen in time
+        // IF PENDING: Use current names from OwnerResident
+        owner: paymentRecord ? { 
+          name: paymentRecord.ownerName, 
+          phone: paymentRecord.ownerPhone 
+        } : home.owner,
+        resident: paymentRecord ? { 
+          name: paymentRecord.residentName, 
+          phone: paymentRecord.residentPhone 
+        } : home.resident,
+        status: paymentRecord ? "PAID" : "PENDING",
       };
     });
 
     res.json(result);
   } catch (err) {
-    console.error("Home status error:", err);
     res.status(500).json({ message: "Failed to fetch home status" });
   }
 });

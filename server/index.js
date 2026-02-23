@@ -8,6 +8,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const ownerResidentRoutes = require("./routes/ownerResidentRoutes");
 const reportsRoutes = require("./routes/reportsRoutes")
 const residentRoutes = require("./routes/residentRoutes");
+const path = require('path');
 
 
 
@@ -26,6 +27,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/owner-residents", ownerResidentRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/resident", residentRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)

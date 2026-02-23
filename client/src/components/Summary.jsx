@@ -17,10 +17,10 @@ function Summary({refreshKey}) {
 
   const Card = ({ title, value, gradient }) => (
     <Paper
-      elevation={8}
+      elevation={12}
       sx={{
-        p: 3,
-        borderRadius: 3,
+        p: 1,
+        borderRadius: 1,
         background: gradient,
         minWidth: 220,
       }}

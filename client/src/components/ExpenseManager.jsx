@@ -11,6 +11,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import axios from "../utils/api/axios";
 import { useSnackbar } from "../utils/context/SnackbarContext";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -29,6 +30,7 @@ function ExpenseManager() {
   const [editMonth, setEditMonth] = useState("");
   const [editYear, setEditYear] = useState("");
   const [editDate, setEditDate] = useState("");
+  const [editFile, setEditFile] = useState(null);
 
   // Filter States (Default to current month/year)
   const now = new Date();
@@ -86,25 +88,37 @@ function ExpenseManager() {
     setEditDate(exp.date ? new Date(exp.date).toISOString().split('T')[0] : "");
     setEditMonth(exp.month || "");
     setEditYear(exp.year || "");
+    setEditFile(null);
     setEditDialogOpen(true);
   };
 
-  const handleUpdate = async () => {
-    try {
-      await axios.put(`/expenses/${selectedCol._id}`, {
-        title: editTitle,
-        amount: Number(editAmount),
-        date: editDate,
-        month: editMonth,
-        year: Number(editYear)
-      });
-      setEditDialogOpen(false);
-      fetchExpenses();
-      showSnackbar("Expense updated successfully!", "success");
-    } catch (err) { alert("Update failed");
-      showSnackbar("Failed to update expense", "error");
-      console.error("Update failed", err);  
-     }
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+  
+  const formData = new FormData();
+  formData.append("title", editTitle);
+  formData.append("amount", editAmount);
+  formData.append("date", editDate);
+  formData.append("month", editMonth);
+  formData.append("year", editYear);
+
+  // If the user selected a new file in the edit modal
+  if (editFile) {
+    formData.append("attachment", editFile);
+  }
+
+  try {
+    await axios.put(`/expenses/${selectedCol._id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    showSnackbar("Expense updated successfully!", "success");
+    // Refresh your list here
+    setEditDialogOpen(false);
+    fetchExpenses();
+  } catch (err) {
+    showSnackbar("Update failed", "error");
+    console.error("Update failed", err);
+  }
   };
 
   const handleChangePage = (event, newPage) => setPage(newPage);
@@ -212,19 +226,46 @@ function ExpenseManager() {
           <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} PaperProps={{ sx: { bgcolor: "#1e293b", color: "white", minWidth: 400 } }}>
             <DialogTitle sx={{ fontWeight: 700 }}>Edit Expense Record</DialogTitle>
             <DialogContent>
-              <TextField fullWidth label="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} />
-              <TextField fullWidth label="Amount" type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} />
-                <TextField fullWidth type="date" label="Date" value={editDate} onChange={(e) => setEditDate(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} />
-              <TextField select fullWidth label="Month" value={editMonth} onChange={(e) => setEditMonth(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }}>
+              <TextField fullWidth label="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} sx={styles.inputField} />
+              <TextField fullWidth label="Amount" type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} sx={styles.inputField} />
+                <TextField fullWidth type="date" label="Date" value={editDate} onChange={(e) => setEditDate(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} sx={{"& input::-webkit-calendar-picker-indicator": {
+      filter: "invert(100%)", // This flips the black icon to white
+      cursor: "pointer",
+                },
+                "& .MuiOutlinedInput-root": {
+      backgroundColor: "#020617",
+      "& fieldset": {
+        borderColor: "#334155",
+      },
+    }}} />
+              <TextField select fullWidth label="Month" value={editMonth} onChange={(e) => setEditMonth(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} sx={styles.inputField}>
                 {MONTHS.map(m => <MenuItem key={m} value={m}>{m}</MenuItem>)}
               </TextField>
-              <TextField select fullWidth label="Year" value={editYear} onChange={(e) => setEditYear(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }}>
+              <TextField select fullWidth label="Year" value={editYear} onChange={(e) => setEditYear(e.target.value)} margin="normal" InputLabelProps={{ style: { color: "#94a3b8" } }} InputProps={{ style: { color: "white" } }} sx={styles.inputField}>
                 {YEARS.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
               </TextField>
+              <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<CloudUploadIcon />}
+                  sx={{ mt: 2, mb: 1, color: 'white', borderColor: '#555' }}
+                >
+                  {editFile ? editFile.name : "Add/Replace Receipt"}
+                  <input 
+                    type="file" 
+                    hidden 
+                    onChange={(e) => setEditFile(e.target.files[0])} 
+                  />
+                </Button>
+                {selectedCol?.hasAttachment && !editFile && (
+                  <Typography variant="caption" sx={{ color: "#10b981", display: 'block' }}>
+                    Current receipt exists. Upload a new one to replace it.
+                  </Typography>
+                )}
             </DialogContent>
             <DialogActions sx={{ p: 3 }}>
               <Button onClick={() => setEditDialogOpen(false)} sx={{ color: "#94a3b8" }}>Cancel</Button>
-              <Button onClick={handleUpdate} variant="contained" sx={{ background: "linear-gradient(135deg, #6366f1, #22d3ee)", fontWeight: 700 }}>Save Changes</Button>
+              <Button onClick={(e) => handleUpdate(e)} variant="contained" sx={{ background: "linear-gradient(135deg, #6366f1, #22d3ee)", fontWeight: 700 }}>Save Changes</Button>
             </DialogActions>
           </Dialog>
 

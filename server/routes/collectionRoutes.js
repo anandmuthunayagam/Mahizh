@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Collection = require("../models/Collection");
 const auth = require("../middleware/auth");
+const OwnerResident = require("../models/OwnerResident");
 
 router.get("/", auth(), async (req, res) => {
   try {
@@ -26,11 +27,25 @@ router.get("/", auth(), async (req, res) => {
 router.post("/", auth(["admin"]), async (req, res) => {
   try {
     const { homeNo, amount, month, year } = req.body;
-    if (!homeNo || !amount || !month || !year) {
-      return res.status(400).json({ success: false, message: "All fields required" });
+    
+    // 1. Find the LIVE details for this home right now
+    const currentInfo = await OwnerResident.findOne({ homeNo });
+    if (!currentInfo) {
+      return res.status(404).json({ success: false, message: "Home details not found" });
     }
-    // FIXED: Changed homeNumber to homeNo to match your updated model
-    const collection = new Collection({ homeNo, amount, month, year });
+
+    // 2. Save payment with the SNAPSHOT of current names
+    const collection = new Collection({ 
+      homeNo, 
+      amount, 
+      month, 
+      year,
+      residentName: currentInfo.resident.name,
+      residentPhone: currentInfo.resident.phone,
+      ownerName: currentInfo.owner.name,
+      ownerPhone: currentInfo.owner.phone
+    });
+
     await collection.save();
     return res.status(201).json({ success: true, data: collection });
   } catch (err) {

@@ -98,7 +98,7 @@ function Dashboard() {
       XLSX.utils.book_append_sheet(wb, colSheet, "Collections");
       XLSX.utils.book_append_sheet(wb, expSheet, "Expenses");
 
-      XLSX.writeFile(wb, `Mahizh_Connect_${filterMonth}_${filterYear}.xlsx`);
+      XLSX.writeFile(wb, `Mahizh_Connect_${filterMonth!=="All" ? filterMonth : "All_Months"}_${filterYear!=="All" ? filterYear:"All_Years" }.xlsx`);
       showSnackbar("Excel exported successfully!", "success");
     } catch (err) {
       console.error('Excel export failed', err);
@@ -122,7 +122,7 @@ function Dashboard() {
           style: { padding: '20px' }
         });
         const link = document.createElement('a');
-        link.download = `Mahizh_Connect_${filterMonth}_${filterYear}.png`;
+        link.download = `Mahizh_Connect_${filterMonth==="" ? "All_Months" : filterMonth}_${filterYear==="" ? "All_Years" : filterYear}.png`;
         link.href = dataUrl;
         link.click();
         setIsExporting(false);

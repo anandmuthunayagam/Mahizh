@@ -23,6 +23,9 @@ const userSchema = new mongoose.Schema({
     enum: ["admin", "user"],
     default: "user",
   },
+
+  // Track when this specific account was created
+  joinedAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model("User", userSchema);

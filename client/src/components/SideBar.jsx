@@ -127,7 +127,7 @@ function NavItem({ to, icon, text, onClick }) {
           color: "#38BDF8",
         },
         "&:hover": {
-          backgroundColor: "#1E293B",
+          backgroundColor: "rgba(56,189,248,0.4)",
         },
       }}
     >

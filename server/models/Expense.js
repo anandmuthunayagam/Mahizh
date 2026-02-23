@@ -22,7 +22,8 @@ const expenseSchema = new mongoose.Schema(
     year: {
       type: Number, // e.g., 2025
       required: true
-    }
+    },
+    hasAttachment: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
