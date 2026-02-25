@@ -4,12 +4,19 @@ const mongoose = require("mongoose");
 const collectionSchema = new mongoose.Schema(
   {
     homeNo: { type: String, required: true },
-    amount: Number,
+    amount: { type: Number, required: true },
     month: String,
     year: Number,
     
-    // SNAPSHOT FIELDS: These store the names as they were THIS month
-    // Even if you delete the User, these strings remain in the history
+    // NEW FIELD: Categorizes the type of payment
+    category: { 
+      type: String, 
+      required: true, 
+      enum: ["Maintenance", "Water", "Corpus Fund","Others"],
+      default: "Maintenance" 
+    },
+
+    // SNAPSHOT FIELDS
     residentName: String, 
     residentPhone: String,
     ownerName: String,
@@ -20,7 +27,8 @@ const collectionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Prevent duplicate records for the same home/month/year
-collectionSchema.index({ homeNo: 1, month: 1, year: 1 }, { unique: true });
+// UPDATE INDEX: To allow a home to have different categories in the same month
+// (e.g., paying both Maintenance AND Owners Fund in January)
+collectionSchema.index({ homeNo: 1, month: 1, year: 1, category: 1 }, { unique: true });
 
 module.exports = mongoose.model("Collection", collectionSchema);
