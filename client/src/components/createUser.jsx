@@ -77,6 +77,7 @@ function CreateUser() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             margin="normal"
+            required
             InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
@@ -96,6 +97,7 @@ function CreateUser() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
+            required
             InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
@@ -115,6 +117,7 @@ function CreateUser() {
             value={homeNo}
             onChange={(e) => setHomeNo(e.target.value)}
             margin="normal"
+            required
             InputLabelProps={{ style: { color: "#cbd5f5" } }}
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 4,"& .MuiOutlinedInput-root": { 

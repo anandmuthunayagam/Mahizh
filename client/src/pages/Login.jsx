@@ -6,12 +6,13 @@ import {
   Typography,
   Button,
   Alert,
-  MenuItem,
+  MenuItem, 
   IconButton,
   InputAdornment,
   CircularProgress,
 } from "@mui/material";
-import axios from "axios";
+//import axios from "axios";
+import axios from "../utils/api/axios";
 import { useNavigate } from "react-router-dom";
 import mahizh from '../assets/MahizhLogo.png'
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
@@ -41,8 +42,8 @@ function Login() {
     try {
       const url =
         role === "admin"
-          ? "http://localhost:5000/api/auth/admin/login"
-          : "http://localhost:5000/api/auth/user/login";
+          ? `${import.meta.env.VITE_API_URL}/auth/admin/login`
+          : `${import.meta.env.VITE_API_URL}/auth/user/login`;
 
       const res = await axios.post(url, { username, password });
 

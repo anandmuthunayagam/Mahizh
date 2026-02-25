@@ -14,6 +14,7 @@ import { useSnackbar } from "../utils/context/SnackbarContext";
 
 const HOMES = ["G1", "F1", "F2", "S1", "S2"];
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const categories = ["Maintenance", "Water", "Corpus Fund", "Others"];
 
 // Generate years dynamically from 2012 to Current Year + 1
 const startYear = 2012;
@@ -46,7 +47,7 @@ function CollectionsManager() {
   const [editAmount, setEditAmount] = useState("");
   const [editMonth, setEditMonth] = useState("");
   const [editYear, setEditYear] = useState("");
-
+  const [editCategory, setEditCategory] = useState("");
   const showSnackbar = useSnackbar();
 
   useEffect(() => { 
@@ -75,7 +76,8 @@ function CollectionsManager() {
         homeNo: editHome,
         amount: Number(editAmount),
         month: editMonth,
-        year: Number(editYear)
+        year: Number(editYear),
+        category: editCategory
       });
       setEditDialogOpen(false);
       fetchCollections();
@@ -175,7 +177,10 @@ function CollectionsManager() {
               <TableRow>
                 <TableCell sx={styles.head}>Home No</TableCell>
                 <TableCell sx={styles.head}>Maintenance Period</TableCell>
-                <TableCell sx={styles.head} align="right">Amount</TableCell>
+                <TableCell sx={styles.head} >Amount</TableCell>
+                <TableCell sx={styles.head}>Category</TableCell>
+                
+
                 <TableCell sx={styles.head} align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -184,7 +189,8 @@ function CollectionsManager() {
                 <TableRow key={c._id} sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.03)" } }}>
                   <TableCell sx={styles.cell}>{c.homeNo}</TableCell>
                   <TableCell sx={styles.cell}>{c.month} {c.year}</TableCell>
-                  <TableCell sx={{ ...styles.cell, color: "#4ade80", fontWeight: 700 }} align="right">₹{c.amount}</TableCell>
+                  <TableCell sx={{ ...styles.cell, color: "#22c55e", fontWeight: 700 }} align="left">₹{c.amount.toLocaleString()}</TableCell>
+                  <TableCell sx={{ ...styles.cell, color: "#f87171", fontWeight: 700 }} align="left">{c.category}</TableCell>
                   <TableCell align="center">
                     <IconButton 
                       sx={{ color: "#22d3ee" }} 
@@ -239,6 +245,9 @@ function CollectionsManager() {
           <TextField select fullWidth label="Year" value={editYear} onChange={(e) => setEditYear(e.target.value)} margin="normal" sx={styles.inputField}>
             {YEARS.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
           </TextField>
+          <TextField select fullWidth label="Category" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} margin="normal" sx={styles.inputField}>
+            {categories.map(cat => <MenuItem key={cat} value={cat}>{cat}</MenuItem>)}
+          </TextField>  
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setEditDialogOpen(false)} sx={{ color: "#94a3b8" }}>Cancel</Button>

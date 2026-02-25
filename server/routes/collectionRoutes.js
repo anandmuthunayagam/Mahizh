@@ -26,7 +26,7 @@ router.get("/", auth(), async (req, res) => {
 
 router.post("/", auth(["admin"]), async (req, res) => {
   try {
-    const { homeNo, amount, month, year } = req.body;
+    const { homeNo, amount, month, year, category } = req.body;
     
     // 1. Find the LIVE details for this home right now
     const currentInfo = await OwnerResident.findOne({ homeNo });
@@ -40,6 +40,7 @@ router.post("/", auth(["admin"]), async (req, res) => {
       amount, 
       month, 
       year,
+      category,
       residentName: currentInfo.resident.name,
       residentPhone: currentInfo.resident.phone,
       ownerName: currentInfo.owner.name,
@@ -58,10 +59,10 @@ router.post("/", auth(["admin"]), async (req, res) => {
  */
 router.put("/:id", auth(["admin"]), async (req, res) => {
   try {
-    const { homeNo, amount, month, year } = req.body;
+    const { homeNo, amount, month, year, category } = req.body;
     const updatedCollection = await Collection.findByIdAndUpdate(
       req.params.id,
-      {homeNo, amount, month, year },
+      {homeNo, amount, month, year, category },
       { new: true }
     );
     res.status(200).json({ success: true, data: updatedCollection });

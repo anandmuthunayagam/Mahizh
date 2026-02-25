@@ -17,12 +17,14 @@ const months = [
   "January","February","March","April","May","June",
   "July","August","September","October","November","December"
 ];
+const categories = ["Maintenance", "Water", "Corpus Fund", "Others"];
 
 function CollectionForm({ onSuccess }) {
   const [homeNo, sethomeNo] = useState("");
   const [amount, setAmount] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
+  const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const showSnackbar = useSnackbar();
 
@@ -36,6 +38,7 @@ function CollectionForm({ onSuccess }) {
         amount: Number(amount),   // ✅ ensure number
         month,
         year: Number(year),       // ✅ ensure number
+        category,
       });
 
       
@@ -46,6 +49,7 @@ function CollectionForm({ onSuccess }) {
         setAmount("");
         setMonth("");
         setYear("");
+        setCategory("");
         onSuccess?.(showSnackbar("Collection added successfully!", "success"));
         return;
       }
@@ -57,6 +61,13 @@ function CollectionForm({ onSuccess }) {
     } catch (err) {
       console.error("Add collection failed:", err);
       showSnackbar(err?.response?.data?.message || "Failed to add collection", "error");
+      console.log("CRITICAL ERROR:", err.message); 
+
+    if (err.code === 11000) {
+      return res.status(400).json({ message: "This payment record already exists!" });
+    }
+    
+    res.status(500).json({ message: err.message });
     } finally {
       setLoading(false);
     }
@@ -104,6 +115,7 @@ function CollectionForm({ onSuccess }) {
                   "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
                 }}
           margin="normal"
+          required
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
         >
@@ -132,6 +144,7 @@ function CollectionForm({ onSuccess }) {
                   "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
                 }}
           margin="normal"
+          required
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
         />
@@ -154,6 +167,7 @@ function CollectionForm({ onSuccess }) {
                   "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
                 }}
           margin="normal"
+          required
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
         >
@@ -180,6 +194,7 @@ function CollectionForm({ onSuccess }) {
                   "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
                 }}
           margin="normal"
+          required
           InputLabelProps={{ style: { color: "#cbd5f5" } }}
           InputProps={{ style: { color: "white" } }}
         >
@@ -187,6 +202,32 @@ function CollectionForm({ onSuccess }) {
             <MenuItem key={y} value={y}>{y}</MenuItem>
           ))}
         </TextField>
+        <TextField
+          select
+          fullWidth
+          label="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          sx={{ 
+                  
+                  "& .MuiOutlinedInput-root": { 
+                    color: "white",
+                    // This line specifically makes the arrow icon white
+                    "& .MuiSvgIcon-root": { color: "white" } 
+                  },
+                  // Ensure the label is also visible
+                  "& .MuiInputLabel-root": { color: "#bbb" },
+                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
+                }}
+          margin="normal"
+          required
+          InputLabelProps={{ style: { color: "#cbd5f5" } }}
+          InputProps={{ style: { color: "white" } }}
+        >
+          {categories.map((cat) => (
+            <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+          ))}
+        </TextField>  
 
         <Button
           type="submit"

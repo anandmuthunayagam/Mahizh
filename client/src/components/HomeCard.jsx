@@ -11,11 +11,11 @@ import {
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { motion } from "framer-motion";
 
-import G1 from "../assets/homes/Gemini_G1.png";
-import F1 from "../assets/homes/Gemini_F1.png";
-import F2 from "../assets/homes/Gemini_F2.png";
-import S1 from "../assets/homes/Gemini_S1.png";
-import S2 from "../assets/homes/Gemini_S2.png";
+import G1 from "../assets/homes/G1.png";
+import F1 from "../assets/homes/F1.png";
+import F2 from "../assets/homes/F2.png";
+import S1 from "../assets/homes/S1.png";
+import S2 from "../assets/homes/S2.png";
 
 const homeImages = { G1, F1, F2, S1, S2 };
 

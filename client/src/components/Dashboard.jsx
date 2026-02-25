@@ -162,12 +162,13 @@ function Dashboard() {
                 <img src={mahizh} alt="Logo" style={{ width: '100%', height: '100%' }} />
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, marginLeft: 'auto' }}>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: isExporting ? 'white' : 'white' }}>
+                <Typography variant="h4" sx={{ fontWeight: 800,letterSpacing: "-0.5px" , color: isExporting ? 'white' : 'white' }}>
                   Mahizh
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800, color: isExporting ? 'rgb(56, 189, 248)' : 'rgb(56, 189, 248)' }}>
+                <Typography variant="h4" sx={{ fontWeight: 800,letterSpacing: "-0.5px" , color: isExporting ? 'rgb(56, 189, 248)' : 'rgb(56, 189, 248)' }}>
                   Connect
                 </Typography>
+               
               </Box>
           </Box>
         </Box>
@@ -233,7 +234,7 @@ function Dashboard() {
         )}
 
         <Paper sx={{ p: 3, bgcolor: "#0F172A", borderRadius: 3, border: "1px solid #1E293B", mb: 4 }}>
-          <Typography variant="h6" sx={{ color: "#38bdf8", mb: 2, fontWeight: 'bold' }}>Maintenance Collections</Typography>
+          <Typography variant="h6" sx={{ color: "#38bdf8", mb: 2, fontWeight: 'bold' }}>Collections</Typography>
           <CollectionTable 
             refreshKey={refreshKey} 
             // If "All" is selected, pass an empty string so the API ignores the filter
@@ -243,7 +244,7 @@ function Dashboard() {
         </Paper>
 
         <Paper sx={{ p: 3, bgcolor: "#0F172A", borderRadius: 3, border: "1px solid #1E293B", mb: 4 }}>
-          <Typography variant="h6" sx={{ color: "#f87171", mb: 2, fontWeight: 'bold' }}>Monthly Expenses</Typography>
+          <Typography variant="h6" sx={{ color: "#f87171", mb: 2, fontWeight: 'bold' }}>Expenses</Typography>
           <ExpenseTable 
             refreshKey={refreshKey} 
             filterMonth={filterMonth === "All" ? "" : filterMonth} 

@@ -21,6 +21,7 @@ import { Box } from "@mui/material";
 
 
 function App() {
+  console.log("Vite Secret Check:", import.meta.env.VITE_API_URL);
   return (
     <>
     <Routes>

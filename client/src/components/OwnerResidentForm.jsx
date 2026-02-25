@@ -74,6 +74,7 @@ function OwnerResidentForm({ onSuccess }) {
             select fullWidth label="Home No"
             value={homeNo} onChange={(e) => setHomeNo(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
+            required
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
                     color: "white",
@@ -91,6 +92,7 @@ function OwnerResidentForm({ onSuccess }) {
             fullWidth label="Owner Name" value={ownerName}
             onChange={(e) => setOwnerName(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
+            required
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
                     color: "white",
@@ -106,6 +108,7 @@ function OwnerResidentForm({ onSuccess }) {
             fullWidth label="Owner Phone" value={ownerPhone}
             onChange={(e) => setOwnerPhone(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
+            required
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
                     color: "white",
@@ -121,6 +124,7 @@ function OwnerResidentForm({ onSuccess }) {
             fullWidth label="Resident Name" value={residentName}
             onChange={(e) => setResidentName(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
+            required
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 2,"& .MuiOutlinedInput-root": { 
                     color: "white",
@@ -136,6 +140,7 @@ function OwnerResidentForm({ onSuccess }) {
             fullWidth label="Resident Phone" value={residentPhone}
             onChange={(e) => setResidentPhone(e.target.value)}
             margin="normal" InputLabelProps={{ style: { color: "#cbd5f5" } }}
+            required
             InputProps={{ style: { color: "white" } }}
             sx={{ mb: 4,"& .MuiOutlinedInput-root": { 
                     color: "white",

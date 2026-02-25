@@ -25,7 +25,7 @@ function Summary({refreshKey}) {
         minWidth: 220,
       }}
     >
-      <Typography sx={{ color: "#cbd5f5", fontSize: 14 }}>
+      <Typography sx={{ color: "#cbd5f5", fontSize: 14, fontWeight: "bold" }}>
         {title}
       </Typography>
       <Typography sx={{ color: "white", fontSize: 28, fontWeight: 700 }}>
