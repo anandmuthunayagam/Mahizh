@@ -129,7 +129,7 @@ function UserManager() {
             <CircularProgress sx={{ color: "#22d3ee" }} />
           </Box>
         ) : (
-          <Table sx={{ minWidth: 600, tableLayout: "fixed" }}>
+          <Table sx={{ minWidth: 600, tableLayout: "fixed",backgroundColor: "#020617" }}>
             <TableHead>
               <TableRow>
                 <TableCell sx={styles.head}>User / Resident</TableCell>
