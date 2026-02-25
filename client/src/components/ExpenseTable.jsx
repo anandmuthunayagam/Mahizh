@@ -118,7 +118,11 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
                   )}
                 </TableCell>
               </TableRow>
+              
             ))}
+            {expenses.length === 0 && (
+                        <TableRow><TableCell colSpan={5} align="center" sx={{ color: "#475569", py: 4 }}>No records found for this period.</TableCell></TableRow>
+                      )}
           </TableBody>
         </Table>
       </Paper>
