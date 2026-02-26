@@ -20,7 +20,10 @@ function CollectionTable({ refreshKey, filterMonth, filterYear }) {
   }, [refreshKey, filterMonth, filterYear]);
 
   return (
+    <>
+    
     <Paper elevation={0} sx={{ backgroundColor: "#020617", borderRadius: 2, overflow: "hidden" }}>
+      <Box sx={{ overflowX: 'auto', width: '100%' }}>
       <Table>
         <TableHead>
           <TableRow sx={{ bgcolor: "#1e293b" }}>
@@ -46,7 +49,10 @@ function CollectionTable({ refreshKey, filterMonth, filterYear }) {
           )}
         </TableBody>
       </Table>
+      </Box>
     </Paper>
+    
+    </>
   );
 }
 
