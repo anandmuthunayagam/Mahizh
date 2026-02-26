@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
@@ -62,6 +62,17 @@ const isAdmin = () => localStorage.getItem("role") === "admin";
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    // If no token is found, kick them back to /login
+    if (!token) {
+      navigate("/login");
+    }
+  }, [token, navigate]);
+
+  // If there's no token, don't even render the layout frame
+  if (!token) return null;
 
   // Get the role directly inside the component so it stays fresh
   const userRole = localStorage.getItem("role");

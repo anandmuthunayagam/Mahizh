@@ -11,6 +11,7 @@ import ResidentDashboard from "./pages/ResidentDashboard";
 import MyPayments from "./pages/MyPayment";
 import AdminDashboard from "./components/AdminDashboard";
 import Login from "./pages/Login";
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         {/* This Route "wraps" all pages in MainLayout */}
         <Route element={<MainLayout />}>
           {/* Index route: when user hits "/", go to MahizhConnect */}
+          
           <Route index element={<Navigate to="/mahizhconnect" replace />} />
           
           <Route path="mahizhconnect" element={<Home />} />
