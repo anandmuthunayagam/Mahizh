@@ -21,12 +21,12 @@ function MyPayments() {
   return (
     // Updated Paper to match ExpenseTable's dark background and border radius
     <Paper elevation={0} sx={{ backgroundColor: "#020617", borderRadius: 2, overflow: "hidden" }}>
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 2 ,}}>
         <Typography variant="h6" sx={{ color: "white", fontWeight: 600 }}>
           My Payment History
         </Typography>
       </Box>
-
+      <Box sx={{ overflowX: 'auto', width: '100%' }}>
       <Table>
         <TableHead>
           {/* Header background matches the deep slate of ExpenseTable */}
@@ -78,6 +78,7 @@ function MyPayments() {
           )}
         </TableBody>
       </Table>
+    </Box>
     </Paper>
   );
 }
