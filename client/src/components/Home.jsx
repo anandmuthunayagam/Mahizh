@@ -82,7 +82,7 @@ function Home() {
         </Box>
 
         <Typography variant="h5" sx={{ color: "white", mb: 3, fontWeight: 600 }}>
-          Maintenance Collections Insights - {month} {year}
+          Monthly Insights
         </Typography>
 
         {/* --- ADMIN CONTROLS --- */}
