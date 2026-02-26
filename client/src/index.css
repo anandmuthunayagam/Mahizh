@@ -101,3 +101,31 @@ button:focus-visible {
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
+
+.app-container {
+  min-height: 100vh; /* Fallback */
+  min-height: 100dvh; /* Dynamic Viewport Height - matches exactly what the user sees */
+  background-color: #020617; /* Ensure this matches your dark theme color */
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #020617; /* Use your exact dark blue/black hex code here */
+}
+
+.layout-wrapper {
+  display: flex;
+  min-height: 100dvh;
+}
+
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer {
+  margin-top: auto; /* Pushes footer to the bottom of the content, but stays above the background */
+}

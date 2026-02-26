@@ -8,10 +8,10 @@ import { SnackbarProvider } from "./utils/context/SnackbarContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <SnackbarProvider>
-    <BrowserRouter>
+    
       <CssBaseline />
       <App />
-    </BrowserRouter>
+    
   </SnackbarProvider>
 );
 

@@ -138,9 +138,9 @@ function Home() {
           </Box>
         )}
 
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {homes.map((home) => (
-            <Grid item key={home.homeNo} xs={12} sm={6} md={4} sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Grid item key={home.homeNo} xs={10} sm={5} md={2} sx={{ display: 'flex', flexDirection: 'column' }}>
               {/* 2. SYNCED LABELS: Month & Year label added above card */}
               <Typography variant="subtitle2" sx={{ color: "#94a3b8", mb: 1, ml: 1, fontWeight: 600 }}>
                 {month} {year}
@@ -149,7 +149,7 @@ function Home() {
                 home={home} 
                 selectedMonth={month} // Pass the state variable
                 selectedYear={year}   // Pass the state variable
-                sx={{ width: '100%', flexGrow: 1 }} 
+                sx={{ width: '100%' }} 
               />
             </Grid>
           ))}

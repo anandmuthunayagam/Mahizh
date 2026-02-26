@@ -51,7 +51,13 @@ function Login() {
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
 
-      navigate("/");
+     // UPDATED NAVIGATION LOGIC:
+    // Instead of navigate("/"), send them to their specific starting page
+    if (res.data.role === "admin") {
+      navigate("/mahizhconnect"); // Redirect admins to their panel
+    } else {
+      navigate("/mahizhconnect"); // Redirect users to their home dashboard
+    }
     } catch (err) {
       setError("Invalid username or password");
     } finally {

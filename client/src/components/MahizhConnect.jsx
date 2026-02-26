@@ -128,7 +128,7 @@ export default function MahizhConnect() {
 </Box>
 <Divider></Divider>
       {/* Main Layout */}
-      <Container maxWidth="lg">
+      <Container >
         <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, alignItems: "center", gap: 6 }}>
           
           {/* Left: Content Cards */}
