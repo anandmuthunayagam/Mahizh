@@ -16,7 +16,7 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
@@ -46,197 +46,185 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 /* ================= COMPONENT ================= */
 
-function MonthlySummary() {
+// ✅ UPDATED: Accepting token as a prop from Reports.jsx
+function MonthlySummary({ token }) {
   const [month, setMonth] = useState(CURRENT_MONTH);
   const [year, setYear] = useState(CURRENT_YEAR);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!Number.isInteger(month) || !Number.isInteger(year)) return;
-    fetchSummary(month, year);
-  }, [month, year]);
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const monthName = MONTHS[month];
+        
+        // ✅ AUTHENTICATION: Create config with the session token
+        const config = {
+          params: { month: monthName, year },
+          headers: { Authorization: `Bearer ${token}` }
+        };
 
-  const fetchSummary = async (m, y) => {
-    const monthName = MONTHS[m - 1];
-    if (!monthName || !y) return;
+        const [colRes, expRes, homesRes] = await Promise.all([
+          axios.get("/collections", config),
+          axios.get("/expenses", config),
+          axios.get("/owner-residents/home-status", config),
+        ]);
 
-    setLoading(true);
-    setError("");
+        const totalCollections = colRes.data.reduce((sum, item) => sum + item.amount, 0);
+        const totalExpenses = expRes.data.reduce((sum, item) => sum + item.amount, 0);
+        const pendingHomes = homesRes.data.filter((h) => h.status !== "PAID");
 
-    try {
-      const res = await axios.get(
-        `/reports/monthly-summary?month=${monthName}&year=${y}`
-      );
-      setData(res.data);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load monthly summary");
-    } finally {
-      setLoading(false);
-    }
+        setData({
+          totalCollections,
+          totalExpenses,
+          pieData: [
+            { name: "Collections", value: totalCollections },
+            { name: "Expenses", value: totalExpenses },
+          ],
+          pendingHomes,
+        });
+      } catch (error) {
+        console.error("Error fetching summary data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [month, year, token]); // ✅ RE-RUN: If the token changes (session reset)
+
+  const handleWhatsAppRemind = (home) => {
+    const message = encodeURIComponent(
+      `Hello ${home.owner.name},\n\n` +
+      `This is a friendly reminder for the Apartment Maintenance payment.\n\n` +
+      `🏠 Home: ${home.homeNo}\n` +
+      `📅 Month: ${MONTHS[month]} ${year}\n` +
+      `💰 Status: Pending\n\n` +
+      `Please clear the dues at your convenience. Thank you!`
+    );
+    window.open(`https://wa.me/91${home.owner.phone}?text=${message}`, "_blank");
   };
 
-  const barData = data ? [
-    { name: "Collection", value: data.totalCollection },
-    { name: "Expense", value: data.totalExpense },
-  ] : [];
-
-  const pieData = data ? [
-    { name: "Paid", value: data.paidHomes.length },
-    { name: "Pending", value: data.pendingHomes.length },
-  ] : [];
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
+        <CircularProgress sx={{ color: '#38bdf8' }} />
+      </Box>
+    );
+  }
 
   return (
     <Paper sx={styles.container}>
-      <Typography variant="h5" sx={styles.title}>
-        Monthly Summary — {MONTHS[month - 1]} {year}
-      </Typography>
-      
-      {/* Filters */}
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={styles.title}>Financial Performance Summary</Typography>
+        
+        <Box sx={{ display: 'flex', gap: 2 }}>
           <TextField
-            select fullWidth label="Month"
+            select
+            size="small"
+            label="Month"
             value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
-            InputLabelProps={{ style: styles.label }}
-            InputProps={{ style: styles.input }}
-            sx={{ 
-                  
-                  "& .MuiOutlinedInput-root": { 
-                    color: "white",
-                    // This line specifically makes the arrow icon white
-                    "& .MuiSvgIcon-root": { color: "white" } 
-                  },
-                  // Ensure the label is also visible
-                  "& .MuiInputLabel-root": { color: "#bbb" },
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
-                }}
+            onChange={(e) => setMonth(e.target.value)}
+            sx={styles.select}
           >
-            {MONTHS.map((m, i) => (
-              <MenuItem key={m} value={i + 1}>{m}</MenuItem>
+            {MONTHS.map((m, index) => (
+              <MenuItem key={m} value={index}>{m}</MenuItem>
             ))}
           </TextField>
-        </Grid>
 
-        <Grid item xs={12} sm={6}>
           <TextField
-            select fullWidth label="Year"
+            select
+            size="small"
+            label="Year"
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            InputLabelProps={{ style: styles.label }}
-            InputProps={{ style: styles.input }}
-            sx={{ 
-                  
-                  "& .MuiOutlinedInput-root": { 
-                    color: "white",
-                    // This line specifically makes the arrow icon white
-                    "& .MuiSvgIcon-root": { color: "white" } 
-                  },
-                  // Ensure the label is also visible
-                  "& .MuiInputLabel-root": { color: "#bbb" },
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
-                }}
+            onChange={(e) => setYear(e.target.value)}
+            sx={styles.select}
           >
             {YEARS.map((y) => (
               <MenuItem key={y} value={y}>{y}</MenuItem>
             ))}
           </TextField>
-        </Grid>
-      </Grid>
+        </Box>
+      </Stack>
 
       <Divider sx={styles.divider} />
 
-      {loading && (
-        <Box sx={{ textAlign: "center", py: 4 }}>
-          <CircularProgress sx={{ color: "#6366f1" }} />
-        </Box>
-      )}
-
-      {error && <Typography sx={{ color: "#f87171" }}>{error}</Typography>}
-
-      {data && !loading && (
-        <Grid container spacing={5}>
-          {/* 1. Bar Chart Section (1/3 Width) */}
-          <Grid item xs={12} md={4}>
-            <ChartCard title="Collection vs Expense">
-              <Box sx={{ height: 400, width:400,mt: 2 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData}>
-                    <XAxis dataKey="name" stroke="#cbd5f5" fontSize={12} />
-                    <YAxis stroke="#cbd5f5" fontSize={12} />
-                    <Tooltip 
-                       contentStyle={{ backgroundColor: "#1e293b", border: "none", color: "#fff" }}
-                    />
-                    <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                    {/* Adding the labels here */}
-                    <LabelList dataKey="value" position="center" fill="#111110" fontSize={12} offset={1} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+      {data && (
+        <Grid container spacing={3}>
+          {/* Charts Row */}
+          <Grid item xs={12} md={6}>
+            <ChartCard title="Income vs Expense">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={data.pieData}>
+                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', color: '#fff' }}
+                  />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {data.pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                    <LabelList dataKey="value" position="top" fill="#fff" />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </ChartCard>
           </Grid>
 
-          {/* 2. Pie Chart Section (1/3 Width) */}
-          <Grid item xs={12} md={4}>
-            <ChartCard title="Paid vs Pending">
-              <Box sx={{ height: 400, width:400,mt: 2 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} dataKey="value" innerRadius={60} outerRadius={90} paddingAngle={5}>
-                      {pieData.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Box>
+          <Grid item xs={12} md={6}>
+            <ChartCard title="Allocation Ratio">
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={data.pieData}
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {data.pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', color: '#fff' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <Stack direction="row" justifyContent="center" spacing={3}>
+                <Typography sx={{ color: '#4ade80', fontSize: '0.8rem' }}>● Income</Typography>
+                <Typography sx={{ color: '#f87171', fontSize: '0.8rem' }}>● Expense</Typography>
+              </Stack>
             </ChartCard>
           </Grid>
 
-          {/* 3. Defaulters Section (1/3 Width) */}
-          <Grid item xs={12} md={4}>
-            <Paper sx={{ ...styles.card, height: '100%', display: 'flex', flexDirection: 'column' }}>
+          {/* Pending Collections List */}
+          <Grid item xs={12}>
+            <Paper sx={styles.card}>
               <Typography sx={styles.sectionTitle}>
-                Defaulters ({data.pendingHomes.length})
+                Pending Payments ({data.pendingHomes.length})
               </Typography>
-              <Divider sx={{ ...styles.divider, my: 1 }} />
-              
-              <Box sx={{ 
-                flexGrow: 1, 
-                overflowY: "auto", 
-                maxHeight: 400, width:300,
-                pr: 1,
-                "&::-webkit-scrollbar": { width: "6px" },
-                "&::-webkit-scrollbar-thumb": { background: "#1e293b", borderRadius: "10px" }
-              }}>
+              <Box sx={{ maxHeight: 300, overflow: 'auto', mt: 2 }}>
                 {data.pendingHomes.length === 0 ? (
-                  <Typography sx={{ color: "#4ade80", mt: 2 }}>🎉 No pending payments</Typography>
+                  <Typography sx={{ color: '#94a3b8', textAlign: 'center', py: 2 }}>All clear! No pending payments.</Typography>
                 ) : (
-                  data.pendingHomes.map((h) => (
-                    <Paper key={h.homeNo} sx={{ ...styles.defaulterCard, mt: 1 }}>
-                      <Typography sx={{ fontWeight: 600, color: "#e5e7eb", fontSize: 16 }}>
-                        Home: {h.homeNo}
-                      </Typography>
-                      <Typography sx={{ color: "#94a3b8", fontSize: 13 }}>
-                        {h.resident?.name || "N/A"}
-                      </Typography>
-                      {h.resident?.phone && (
-                        <Button
-                          size="small"
-                          startIcon={<WhatsAppIcon />}
-                          sx={{ ...styles.whatsappBtn, fontSize: '1rem', py: 0.3, mt: 1 }}
-                          onClick={() => {
-                            const msg = `Hello ${h.resident.name}, Gentle Reminder: Maintenance Rs.550 for ${MONTHS[month - 1]} ${year} is pending.`;
-                            window.open(`https://wa.me/91${h.resident.phone}?text=${encodeURIComponent(msg)}`);
-                          }}
-                        >
-                          Remind
-                        </Button>
-                      )}
+                  data.pendingHomes.map((home) => (
+                    <Paper key={home.homeNo} sx={styles.listRow}>
+                      <Box>
+                        <Typography sx={{ color: '#fff', fontWeight: 600 }}>Home: {home.homeNo}</Typography>
+                        <Typography sx={{ color: '#94a3b8', fontSize: '0.8rem' }}>Owner: {home.owner.name}</Typography>
+                      </Box>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<WhatsAppIcon />}
+                        onClick={() => handleWhatsAppRemind(home)}
+                        sx={styles.remindButton}
+                      >
+                        Remind
+                      </Button>
                     </Paper>
                   ))
                 )}
@@ -266,15 +254,14 @@ const styles = {
     border: "1px solid #1e293b",
     borderRadius: 3,
     p: 3,
-    width: '100%', // Ensure it expands to full screen width
+    width: '100%',
   },
   title: {
     color: "#e5e7eb",
     fontWeight: 700,
-    mb: 2,
   },
   sectionTitle: {
-    color: "#e5e7eb",
+    color: "#38bdf8",
     fontWeight: 600,
     mb: 1,
   },
@@ -283,27 +270,37 @@ const styles = {
     my: 2,
   },
   card: {
-    backgroundColor: "#020617",
+    backgroundColor: "#0F172A",
     border: "1px solid #1e293b",
-    borderRadius: 2,
     p: 2,
-  },
-  defaulterCard: {
-    backgroundColor: "rgba(127, 29, 29, 0.1)",
-    border: "1px solid #7f1d1d",
     borderRadius: 2,
-    p: 1.2,
   },
-  whatsappBtn: {
-    color: "#22c55e",
-    border: "1px solid #22c55e",
-    textTransform: "none",
-    "&:hover": {
-      backgroundColor: "rgba(34,197,94,0.1)",
+  select: {
+    width: 150,
+    "& .MuiOutlinedInput-root": {
+      color: "white",
+      "& .MuiSvgIcon-root": { color: "#38bdf8" },
+      "& fieldset": { borderColor: "#1e293b" },
     },
+    "& .MuiInputLabel-root": { color: "#94a3b8" },
   },
-  label: { color: "#cbd5f5" },
-  input: { color: "white" },
+  listRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    p: 1.5,
+    mb: 1,
+    bgcolor: '#1e293b',
+    border: '1px solid #334155',
+  },
+  remindButton: {
+    color: '#25D366',
+    borderColor: '#25D366',
+    '&:hover': {
+      borderColor: '#1ebe5d',
+      bgcolor: 'rgba(37, 211, 102, 0.1)',
+    }
+  }
 };
 
 export default MonthlySummary;

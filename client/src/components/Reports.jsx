@@ -1,34 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
+// ✅ IMPORT: Added useOutletContext
+import { useOutletContext } from "react-router-dom";
 import MonthlySummary from "./MonthlySummary";
 
-import { Box, MenuItem, TextField } from "@mui/material";
+function Reports() {
+    // ✅ CONTEXT: Get session data from MainLayout
+    const { token, userRole } = useOutletContext();
 
-const isLoggedIn = () => {
-  return !!localStorage.getItem("token");
-};
+    const isAdmin = () => userRole === "admin";
 
-const isAdmin = () => {
-  return localStorage.getItem("role") === "admin";
-};
-
-function Reports(){
-    const [month, setMonth] = useState(new Date().toLocaleString('default', { month: 'long' }));
-    const [year, setYear] = useState(new Date().getFullYear());
-    
-   
-
-    const months = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December"
-];
-    return(
+    return (
         <>
-        {isAdmin() && (
-            <>
-              <MonthlySummary></MonthlySummary>
-            </>
-        )}
+            {/* ✅ PASSING TOKEN: Send the session token to the summary component */}
+            {isAdmin() && (
+                <MonthlySummary token={token} />
+            )}
         </>
-    )
+    );
 }
-export default Reports
+
+export default Reports;
