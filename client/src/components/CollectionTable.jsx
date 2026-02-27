@@ -2,14 +2,20 @@ import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableRow, Paper, Box } from "@mui/material";
 import axios from "../utils/api/axios";
 
-function CollectionTable({ refreshKey, filterMonth, filterYear }) {
+// ✅ UPDATED: Now accepting token as a prop from Dashboard
+function CollectionTable({ refreshKey, filterMonth, filterYear, token }) {
   const [collections, setCollections] = useState([]);
 
   useEffect(() => {
     const fetchFiltered = async () => {
       try {
         const res = await axios.get("/collections", {
-          params: { month: filterMonth === "All" ? "" : filterMonth, year: filterYear === "All" ? "" : filterYear }
+          params: { 
+            month: filterMonth === "All" ? "" : filterMonth, 
+            year: filterYear === "All" ? "" : filterYear 
+          },
+          // ✅ AUTHENTICATION: Use the session token
+          headers: { Authorization: `Bearer ${token}` }
         });
         setCollections(res.data);
       } catch (err) {
@@ -17,11 +23,9 @@ function CollectionTable({ refreshKey, filterMonth, filterYear }) {
       }
     };
     fetchFiltered();
-  }, [refreshKey, filterMonth, filterYear]);
+  }, [refreshKey, filterMonth, filterYear, token]); // Re-run if token changes
 
   return (
-    <>
-    
     <Paper elevation={0} sx={{ backgroundColor: "#020617", borderRadius: 2, overflow: "hidden" }}>
       <Box sx={{ overflowX: 'auto', width: '100%' }}>
       <Table>
@@ -51,8 +55,6 @@ function CollectionTable({ refreshKey, filterMonth, filterYear }) {
       </Table>
       </Box>
     </Paper>
-    
-    </>
   );
 }
 
