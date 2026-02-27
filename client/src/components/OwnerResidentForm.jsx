@@ -14,7 +14,7 @@ import { useSnackbar } from "../utils/context/SnackbarContext";
 
 const homes = ["G1", "F1", "F2", "S1", "S2"];
 
-// ✅ UPDATED: Accepting token as a prop
+// ✅ UPDATED: Accepting token as a prop from AdminDashboard
 function OwnerResidentForm({ onSuccess, token }) {
   const [homeNo, setHomeNo] = useState("");
   const [ownerName, setOwnerName] = useState("");
@@ -111,6 +111,7 @@ function OwnerResidentForm({ onSuccess, token }) {
   );
 }
 
+// ✅ STYLES: Defined here to fix ReferenceError
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
     color: "white",

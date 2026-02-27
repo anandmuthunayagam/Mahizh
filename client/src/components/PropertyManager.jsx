@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Box, Paper, Table, TableBody, TableCell, TableHead, TableRow,
   IconButton, Typography, TextField, InputAdornment, Dialog,
-  DialogTitle, DialogContent, DialogActions, Button, CircularProgress, Stack, Tooltip
+  DialogTitle, DialogContent, DialogActions, Button, CircularProgress, Stack, TableContainer
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import HomeIcon from "@mui/icons-material/Home";
@@ -10,7 +10,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import axios from "../utils/api/axios";
 import { useSnackbar } from "../utils/context/SnackbarContext";
 
-// ✅ UPDATED: Accepting token as a prop
+// ✅ UPDATED: Accepting token as a prop from AdminDashboard
 function PropertyManager({ token }) {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ function PropertyManager({ token }) {
   const fetchProperties = async () => {
     setLoading(true);
     try {
-      // ✅ AUTHENTICATION: Pass the session token
+      // ✅ AUTHENTICATION: Added Token to headers
       const res = await axios.get("/owner-residents", {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -54,7 +54,7 @@ function PropertyManager({ token }) {
 
   const handleUpdate = async () => {
     try {
-      // ✅ AUTHENTICATION: Pass the session token
+      // ✅ AUTHENTICATION: Added Token to headers
       await axios.put(`/owner-residents/${selectedProp._id}`, {
         owner: { name: ownerName, phone: ownerPhone },
         resident: { name: residentName, phone: residentPhone },
@@ -80,7 +80,7 @@ function PropertyManager({ token }) {
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
         <Box>
            <Typography variant="h5" sx={{ color: "white", fontWeight: 700 }}>Property Directory</Typography>
-           <Typography variant="body2" sx={{ color: "#94a3b8" }}>Manage owner and resident information per unit</Typography>
+           <Typography variant="body2" sx={{ color: "#94a3b8" }}>Manage owner and resident information</Typography>
         </Box>
         <TextField
           placeholder="Search home or owner..."
@@ -140,7 +140,6 @@ function PropertyManager({ token }) {
         )}
       </TableContainer>
 
-      {/* Edit Dialog */}
       <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} PaperProps={{ sx: { bgcolor: "#0f172a", border: "1px solid #1e293b", color: "white", borderRadius: 3 } }}>
         <DialogTitle sx={{ fontWeight: 700 }}>Edit Unit {selectedProp?.homeNo}</DialogTitle>
         <DialogContent>
@@ -163,6 +162,7 @@ function PropertyManager({ token }) {
   );
 }
 
+// ✅ STYLES: Defined here to fix ReferenceError
 const searchStyle = {
   width: 300,
   "& .MuiOutlinedInput-root": {
@@ -173,11 +173,17 @@ const searchStyle = {
   }
 };
 
+const inputStyle = {
+  "& .MuiOutlinedInput-root": {
+    color: "white",
+    "& fieldset": { borderColor: "#555" },
+    "&:hover fieldset": { borderColor: "#38bdf8" },
+  },
+  "& .MuiInputLabel-root": { color: "#94a3b8" },
+};
+
 const styles = {
   head: { color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", fontSize: "0.75rem", borderBottom: "1px solid #1e293b" }
 };
-
-// Simple TableContainer shim for the code block
-const TableContainer = ({ children, sx, component }) => <Box component={component} sx={sx}>{children}</Box>;
 
 export default PropertyManager;
