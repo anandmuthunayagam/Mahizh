@@ -15,8 +15,6 @@ import {
   Tooltip,
   Chip,
   CircularProgress,
-  Snackbar,
-  Alert
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,46 +22,49 @@ import PersonIcon from "@mui/icons-material/Person";
 import axios from "../utils/api/axios";
 import { useSnackbar } from "../utils/context/SnackbarContext";
 
-function UserManager() {
+// ✅ UPDATED: Now accepting token as a prop from AdminDashboard
+function UserManager({ token }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const showSnackbar = useSnackbar()
+  const showSnackbar = useSnackbar();
 
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    if (token) {
+      fetchUsers();
+    }
+  }, [token]); // ✅ RE-FETCH: If the session token changes
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/auth/admin/users"); // Ensure your backend has this route
+      // ✅ AUTHENTICATION: Pass the session token
+      const res = await axios.get("/auth/admin/users", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       setUsers(res.data);
     } catch (err) {
       showSnackbar("Failed to fetch users", "error");
-      showSnackbar(err?.response?.data?.message || "Failed to fetch users", "error");
-      console.error("Fetch users failed", err);
+      console.error("Fetch users failed:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDeleteUser = async (id, username) => {
-    if (window.confirm(`Are you sure you want to delete user: ${username}?`)) {
+  const handleDeleteUser = async (userId, userName) => {
+    if (window.confirm(`Are you sure you want to delete user: ${userName}?`)) {
       try {
-        await axios.delete(`auth/admin/users/${id}`);
-        
-        showSnackbar(`User ${username} deleted successfully`, "success");
-        fetchUsers(); // Refresh list
+        // ✅ AUTHENTICATION: Pass the session token
+        await axios.delete(`/auth/admin/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        showSnackbar("User deleted successfully", "success");
+        fetchUsers();
       } catch (err) {
-        showSnackbar("Failed to delete user", "error");
-        showSnackbar(err?.response?.data?.message || "Failed to delete user", "error");
-        console.error("Delete user failed", err);
+        showSnackbar("Error deleting user", "error");
       }
     }
   };
-
-  
 
   const filteredUsers = users.filter((user) =>
     user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,96 +72,57 @@ function UserManager() {
   );
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <TableContainer
-        component={Paper}
-        sx={{
-          backgroundColor: "#1e293b",
-          p: { xs: 1.5, md: 3 },
-          borderRadius: 3,
-          border: "1px solid #334155",
-          width: "100%",
-          boxSizing: "border-box",
-          overflowX: "auto", // Prevents page-level scroll 
-          boxShadow: "none"
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "space-between",
-            mb: 3,
-            alignItems: { xs: "flex-start", sm: "center" },
-            gap: 2
-          }}
-        >
-          <Typography variant="h6" sx={{ color: "white", fontWeight: 700 }}>
-            Manage System Users
-          </Typography>
-
-          <TextField
-            size="small"
-            placeholder="Search Username or Home..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{
-              backgroundColor: "#020617",
-              borderRadius: 1,
-              width: { xs: "100%", sm: 280 },
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "#334155" },
-                "&:hover fieldset": { borderColor: "#6366f1" },
-              }
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: "#94a3b8" }} />
-                </InputAdornment>
-              ),
-              style: { color: "white" }
-            }}
-          />
+    <Box sx={{ width: "100%", maxWidth: 1000 }}>
+      <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
+        <Box>
+          <Typography variant="h5" sx={{ color: "white", fontWeight: 700 }}>User Management</Typography>
+          <Typography variant="body2" sx={{ color: "#94a3b8" }}>View and manage active resident accounts</Typography>
         </Box>
 
+        <TextField
+          placeholder="Search by name or home..."
+          size="small"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={searchStyle}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: "#38bdf8" }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
+
+      <TableContainer component={Paper} sx={{ bgcolor: "#0F172A", border: "1px solid #1e293b", borderRadius: 3 }}>
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}>
-            <CircularProgress sx={{ color: "#22d3ee" }} />
-          </Box>
+          <Box sx={{ p: 5, textAlign: "center" }}><CircularProgress sx={{ color: "#38bdf8" }} /></Box>
         ) : (
-          <Table sx={{ minWidth: 600, tableLayout: "fixed",backgroundColor: "#020617" }}>
+          <Table>
             <TableHead>
-              <TableRow>
-                <TableCell sx={styles.head}>User / Resident</TableCell>
-                <TableCell sx={styles.head} width="120px">Home</TableCell>
-                <TableCell sx={styles.head} width="150px">Role</TableCell>
-                <TableCell sx={styles.head} align="center" width="100px">Actions</TableCell>
+              <TableRow sx={{ bgcolor: "#1e293b" }}>
+                <TableCell sx={styles.head}>Resident</TableCell>
+                <TableCell sx={styles.head}>Apartment</TableCell>
+                <TableCell sx={styles.head}>Role</TableCell>
+                <TableCell align="center" sx={styles.head}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
-                  <TableRow key={user._id} sx={{ "&:hover": { bgcolor: "rgba(255,255,255,0.03)" } }}>
-                    <TableCell sx={styles.cell}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-                        <PersonIcon sx={{ color: "#6366f1", fontSize: 20 }} />
-                        <Typography noWrap sx={{ color: "white", fontWeight: 500 }}>
-                          {user.username}
-                        </Typography>
+                  <TableRow key={user._id} sx={{ "&:hover": { bgcolor: "rgba(56, 189, 248, 0.05)" } }}>
+                    <TableCell>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <PersonIcon sx={{ color: "#6366f1" }} />
+                        <Typography sx={{ color: "white", fontWeight: 500 }}>{user.username}</Typography>
                       </Box>
                     </TableCell>
-                    <TableCell sx={styles.cell}>
-                      <Chip
-                        label={user.homeNo || "N/A"}
-                        size="small"
-                        sx={{ bgcolor: "#334155", color: "#22d3ee", fontWeight: 700 }}
-                      />
+                    <TableCell>
+                      <Chip label={user.homeNo || "N/A"} size="small" sx={{ bgcolor: "#1e293b", color: "#38bdf8", fontWeight: "bold" }} />
                     </TableCell>
-                    <TableCell sx={styles.cell}>
-                      <Typography sx={{ color: "#94a3b8", fontSize: "0.85rem" }}>
-                        {user.role || "Resident"}
-                      </Typography>
+                    <TableCell>
+                      <Typography sx={{ color: "#94a3b8", fontSize: "0.85rem" }}>{user.role || "Resident"}</Typography>
                     </TableCell>
                     <TableCell align="center">
                       <Tooltip title="Delete Account">
@@ -177,20 +139,26 @@ function UserManager() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ py: 3, color: "#94a3b8" }}>
-                    No users found.
-                  </TableCell>
+                  <TableCell colSpan={4} align="center" sx={{ py: 3, color: "#94a3b8" }}>No users found.</TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         )}
       </TableContainer>
-
-      
     </Box>
   );
 }
+
+const searchStyle = {
+  width: 300,
+  "& .MuiOutlinedInput-root": {
+    color: "white",
+    bgcolor: "#1e293b",
+    "& fieldset": { borderColor: "#334155" },
+    "&:hover fieldset": { borderColor: "#38bdf8" },
+  }
+};
 
 const styles = {
   head: {
@@ -198,12 +166,7 @@ const styles = {
     fontWeight: 700,
     textTransform: "uppercase",
     fontSize: "0.75rem",
-    letterSpacing: "0.05em",
-    borderBottom: "1px solid #334155"
-  },
-  cell: {
     borderBottom: "1px solid #1e293b",
-    py: 2
   }
 };
 
