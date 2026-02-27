@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+// ✅ IMPORT: Added useOutletContext to receive session data from MainLayout
+import { useOutletContext } from "react-router-dom";
 import { Grid, Box, TextField, MenuItem, Typography, Button, Paper, Fade, Tooltip } from "@mui/material";
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { toPng } from 'html-to-image';
@@ -12,26 +14,34 @@ const months = [
 ];
 
 function Home() {
+  // ✅ CONTEXT: Fetch the token and userRole passed from MainLayout
+  const { token, userRole } = useOutletContext();
+
   // 1. DYNAMIC INITIALIZATION: Detect current month and year
   const currentMonthName = new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1).toLocaleString('default', { month: 'long' });
   const currentYearValue = new Date().getFullYear();
 
   const [homes, setHomes] = useState([]);
-  const [month, setMonth] = useState(currentMonthName); // Default to current month
-  const [year, setYear] = useState(currentYearValue);   // Default to current year
+  const [month, setMonth] = useState(currentMonthName); 
+  const [year, setYear] = useState(currentYearValue);   
   const contentRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
   
   const startYear = 2026;
   const YEARS = Array.from({ length: currentYearValue - startYear + 2 }, (_, i) => startYear + i).reverse();
 
-  const isAdmin = () => localStorage.getItem("role") === "admin";
+  // ✅ UPDATED: Use userRole from context instead of localStorage
+  const isAdmin = () => userRole === "admin";
 
   useEffect(() => {
-    axios.get("/owner-residents/home-status", { params: { month, year } })
+    // ✅ AUTHENTICATION: Pass the session token in the request headers
+    axios.get("/owner-residents/home-status", { 
+      params: { month, year },
+      headers: { Authorization: `Bearer ${token}` } 
+    })
       .then((res) => setHomes(res.data))
       .catch(console.error);
-  }, [month, year]);
+  }, [month, year, token]); // Re-run if token changes (e.g., session expires)
 
   const exportImage = async () => {
     if (contentRef.current === null) return;
@@ -97,10 +107,8 @@ function Home() {
                   width: 130, 
                   "& .MuiOutlinedInput-root": { 
                     color: "white",
-                    // This line specifically makes the arrow icon white
                     "& .MuiSvgIcon-root": { color: "white" } 
                   },
-                  // Ensure the label is also visible
                   "& .MuiInputLabel-root": { color: "#bbb" },
                   "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
                 }}
@@ -115,10 +123,8 @@ function Home() {
                  width: 130, 
                   "& .MuiOutlinedInput-root": { 
                     color: "white",
-                    // This line specifically makes the arrow icon white
                     "& .MuiSvgIcon-root": { color: "white" } 
                   },
-                  // Ensure the label is also visible
                   "& .MuiInputLabel-root": { color: "#bbb" },
                   "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" }
                 }}
@@ -141,26 +147,18 @@ function Home() {
         <Grid container spacing={2}>
           {homes.map((home) => (
             <Grid item key={home.homeNo} xs={10} sm={5} md={2} sx={{ display: 'flex', flexDirection: 'column' }}>
-              {/* 2. SYNCED LABELS: Month & Year label added above card */}
               <Typography variant="subtitle2" sx={{ color: "#94a3b8", mb: 1, ml: 1, fontWeight: 600 }}>
                 {month} {year}
               </Typography>
               <HomeCard 
                 home={home} 
-                selectedMonth={month} // Pass the state variable
-                selectedYear={year}   // Pass the state variable
+                selectedMonth={month} 
+                selectedYear={year}   
                 sx={{ width: '100%' }} 
               />
             </Grid>
           ))}
         </Grid>
-        {/*
-        <Box sx={{ mt: 4, textAlign: 'left' }}>
-          <Typography variant="caption" sx={{ color: isExporting ? '#94a3b8' : '#38bdf8' }}>
-            © {new Date().getFullYear()} Mahizh Connect
-          </Typography>
-        </Box>
-        */}
       </Box>
     </Fade>
   );

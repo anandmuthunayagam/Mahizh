@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Added useEffect for wake-up call
 import {
   Box,
   Card,
@@ -11,19 +11,16 @@ import {
   InputAdornment,
   CircularProgress,
 } from "@mui/material";
-//import axios from "axios";
 import axios from "../utils/api/axios";
 import { useNavigate } from "react-router-dom";
 import mahizh from '../assets/MahizhLogo.png'
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import PersonIcon from "@mui/icons-material/Person";
 
-
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -34,6 +31,20 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
+
+  // ✅ SESSION PERSISTENCE WAKE-UP
+  // This pings your backend as soon as the user lands on the login page.
+  // This helps "warm up" Vercel functions while the user is typing their credentials.
+  useEffect(() => {
+    const warmUp = async () => {
+      try {
+        await axios.get(`${import.meta.env.VITE_API_URL}/health`); // Assumes you have a health route
+      } catch (err) {
+        console.log("Server is warming up...");
+      }
+    };
+    warmUp();
+  }, []);
 
   const handleLogin = async () => {
     setError("");
@@ -47,17 +58,20 @@ function Login() {
 
       const res = await axios.post(url, { username, password });
 
-      // ✅ DO NOT CHANGE (fixes Test Case 1)
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.role);
+      // ✅ UPDATED TO sessionStorage
+      // Data stored here is cleared automatically when the browser tab or window is closed.
+      // This solves the issue of the app staying logged in after closing the browser.
+      sessionStorage.setItem("token", res.data.token);
+      sessionStorage.setItem("role", res.data.role);
+      sessionStorage.setItem("username", username); // Helpful for displaying "Welcome, User"
 
-     // UPDATED NAVIGATION LOGIC:
-    // Instead of navigate("/"), send them to their specific starting page
-    if (res.data.role === "admin") {
-      navigate("/mahizhconnect"); // Redirect admins to their panel
-    } else {
-      navigate("/mahizhconnect"); // Redirect users to their home dashboard
-    }
+      // ✅ NAVIGATION LOGIC
+      // Redirects to the main dashboard layout
+      if (res.data.role === "admin") {
+        navigate("/mahizhconnect");
+      } else {
+        navigate("/mahizhconnect");
+      }
     } catch (err) {
       setError("Invalid username or password");
     } finally {
@@ -97,7 +111,6 @@ function Login() {
             component="img"
             src={mahizh}
             alt="Apartment Logo"
-                
             sx={{
               height: 90,
               width: 90,
@@ -105,19 +118,15 @@ function Login() {
               borderRadius: "50%",
               boxShadow: "0 4px 12px rgba(56,189,248,0.4)",
              }}
-            
           />
           <Box style={{ display: "flex", gap: "5px" }}>
             <Typography variant="h5" fontWeight={600}>
               Mahizh
             </Typography>
-
             <Typography variant="h5" fontWeight={600} color="rgb(56, 189, 248)">
               Connect
             </Typography>
           </Box>
-                   
-
           <Typography
             variant="body2"
             sx={{ color: "#94a3b8", mt: 0.5 }}
@@ -125,7 +134,6 @@ function Login() {
             Please login to your account
           </Typography>
         </Box>
-
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -159,7 +167,6 @@ function Login() {
             },
           }}
         />
-
 
         <TextField
           fullWidth
@@ -199,7 +206,6 @@ function Login() {
             },
           }}
         />
-
 
         <TextField
             select
@@ -250,8 +256,6 @@ function Login() {
             </MenuItem>
         </TextField>
 
-
-
         <Button
             fullWidth
             sx={{
@@ -270,9 +274,8 @@ function Login() {
             onClick={handleLogin}
             disabled={loading}
           >
-        {loading ? <CircularProgress size={24} /> : "Log In"}
+        {loading ? <CircularProgress size={24} color="inherit" /> : "Log In"}
       </Button>
-
       </Card>
     </Box>
   );
