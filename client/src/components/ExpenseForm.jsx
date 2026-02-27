@@ -51,7 +51,9 @@ function ExpenseForm({ onSuccess, token }) {
 
     try {
       await axios.post("/expenses", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+        headers: { "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`
+         }
       });
       showSnackbar("Expense and Receipt saved!", "success");
     } catch (err) {
