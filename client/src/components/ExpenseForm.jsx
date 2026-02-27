@@ -17,46 +17,51 @@ const MONTH_NAMES = [
   "July", "August", "September", "October", "November", "December"
 ];
 
+// ✅ Added token prop
 function ExpenseForm({ onSuccess, token }) {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
-  const [date, setDate] = useState(""); // Format: YYYY-MM-DD from input
-  const [file, setFile] = useState(null);
+  const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+  
   const showSnackbar = useSnackbar();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // ✅ AUTO-CALCULATE Month and Year from the Date input
-    const selectedDate = new Date(date);
-    const calculatedMonth = MONTH_NAMES[selectedDate.getMonth()];
-    const calculatedYear = selectedDate.getFullYear().toString();
+    // Calculate month and year from the date string
+    const dateObj = new Date(date);
+    const extractedMonth = MONTH_NAMES[dateObj.getMonth()];
+    const extractedYear = dateObj.getFullYear().toString();
 
+    // Create FormData object
     const formData = new FormData();
     formData.append("title", title);
     formData.append("amount", amount);
     formData.append("date", date);
-    formData.append("month", calculatedMonth); // Sent to backend automatically
-    formData.append("year", calculatedYear);   // Sent to backend automatically
-    if (file) formData.append("receipt", file);
+    formData.append("month", extractedMonth); 
+    formData.append("year", extractedYear);   
+
+    // ✅ Changed key from "attachment" to "receipt"
+    if (file) formData.append("receipt", file); 
 
     try {
+      // ✅ Added Authorization header
       await axios.post("/expenses", formData, {
         headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data" 
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}` 
         }
       });
-
+      
       setTitle(""); setAmount(""); setDate(""); setFile(null);
+      showSnackbar("Expense and Receipt saved!", "success");
       onSuccess?.();
-      showSnackbar("Expense added successfully!", "success");
     } catch (err) {
-      // If server returns 500, log the exact response for debugging
-      console.error("Server Error Detail:", err.response?.data);
-      showSnackbar(err.response?.data?.message || "Server Error (500): Check backend logs", "error");
+      console.error("Server Response:", err.response?.data);
+      showSnackbar(err.response?.data?.message || "Upload failed (500)", "error");
     } finally {
       setLoading(false);
     }
@@ -65,7 +70,6 @@ function ExpenseForm({ onSuccess, token }) {
   return (
     <Paper elevation={3} sx={{ p: 4, bgcolor: "#0F172A", borderRadius: 3, maxWidth: 500, border: "1px solid #1e293b" }}>
       <Typography variant="h5" sx={{ color: "white", fontWeight: 700, mb: 1 }}>Add Expense</Typography>
-      <Typography variant="body2" sx={{ color: "#94a3b8", mb: 2 }}>The month and year will be recorded based on the date selected.</Typography>
       <Divider sx={{ mb: 3, bgcolor: "#1e293b" }} />
 
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -74,9 +78,7 @@ function ExpenseForm({ onSuccess, token }) {
           value={title} 
           onChange={(e) => setTitle(e.target.value)} 
           fullWidth required sx={inputStyle} 
-          placeholder="e.g., Monthly Water Bill"
         />
-        
         <TextField 
           label="Amount (₹)" 
           type="number" 
@@ -84,9 +86,8 @@ function ExpenseForm({ onSuccess, token }) {
           onChange={(e) => setAmount(e.target.value)} 
           fullWidth required sx={inputStyle} 
         />
-        
         <TextField 
-          label="Date of Expense" 
+          label="Date" 
           type="date" 
           value={date} 
           onChange={(e) => setDate(e.target.value)} 
@@ -98,9 +99,9 @@ function ExpenseForm({ onSuccess, token }) {
           component="label" 
           variant="outlined" 
           startIcon={<CloudUploadIcon />} 
-          sx={{ mt: 1, color: 'white', borderColor: '#334155', height: '56px' }}
+          sx={{ mt: 1, color: 'white', borderColor: '#334155' }}
         >
-          {file ? file.name : "Upload Receipt (Optional)"}
+          {file ? file.name : "Upload Receipt"}
           <input type="file" hidden onChange={(e) => setFile(e.target.files[0])} />
         </Button>
 
@@ -111,13 +112,12 @@ function ExpenseForm({ onSuccess, token }) {
           sx={{ 
             mt: 2, 
             height: 48, 
-            borderRadius: 2, 
-            fontWeight: 700,
             background: "linear-gradient(135deg, #6366f1, #22d3ee)", 
-            color: "white" 
+            color: "white",
+            fontWeight: 700 
           }}
         >
-          {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Save Expense"}
+          {loading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Add Expense"}
         </Button>
       </Box>
     </Paper>
@@ -129,10 +129,8 @@ const inputStyle = {
     color: "white",
     "& fieldset": { borderColor: "#334155" },
     "&:hover fieldset": { borderColor: "#38bdf8" },
-    "&.Mui-focused fieldset": { borderColor: "#38bdf8" },
   },
   "& .MuiInputLabel-root": { color: "#94a3b8" },
-  "& .MuiInputLabel-root.Mui-focused": { color: "#38bdf8" },
 };
 
 export default ExpenseForm;
