@@ -45,23 +45,15 @@ function ExpenseForm({ onSuccess, token }) {
     formData.append("year", extractedYear);   
 
     // ✅ Changed key from "attachment" to "receipt"
-    if (file) formData.append("receipt", file); 
+    if (file) formData.append("attachment", file); // binary file
 
     try {
-      // ✅ Added Authorization header
       await axios.post("/expenses", formData, {
-        headers: { 
-          "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${token}` 
-        }
+        headers: { "Content-Type": "multipart/form-data" }
       });
-      
-      setTitle(""); setAmount(""); setDate(""); setFile(null);
       showSnackbar("Expense and Receipt saved!", "success");
-      onSuccess?.();
     } catch (err) {
-      console.error("Server Response:", err.response?.data);
-      showSnackbar(err.response?.data?.message || "Upload failed (500)", "error");
+      showSnackbar("Upload failed", "error");
     } finally {
       setLoading(false);
     }
