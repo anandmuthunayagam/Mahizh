@@ -19,7 +19,14 @@ const months = [
 ];
 const categories = ["Maintenance", "Water", "Corpus Fund", "Others"];
 
-// ✅ UPDATED: Accepting token as a prop
+// ✅ Logic to generate years (e.g., 2024 to 2026)
+const startYear = 2024;
+const currentYearValue = new Date().getFullYear();
+const YEARS = Array.from(
+  { length: currentYearValue - startYear + 2 }, 
+  (_, i) => (startYear + i).toString()
+).reverse();
+
 function CollectionForm({ onSuccess, token }) {
   const [homeNo, sethomeNo] = useState("");
   const [amount, setAmount] = useState("");
@@ -34,8 +41,8 @@ function CollectionForm({ onSuccess, token }) {
     setLoading(true);
 
     try {
-      // ✅ AUTHENTICATION: Pass the session token in headers
-      const res = await axios.post("/collections", {
+      // ✅ Included Authorization Header
+      await axios.post("/collections", {
         homeNo,
         amount: Number(amount),
         month,
@@ -87,11 +94,20 @@ function CollectionForm({ onSuccess, token }) {
             {months.map((m) => (<MenuItem key={m} value={m}>{m}</MenuItem>))}
           </TextField>
 
+          {/* ✅ FIXED: Added MenuItem mapping for Year */}
           <TextField
-            label="Year" type="number" value={year}
+            select
+            label="Year"
+            value={year}
             onChange={(e) => setYear(e.target.value)}
-            fullWidth required sx={inputStyle}
-          />
+            fullWidth
+            required
+            sx={inputStyle}
+          >
+            {YEARS.map((y) => (
+              <MenuItem key={y} value={y}>{y}</MenuItem>
+            ))}
+          </TextField>
         </Box>
 
         <TextField
@@ -117,7 +133,6 @@ function CollectionForm({ onSuccess, token }) {
   );
 }
 
-// ✅ STYLES: Fixes ReferenceError
 const inputStyle = {
   "& .MuiOutlinedInput-root": {
     color: "white",
