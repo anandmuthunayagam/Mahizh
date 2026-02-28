@@ -201,7 +201,7 @@ function MonthlySummary({ token }) {
           </Grid>
 
           {/* Pending Collections List */}
-          <Grid item xs={12}>
+          <Grid item xs={12} md={4}>
             <Paper sx={styles.card}>
               <Typography sx={styles.sectionTitle}>
                 Pending Payments ({data.pendingHomes.length})
