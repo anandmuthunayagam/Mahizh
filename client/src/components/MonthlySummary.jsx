@@ -52,9 +52,7 @@ function MonthlySummary({ token }) {
 
   useEffect(() => {
     const fetchData = async () => {
-      // If no token is provided yet, don't attempt fetch
       if (!token) return;
-
       setLoading(true);
       try {
         const monthName = MONTHS[month];
@@ -63,7 +61,6 @@ function MonthlySummary({ token }) {
           headers: { Authorization: `Bearer ${token}` }
         };
 
-        // Fetch all required data in parallel
         const [colRes, expRes, homesRes] = await Promise.all([
           axios.get("/collections", config),
           axios.get("/expenses", config),
@@ -85,7 +82,6 @@ function MonthlySummary({ token }) {
         });
       } catch (error) {
         console.error("Error fetching summary data:", error);
-        // Set empty data instead of null to prevent white screen
         setData({ totalCollections: 0, totalExpenses: 0, pieData: [], pendingHomes: [] });
       } finally {
         setLoading(false);
@@ -97,7 +93,7 @@ function MonthlySummary({ token }) {
 
   const handleWhatsAppRemind = (home) => {
     const message = encodeURIComponent(
-      `Hello ${home.owner.name},\n\nThis is a friendly reminder for the Maintenance payment for Home ${home.homeNo} (${MONTHS[month]} ${year}).\n\nStatus: Pending. Thank you!`
+      `Hello ${home.owner.name},\n\nReminder for Home ${home.homeNo} maintenance (${MONTHS[month]} ${year}).\n\nStatus: Pending.`
     );
     window.open(`https://wa.me/91${home.owner.phone}?text=${message}`, "_blank");
   };
@@ -114,7 +110,6 @@ function MonthlySummary({ token }) {
     <Paper sx={styles.container}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
         <Typography variant="h5" sx={styles.title}>Financial Performance Summary</Typography>
-        
         <Box sx={{ display: 'flex', gap: 2 }}>
           <TextField
             select size="small" label="Month"
@@ -124,7 +119,6 @@ function MonthlySummary({ token }) {
           >
             {MONTHS.map((m, index) => <MenuItem key={m} value={index}>{m}</MenuItem>)}
           </TextField>
-
           <TextField
             select size="small" label="Year"
             value={year}
@@ -178,7 +172,7 @@ function MonthlySummary({ token }) {
               <Typography sx={{ color: '#4ade80', fontSize: '0.8rem' }}>● Income</Typography>
               <Typography sx={{ color: '#f87171', fontSize: '0.8rem' }}>● Expense</Typography>
             </Stack>
-          </Grid>
+          </ChartCard>
         </Grid>
 
         {/* 3. Pending Collections */}
