@@ -46,73 +46,36 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 /* ================= COMPONENT ================= */
 
-// ✅ UPDATED: Accepting token as a prop from Reports.jsx
 function MonthlySummary({ token }) {
   const [month, setMonth] = useState(CURRENT_MONTH);
   const [year, setYear] = useState(CURRENT_YEAR);
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchSummary = async () => {
       setLoading(true);
       try {
-        const monthName = MONTHS[month];
-        
-        // ✅ AUTHENTICATION: Create config with the session token
-        const config = {
-          params: { month: monthName, year },
+        const res = await axios.get("/collections/monthly-summary", {
+          params: { month: MONTHS[month], year },
           headers: { Authorization: `Bearer ${token}` }
-        };
-
-        const [colRes, expRes, homesRes] = await Promise.all([
-          axios.get("/collections", config),
-          axios.get("/expenses", config),
-          axios.get("/owner-residents/home-status", config),
-        ]);
-
-        const totalCollections = colRes.data.reduce((sum, item) => sum + item.amount, 0);
-        const totalExpenses = expRes.data.reduce((sum, item) => sum + item.amount, 0);
-        const pendingHomes = homesRes.data.filter((h) => h.status !== "PAID");
-
-        setData({
-          totalCollections,
-          totalExpenses,
-          pieData: [
-            { name: "Collections", value: totalCollections },
-            { name: "Expenses", value: totalExpenses },
-          ],
-          pendingHomes,
         });
-      } catch (error) {
-        console.error("Error fetching summary data:", error);
+        setData(res.data);
+      } catch (err) {
+        console.error("Failed to fetch summary", err);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
-  }, [month, year, token]); // ✅ RE-RUN: If the token changes (session reset)
+    fetchSummary();
+  }, [month, year, token]);
 
   const handleWhatsAppRemind = (home) => {
-    const message = encodeURIComponent(
-      `Hello ${home.owner.name},\n\n` +
-      `This is a friendly reminder for the Apartment Maintenance payment.\n\n` +
-      `🏠 Home: ${home.homeNo}\n` +
-      `📅 Month: ${MONTHS[month]} ${year}\n` +
-      `💰 Status: Pending\n\n` +
-      `Please clear the dues at your convenience. Thank you!`
-    );
-    window.open(`https://wa.me/91${home.owner.phone}?text=${message}`, "_blank");
+    const message = `Hi ${home.owner.name}, this is a friendly reminder regarding the maintenance payment for Home ${home.homeNo} for ${MONTHS[month]} ${year}. Please ignore if already paid.`;
+    window.open(`https://wa.me/${home.owner.phone}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
-        <CircularProgress sx={{ color: '#38bdf8' }} />
-      </Box>
-    );
-  }
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><CircularProgress /></Box>;
 
   return (
     <Paper sx={styles.container}>
@@ -151,8 +114,8 @@ function MonthlySummary({ token }) {
       <Divider sx={styles.divider} />
 
       {data && (
-        <Grid container spacing={3}>
-          {/* Charts Row */}
+        <Grid container spacing={3} alignItems="stretch">
+          {/* 1. Bar Chart */}
           <Grid item xs={12} md={4}>
             <ChartCard title="Income vs Expense">
               <ResponsiveContainer width="100%" height={300}>
@@ -173,6 +136,7 @@ function MonthlySummary({ token }) {
             </ChartCard>
           </Grid>
 
+          {/* 2. Pie Chart */}
           <Grid item xs={12} md={4}>
             <ChartCard title="Allocation Ratio">
               <ResponsiveContainer width="100%" height={300}>
@@ -200,28 +164,34 @@ function MonthlySummary({ token }) {
             </ChartCard>
           </Grid>
 
-          {/* Pending Collections List */}
+          {/* 3. Pending Collections List - Now using md={4} for even width */}
           <Grid item xs={12} md={4}>
-            <Paper sx={styles.card}>
+            <Paper sx={{ ...styles.card, height: '100%', display: 'flex', flexDirection: 'column' }}>
               <Typography sx={styles.sectionTitle}>
                 Pending Payments ({data.pendingHomes.length})
               </Typography>
-              <Box sx={{ maxHeight: 300, overflow: 'auto', mt: 2 }}>
+              <Box sx={{ flexGrow: 1, maxHeight: 320, overflow: 'auto', mt: 2, pr: 1 }}>
                 {data.pendingHomes.length === 0 ? (
-                  <Typography sx={{ color: '#94a3b8', textAlign: 'center', py: 2 }}>All clear! No pending payments.</Typography>
+                  <Typography sx={{ color: '#94a3b8', textAlign: 'center', py: 2 }}>
+                    All clear! No pending payments.
+                  </Typography>
                 ) : (
                   data.pendingHomes.map((home) => (
-                    <Paper key={home.homeNo} sx={styles.listRow}>
+                    <Paper key={home.homeNo} sx={{ ...styles.listRow, mb: 1 }}>
                       <Box>
-                        <Typography sx={{ color: '#fff', fontWeight: 600 }}>Home: {home.homeNo}</Typography>
-                        <Typography sx={{ color: '#94a3b8', fontSize: '0.8rem' }}>Owner: {home.owner.name}</Typography>
+                        <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>
+                          Home: {home.homeNo}
+                        </Typography>
+                        <Typography sx={{ color: '#94a3b8', fontSize: '0.75rem' }}>
+                          Owner: {home.owner.name}
+                        </Typography>
                       </Box>
                       <Button
                         size="small"
                         variant="outlined"
-                        startIcon={<WhatsAppIcon />}
+                        startIcon={<WhatsAppIcon sx={{ fontSize: '1rem !important' }} />}
                         onClick={() => handleWhatsAppRemind(home)}
-                        sx={styles.remindButton}
+                        sx={{ ...styles.remindButton, fontSize: '0.7rem' }}
                       >
                         Remind
                       </Button>
@@ -240,7 +210,7 @@ function MonthlySummary({ token }) {
 /* ================= REUSABLE ================= */
 
 const ChartCard = ({ title, children }) => (
-  <Paper sx={styles.card}>
+  <Paper sx={{ ...styles.card, height: '100%' }}>
     <Typography sx={styles.sectionTitle}>{title}</Typography>
     {children}
   </Paper>
@@ -279,27 +249,24 @@ const styles = {
     width: 150,
     "& .MuiOutlinedInput-root": {
       color: "white",
-      "& .MuiSvgIcon-root": { color: "#38bdf8" },
       "& fieldset": { borderColor: "#1e293b" },
+      "&:hover fieldset": { borderColor: "#334155" },
     },
     "& .MuiInputLabel-root": { color: "#94a3b8" },
   },
   listRow: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    backgroundColor: "#1e293b",
     p: 1.5,
-    mb: 1,
-    bgcolor: '#1e293b',
-    border: '1px solid #334155',
+    borderRadius: 1.5,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    border: "1px solid #334155",
   },
   remindButton: {
-    color: '#25D366',
-    borderColor: '#25D366',
-    '&:hover': {
-      borderColor: '#1ebe5d',
-      bgcolor: 'rgba(37, 211, 102, 0.1)',
-    }
+    borderColor: "#22c55e",
+    color: "#22c55e",
+    "&:hover": { borderColor: "#4ade80", backgroundColor: "rgba(34, 197, 94, 0.1)" },
   }
 };
 
