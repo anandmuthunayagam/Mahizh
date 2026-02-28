@@ -16,14 +16,16 @@ function ResidentDashboard() {
 
   useEffect(() => {
     const fetchAllData = async () => {
-      // ✅ Retrieve token from sessionStorage
+      // ✅ 1. Get token from sessionStorage
       const token = sessionStorage.getItem("token");
-      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+      const authHeader = { 
+        headers: { Authorization: `Bearer ${token}` } 
+      };
 
       try {
         setLoading(true);
         
-        // 1. Get Resident Profile using token
+        // ✅ 2. Use token to get Resident Profile
         const profileRes = await axios.get("/resident/profile", authHeader);
         const residentProfile = profileRes.data;
         setProfile(residentProfile);
@@ -37,32 +39,31 @@ function ResidentDashboard() {
         const currentYear = new Date().getFullYear();
         const relevantMonths = monthsList.slice(0, currentMonthIndex + 1);
 
-        // 3. Fetch status for each month using token
-        const historyData = await Promise.all(
-          relevantMonths.map(async (month) => {
-            try {
-              const res = await axios.get(
-                `/collections/status?homeNo=${residentProfile.homeNo}&month=${month}&year=${currentYear}`,
-                authHeader
-              );
-              return {
-                ...res.data,
-                displayMonth: month,
-                displayYear: currentYear
-              };
-            } catch (err) {
-              return {
-                status: "Unknown",
-                displayMonth: month,
-                displayYear: currentYear
-              };
-            }
-          })
+        // ✅ 3. Fetch status with Authorization headers in every parallel call
+        const statusPromises = relevantMonths.map(monthName => 
+          axios.get("/owner-residents/home-status", { 
+            ...authHeader, // Pass token here
+            params: { month: monthName, year: currentYear } 
+          }).then(res => {
+            const myHomeData = res.data.find(h => h.homeNo === residentProfile.homeNo);
+            return {
+              ...myHomeData,
+              displayMonth: monthName,
+              displayYear: currentYear
+            };
+          }).catch(err => ({
+              status: "DUE", // Fallback if a specific month fails
+              displayMonth: monthName,
+              displayYear: currentYear,
+              homeNo: residentProfile.homeNo
+          }))
         );
 
-        setHistory(historyData);
+        const results = await Promise.all(statusPromises);
+        setHistory(results); 
+        
       } catch (err) {
-        console.error("Dashboard data fetch failed:", err);
+        console.error("Error fetching payment history:", err);
       } finally {
         setLoading(false);
       }
@@ -73,14 +74,14 @@ function ResidentDashboard() {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
         <CircularProgress sx={{ color: "#38bdf8" }} />
       </Box>
     );
   }
 
   return (
-    <Fade in={!loading}>
+    <Fade in={true} timeout={800}>
       <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}>
         <Typography variant="h5" sx={{ color: "white", mb: 4, fontWeight: 700 }}>
           My Home Card - {new Date().getFullYear()}
@@ -98,7 +99,7 @@ function ResidentDashboard() {
                 selectedYear={homeData.displayYear}
                 sx={{ 
                   width: '100%',
-                  boxShadow: homeData.status?.toUpperCase() === "PAID" 
+                  boxShadow: homeData?.status?.toUpperCase() === "PAID" 
                     ? "0 4px 12px rgba(0,0,0,0.4)" 
                     : "0 0 16px rgba(255, 193, 7, 0.4)"
                 }} 
