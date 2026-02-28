@@ -114,16 +114,6 @@ function MonthlySummary({ token }) {
     );
   }
 
-  const barData = data ? [
-    { name: "Collection", value: data.totalCollection },
-    { name: "Expense", value: data.totalExpense },
-  ] : [];
-
-  const pieData = data ? [
-    { name: "Paid", value: data.paidHomes.length },
-    { name: "Pending", value: data.pendingHomes.length },
-  ] : [];
-
   return (
     <Paper sx={styles.container}>
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
@@ -164,38 +154,49 @@ function MonthlySummary({ token }) {
         <Grid container spacing={3}>
           {/* Charts Row */}
           <Grid item xs={12} md={4}>
-             <ChartCard title="Collection vs Expense">
-              <Box sx={{ height: 400, width:400,mt: 2 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData}>
-                    <XAxis dataKey="name" stroke="#cbd5f5" fontSize={12} />
-                    <YAxis stroke="#cbd5f5" fontSize={12} />
-                    <Tooltip 
-                       contentStyle={{ backgroundColor: "#1e293b", border: "none", color: "#fff" }}
-                    />
-                    <Bar dataKey="value" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                    {/* Adding the labels here */}
-                    <LabelList dataKey="value" position="center" fill="#111110" fontSize={12} offset={1} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
+            <ChartCard title="Income vs Expense">
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={data.pieData}>
+                  <XAxis dataKey="name" stroke="#94a3b8" />
+                  <YAxis stroke="#94a3b8" />
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', color: '#fff' }}
+                  />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {data.pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                    <LabelList dataKey="value" position="top" fill="#fff" />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </ChartCard>
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <ChartCard title="Paid vs Pending">
-              <Box sx={{ height: 400, width:400,mt: 2 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie data={pieData} dataKey="value" innerRadius={60} outerRadius={90} paddingAngle={5}>
-                      {pieData.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Box>
+            <ChartCard title="Allocation Ratio">
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={data.pieData}
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {data.pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', color: '#fff' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <Stack direction="row" justifyContent="center" spacing={3}>
+                <Typography sx={{ color: '#4ade80', fontSize: '0.8rem' }}>● Income</Typography>
+                <Typography sx={{ color: '#f87171', fontSize: '0.8rem' }}>● Expense</Typography>
+              </Stack>
             </ChartCard>
           </Grid>
 
