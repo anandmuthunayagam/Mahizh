@@ -16,15 +16,18 @@ function ResidentDashboard() {
 
   useEffect(() => {
     const fetchAllData = async () => {
+      // ✅ Retrieve token from sessionStorage
+      const token = sessionStorage.getItem("token");
+      const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
       try {
         setLoading(true);
         
-        // 1. Get Resident Profile to identify the home number
-        const profileRes = await axios.get("/resident/profile");
+        // 1. Get Resident Profile using token
+        const profileRes = await axios.get("/resident/profile", authHeader);
         const residentProfile = profileRes.data;
         setProfile(residentProfile);
 
-        // 2. Generate list of months from January to Current Month
         const monthsList = [
           "January", "February", "March", "April", "May", "June",
           "July", "August", "September", "October", "November", "December"
@@ -32,32 +35,34 @@ function ResidentDashboard() {
         
         const currentMonthIndex = new Date().getMonth(); 
         const currentYear = new Date().getFullYear();
-        
-        // Create an array of month names from January (index 0) to current
         const relevantMonths = monthsList.slice(0, currentMonthIndex + 1);
 
-        // 3. Fetch status for each month in parallel using the Home.jsx endpoint
-        const statusPromises = relevantMonths.map(monthName => 
-          axios.get("/owner-residents/home-status", { 
-            params: { month: monthName, year: currentYear } 
-          }).then(res => {
-            // Find this specific resident's home in the returned list
-            const myHomeData = res.data.find(h => h.homeNo === residentProfile.homeNo);
-            return {
-              ...myHomeData,
-              displayMonth: monthName,
-              displayYear: currentYear
-            };
+        // 3. Fetch status for each month using token
+        const historyData = await Promise.all(
+          relevantMonths.map(async (month) => {
+            try {
+              const res = await axios.get(
+                `/collections/status?homeNo=${residentProfile.homeNo}&month=${month}&year=${currentYear}`,
+                authHeader
+              );
+              return {
+                ...res.data,
+                displayMonth: month,
+                displayYear: currentYear
+              };
+            } catch (err) {
+              return {
+                status: "Unknown",
+                displayMonth: month,
+                displayYear: currentYear
+              };
+            }
           })
         );
 
-        const results = await Promise.all(statusPromises);
-        
-        // REMOVED .reverse() so January is first and Current Month is last
-        setHistory(results); 
-        
+        setHistory(historyData);
       } catch (err) {
-        console.error("Error fetching payment history:", err);
+        console.error("Dashboard data fetch failed:", err);
       } finally {
         setLoading(false);
       }
@@ -68,14 +73,14 @@ function ResidentDashboard() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
         <CircularProgress sx={{ color: "#38bdf8" }} />
       </Box>
     );
   }
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={!loading}>
       <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}>
         <Typography variant="h5" sx={{ color: "white", mb: 4, fontWeight: 700 }}>
           My Home Card - {new Date().getFullYear()}
@@ -87,29 +92,20 @@ function ResidentDashboard() {
               <Typography variant="subtitle2" sx={{ color: "#94a3b8", mb: 1, ml: 1, fontWeight: 600 }}>
                 {homeData.displayMonth} {homeData.displayYear}
               </Typography>
-              {homeData && (
-                <HomeCard 
-                  home={homeData}
-                  selectedMonth={homeData.displayMonth}
-                  selectedYear={homeData.displayYear}
-                  sx={{ 
-                    width: '100%',
-                    // Glow effect for unpaid (DUE) cards
-                    boxShadow: homeData.status?.toUpperCase() === "PAID" 
-                      ? "0 4px 12px rgba(0,0,0,0.4)" 
-                      : "0 0 16px rgba(255, 193, 7, 0.4)"
-                  }} 
-                />
-              )}
+              <HomeCard 
+                home={homeData}
+                selectedMonth={homeData.displayMonth}
+                selectedYear={homeData.displayYear}
+                sx={{ 
+                  width: '100%',
+                  boxShadow: homeData.status?.toUpperCase() === "PAID" 
+                    ? "0 4px 12px rgba(0,0,0,0.4)" 
+                    : "0 0 16px rgba(255, 193, 7, 0.4)"
+                }} 
+              />
             </Grid>
           ))}
         </Grid>
-
-        {history.length === 0 && (
-          <Typography sx={{ color: "#94a3b8", textAlign: 'center', mt: 4 }}>
-            No payment records found for this year.
-          </Typography>
-        )}
       </Box>
     </Fade>
   );
