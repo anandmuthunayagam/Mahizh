@@ -90,7 +90,7 @@ function Home() {
               </Box>
           </Box>
         </Box>
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3,pl: 0, }}>
         <Typography variant="h5" sx={{ color:  '#64748b', fontWeight: 700 }}>
           Monthly Insights
         </Typography>
