@@ -159,7 +159,7 @@ function ExpenseForm({ onSuccess, token }) {
         borderColor: "#334155",
       },
       "&:hover fieldset": {
-        borderColor: "#6366f1",
+        borderColor: "white",
       },
       "&.Mui-focused fieldset": {
         borderColor: "#22d3ee",
