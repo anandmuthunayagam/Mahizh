@@ -83,10 +83,11 @@ function ResidentDashboard() {
   return (
     <Fade in={true} timeout={800}>
       <Box sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}>
+        <Box sx={{ p: 3,pl: 0, }}>
         <Typography variant="h5" sx={{ color:  '#64748b', fontWeight: 700 }}>
           My Home Card - {new Date().getFullYear()}
         </Typography>
-
+        </Box>
         <Grid container spacing={3}>
           {history.map((homeData, index) => (
             <Grid item xs={12} sm={6} md={4} key={`${homeData.displayMonth}-${index}`}>
