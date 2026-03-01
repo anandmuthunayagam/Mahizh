@@ -146,6 +146,7 @@ function ExpenseForm({ onSuccess, token }) {
     "& .MuiInputBase-input": {
       color: "white",
     },
+    "& .MuiSvgIcon-root": { color: "white" },
     // Styling the calendar icon for Chrome/Safari/Edge
     "& input::-webkit-calendar-picker-indicator": {
       filter: "invert(100%)", // This flips the black icon to white
@@ -153,7 +154,7 @@ function ExpenseForm({ onSuccess, token }) {
     },
     // Background and border styling to match your theme
     "& .MuiOutlinedInput-root": {
-      backgroundColor: "#020617",
+       color: "white",
       "& fieldset": {
         borderColor: "#334155",
       },
