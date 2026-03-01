@@ -12,13 +12,13 @@ import axios from "../utils/api/axios";
 import { useSnackbar } from "../utils/context/SnackbarContext";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-// Constants for extraction
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
-function ExpenseForm({ onSuccess }) {
+// ✅ Added token prop
+function ExpenseForm({ onSuccess, token }) {
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
@@ -51,7 +51,9 @@ function ExpenseForm({ onSuccess }) {
 
     try {
       await axios.post("/expenses", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+        headers: { "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`
+         }
       });
       showSnackbar("Expense and Receipt saved!", "success");
     } catch (err) {
@@ -144,6 +146,7 @@ function ExpenseForm({ onSuccess }) {
     "& .MuiInputBase-input": {
       color: "white",
     },
+    "& .MuiSvgIcon-root": { color: "white" },
     // Styling the calendar icon for Chrome/Safari/Edge
     "& input::-webkit-calendar-picker-indicator": {
       filter: "invert(100%)", // This flips the black icon to white
@@ -151,12 +154,12 @@ function ExpenseForm({ onSuccess }) {
     },
     // Background and border styling to match your theme
     "& .MuiOutlinedInput-root": {
-      backgroundColor: "#020617",
+       color: "white",
       "& fieldset": {
         borderColor: "#334155",
       },
       "&:hover fieldset": {
-        borderColor: "#6366f1",
+        borderColor: "white",
       },
       "&.Mui-focused fieldset": {
         borderColor: "#22d3ee",

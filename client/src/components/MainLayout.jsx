@@ -27,17 +27,17 @@ const darkTheme = createTheme({
     }
   },
   components: {
-    MuiInternalAppSidebar: { // Internal Toolpad component
+    MuiInternalAppSidebar: { 
       styleOverrides: {
         root: {
-          '--toolpad-sidebar-width': '210px', // Force variable here
+          '--toolpad-sidebar-width': '210px',
         },
       },
     },
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          paddingLeft: '8px', // Reduce padding to keep icons centered in narrow bar
+          paddingLeft: '8px', 
           paddingRight: '8px',
         },
       },
@@ -45,7 +45,6 @@ const darkTheme = createTheme({
   },
 });
 
-/* --- Error UI from your Content.jsx --- */
 function ErrorFallback() {
   return (
     <Box sx={{ p: 4, color: "#E5E7EB", textAlign: "center", bgcolor: '#020617', minHeight: '100vh' }}>
@@ -57,33 +56,34 @@ function ErrorFallback() {
   );
 }
 
-const isAdmin = () => localStorage.getItem("role") === "admin";
-
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem("token");
+
+  // ✅ SESSION STORAGE MIGRATION: 
+  // Fetching data from sessionStorage instead of localStorage
+  const token = sessionStorage.getItem("token");
+  const userRole = sessionStorage.getItem("role");
+  const username = sessionStorage.getItem("username");
 
   useEffect(() => {
-    // If no token is found, kick them back to /login
+    // If no token is found in this specific tab session, redirect to login
     if (!token) {
       navigate("/login");
     }
   }, [token, navigate]);
 
-  // If there's no token, don't even render the layout frame
   if (!token) return null;
 
-  // Get the role directly inside the component so it stays fresh
-  const userRole = localStorage.getItem("role");
-
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
+    // ✅ SESSION STORAGE MIGRATION: 
+    // Clearing the current tab session
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("role");
+    sessionStorage.removeItem("username");
     navigate("/login");
   };
 
-  // Define Navigation based on your SideBar.jsx logic
   const NAVIGATION = React.useMemo(() => [
     { segment: 'mahizhconnect', title: 'Mahizh Connect', icon: <PeopleIcon /> },
     { segment: 'dashboard', title: 'Dashboard', icon: <DashboardIcon /> },
@@ -99,7 +99,7 @@ export default function MainLayout() {
     ),
     { kind: 'divider' },
     { segment: 'logout', title: 'Logout', icon: <LogoutIcon /> },
-  ], []);
+  ], [userRole]); // Re-run if userRole changes
 
   const router = React.useMemo(() => ({
     pathname: location.pathname,
@@ -115,75 +115,67 @@ export default function MainLayout() {
       theme={darkTheme}
       navigation={NAVIGATION}
       branding={{
-        title: 
-        (
-      <Box sx={{ display: "flex", gap: "5px" }}>
-        <Typography variant="h6" fontWeight={700} sx={{ color: '#fff' }}>
-          Mahizh
-        </Typography>
-        <Typography variant="h6" fontWeight={700} sx={{ color: 'rgb(56, 189, 248)' }}>
-          Connect
-        </Typography>
-      </Box>
-    ),
+        title: (
+          <Box sx={{ display: "flex", gap: "5px" }}>
+            <Typography variant="h6" fontWeight={700} sx={{ color: '#fff' }}>
+              Mahizh
+            </Typography>
+            <Typography variant="h6" fontWeight={700} sx={{ color: 'rgb(56, 189, 248)' }}>
+              Connect
+            </Typography>
+          </Box>
+        ),
         logo: <img src={mahizhLogo} alt="Logo" style={{ borderRadius: '50%', height: 40 }} />,
       }}
       router={router}
     >
       <DashboardLayout 
-  slots={{
-    // Use toolbarActions to inject content into the top bar
-    toolbarActions: () => (
-      <Typography 
-        variant="body1" 
-        sx={{ 
-          mr: 2, 
-          color: '#94a3b8', // Subtle grey to match your theme
-          display: { xs: 'none', sm: 'block' }, // Hide on mobile to save space
-          fontWeight: 500 
+        slots={{
+          toolbarActions: () => (
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                mr: 2, 
+                color: '#94a3b8', 
+                display: { xs: 'none', sm: 'block' }, 
+                fontWeight: 500 
+              }}
+            >
+              {/* ✅ Welcome message now pulls from session storage */}
+              Welcome, {username || 'User'}!
+            </Typography>
+          ),
+        }}
+        sx={{
+          '--toolpad-sidebar-width': '180px',
+          '--toolpad-sidebar-mini-width': '64px',
+          '& .MuiPageContainer-root': {
+            backgroundColor: "#020617",
+            maxWidth: '100% !important',
+            margin: '0 !important',
+            paddingLeft: '24px !important',
+            paddingRight: '24px !important',
+            width: '100%',
+          },
+          '& .MuiDashboardLayout-main': {
+            backgroundColor: "#020617",
+            transition: 'padding-left 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms',
+          },
+          '& .MuiDrawer-paper': {
+            width: 'var(--toolpad-sidebar-width)',
+            backgroundColor: "#0F172A",
+            borderRight: "1px solid #1E293B",
+          },
+          '& .MuiDrawer-paperMini': {
+            width: 'var(--toolpad-sidebar-mini-width) !important',
+          }
         }}
       >
-        Welcome, {localStorage.getItem("username") || 'User'}!
-      </Typography>
-    ),
-  }}
-  sx={{
-    // 1. Sync the sidebar variables
-    '--toolpad-sidebar-width': '180px',
-    '--toolpad-sidebar-mini-width': '64px',
-
-    // 2. Target the Internal Page Wrapper to remove the "Center Gap"
-    '& .MuiPageContainer-root': {
-      backgroundColor: "#020617",
-      maxWidth: '100% !important', // Prevents the content from "squeezing" in the middle
-      margin: '0 !important',      // Snaps content to the left edge
-      paddingLeft: '24px !important', // Standard spacing from the menu
-      paddingRight: '24px !important',
-      width: '100%',
-    },
-
-    // 3. Fix the Main Layout container padding
-    '& .MuiDashboardLayout-main': {
-      backgroundColor: "#020617",
-      transition: 'padding-left 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms',
-    },
-
-    // 4. Sidebar Paper adjustments
-    '& .MuiDrawer-paper': {
-      width: 'var(--toolpad-sidebar-width)',
-      backgroundColor: "#0F172A",
-      borderRight: "1px solid #1E293B",
-    },
-
-    // 5. Ensure icons stay centered in the 64px mini-bar
-    '& .MuiDrawer-paperMini': {
-      width: 'var(--toolpad-sidebar-mini-width) !important',
-    }
-  }}
->
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Box sx={{ p: 3 }}>
-            <Outlet /> 
+            {/* ✅ PASSING CONTEXT: 
+                This makes token, role, and username available to Home.jsx via useOutletContext() */}
+            <Outlet context={{ token, userRole, username }} /> 
           </Box>
         </ErrorBoundary>
       </DashboardLayout>

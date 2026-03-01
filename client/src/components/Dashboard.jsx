@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+// ✅ IMPORT: Added useOutletContext to receive session data
+import { useOutletContext } from "react-router-dom";
 import { 
   Box, 
   Typography, 
@@ -15,8 +17,8 @@ import {
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import TableChartIcon from '@mui/icons-material/TableChart'; // Icon for Excel
-import * as XLSX from 'xlsx'; // Requirement: npm install xlsx
+import TableChartIcon from '@mui/icons-material/TableChart';
+import * as XLSX from 'xlsx';
 import { useReactToPrint } from "react-to-print";
 import { toPng } from 'html-to-image'; 
 import Summary from "./Summary";
@@ -26,7 +28,6 @@ import axios from "../utils/api/axios";
 import mahizh from '../assets/MahizhLogo.png';
 import { useSnackbar } from "../utils/context/SnackbarContext";
 
-// Added "All" option to months
 const MONTHS = [
   "All", "January","February","March","April","May","June",
   "July","August","September","October","November","December"
@@ -34,7 +35,6 @@ const MONTHS = [
 
 const startYear = 2012;
 const currentYearValue = new Date().getFullYear();
-// Added "All" option to years and ensured string comparison
 const YEARS = [
   "All", 
   ...Array.from(
@@ -43,11 +43,10 @@ const YEARS = [
   ).reverse()
 ];
 
-const isAdmin = () => {
-  return localStorage.getItem("role") === "admin";
-};
-
 function Dashboard() {
+  // ✅ CONTEXT: Fetch session data passed from MainLayout
+  const { token, userRole } = useOutletContext();
+  
   const [refreshKey, setRefreshKey] = useState(0);
   const contentRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false); 
@@ -58,24 +57,25 @@ function Dashboard() {
   const [filterYear, setFilterYear] = useState(lastMonthDate.getFullYear().toString());
   const showSnackbar = useSnackbar();
 
-  // Function to Export Data to Excel
+  // ✅ UPDATED: Use userRole from context
+  const isAdmin = () => userRole === "admin";
+
   const exportToExcel = async () => {
     try {
-      // Build dynamic params based on "All" selection
       const params = {};
       if (filterMonth !== "All") params.month = filterMonth;
       if (filterYear !== "All") params.year = filterYear;
 
+      // ✅ AUTHENTICATION: Pass the session token in headers
+      const config = { params, headers: { Authorization: `Bearer ${token}` } };
+
       const [colRes, expRes] = await Promise.all([
-        axios.get('/collections', { params }),
-        axios.get('/expenses', { params })
+        axios.get('/collections', config),
+        axios.get('/expenses', config)
       ]);
 
       const wb = XLSX.utils.book_new();
-
-      // Flatten Collections data
       const colData = colRes.data.map(item => ({
-        //Date: new Date(item.date).toLocaleDateString(),
         HomeNo: item.homeNo,
         Amount: item.amount,
         Month: item.month,
@@ -83,7 +83,6 @@ function Dashboard() {
         Status: item.status || "Paid"
       }));
 
-      // Flatten Expenses data
       const expData = expRes.data.map(item => ({
         Date: new Date(item.date).toLocaleDateString(),
         Title: item.title,
@@ -137,10 +136,7 @@ function Dashboard() {
 
   return (
     <Fade in={true} timeout={800}>
-      <Box 
-        ref={contentRef} 
-        sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}
-      >
+      <Box ref={contentRef} sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}>
         <style>
           {`
             @media print {
@@ -155,20 +151,14 @@ function Dashboard() {
           `}
         </style>
 
-        {/* --- PDF & IMAGE HEADER --- */}
         <Box className="print-header">
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, width: '100%' }}>
               <Box sx={{ height: 120, width: 120, borderRadius: "50%", overflow: 'hidden', border: '2px solid #38bdf8' }}>
                 <img src={mahizh} alt="Logo" style={{ width: '100%', height: '100%' }} />
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, marginLeft: 'auto' }}>
-                <Typography variant="h4" sx={{ fontWeight: 800,letterSpacing: "-0.5px" , color: isExporting ? 'white' : 'white' }}>
-                  Mahizh
-                </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 800,letterSpacing: "-0.5px" , color: isExporting ? 'rgb(56, 189, 248)' : 'rgb(56, 189, 248)' }}>
-                  Connect
-                </Typography>
-               
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'white' }}>Mahizh</Typography>
+                <Typography variant="h4" sx={{ fontWeight: 800, color: 'rgb(56, 189, 248)' }}>Connect</Typography>
               </Box>
           </Box>
         </Box>
@@ -182,50 +172,20 @@ function Dashboard() {
         {isAdmin() && (
         <Box sx={{ mb: 4, display: 'flex', justifyContent: 'flex-end' }} className="no-print no-export">
           <Stack direction="row" spacing={2}>
-            {/* New Excel Export Button */}
             <Tooltip title="Export to Excel">
-            <Button 
-              variant="contained" 
-              startIcon={<TableChartIcon />} 
-              onClick={exportToExcel} 
-              sx={{ bgcolor: "#10b981", minWidth: 0, '& .MuiButton-startIcon': { margin: 0 } }}
-            />
+            <Button variant="contained" startIcon={<TableChartIcon />} onClick={exportToExcel} sx={{ bgcolor: "#10b981", minWidth: 0, '& .MuiButton-startIcon': { margin: 0 } }} />
             </Tooltip>
             <Tooltip title="Export to PDF">
-            <Button 
-              variant="contained" 
-              startIcon={<PictureAsPdfIcon />} 
-              onClick={handlePrint} 
-              sx={{ bgcolor: "#ef4444", minWidth: 0, '& .MuiButton-startIcon': { margin: 0 } }}
-            />
+            <Button variant="contained" startIcon={<PictureAsPdfIcon />} onClick={handlePrint} sx={{ bgcolor: "#ef4444", minWidth: 0, '& .MuiButton-startIcon': { margin: 0 } }} />
             </Tooltip>
             <Tooltip title="Capture Screenshot">
-            <Button 
-              variant="contained" 
-              startIcon={<PhotoCameraIcon />} 
-              onClick={exportImage} 
-              sx={{ bgcolor: "#3b82f6", minWidth: 0, '& .MuiButton-startIcon': { margin: 0 } }}
-            />
+            <Button variant="contained" startIcon={<PhotoCameraIcon />} onClick={exportImage} sx={{ bgcolor: "#3b82f6", minWidth: 0, '& .MuiButton-startIcon': { margin: 0 } }} />
             </Tooltip>
             <Paper sx={{ p: 1.5, bgcolor: "#1e293b", display: 'flex', gap: 2, borderRadius: 2 }}>
-              <TextField select size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { 
-                    color: "white",
-                    // This line specifically makes the arrow icon white
-                    "& .MuiSvgIcon-root": { color: "white" } 
-                  },
-                  // Ensure the label is also visible
-                  "& .MuiInputLabel-root": { color: "#bbb" },
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}>
+              <TextField select size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { color: "white", "& .MuiSvgIcon-root": { color: "white" } }, "& .MuiInputLabel-root": { color: "#bbb" }, "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}>
                 {MONTHS.map(m => <MenuItem key={m} value={m}>{m}</MenuItem>)}
               </TextField>
-              <TextField select size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { 
-                    color: "white",
-                    // This line specifically makes the arrow icon white
-                    "& .MuiSvgIcon-root": { color: "white" } 
-                  },
-                  // Ensure the label is also visible
-                  "& .MuiInputLabel-root": { color: "#bbb" },
-                  "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}>
+              <TextField select size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { color: "white", "& .MuiSvgIcon-root": { color: "white" } }, "& .MuiInputLabel-root": { color: "#bbb" }, "& .MuiOutlinedInput-notchedOutline": { borderColor: "#555" } }}>
                 {YEARS.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
               </TextField>
             </Paper>
@@ -237,7 +197,7 @@ function Dashboard() {
           <Typography variant="h6" sx={{ color: "#38bdf8", mb: 2, fontWeight: 'bold' }}>Collections</Typography>
           <CollectionTable 
             refreshKey={refreshKey} 
-            // If "All" is selected, pass an empty string so the API ignores the filter
+            token={token} // ✅ Pass token to sub-table
             filterMonth={filterMonth === "All" ? "" : filterMonth} 
             filterYear={filterYear === "All" ? "" : filterYear} 
           />
@@ -247,13 +207,14 @@ function Dashboard() {
           <Typography variant="h6" sx={{ color: "#f87171", mb: 2, fontWeight: 'bold' }}>Expenses</Typography>
           <ExpenseTable 
             refreshKey={refreshKey} 
+            token={token} // ✅ Pass token to sub-table
             filterMonth={filterMonth === "All" ? "" : filterMonth} 
             filterYear={filterYear === "All" ? "" : filterYear} 
           />
         </Paper>
 
         {isAdmin()  && (
-          <MonthlyBalance refreshKey={refreshKey} month={filterMonth} year={filterYear} />
+          <MonthlyBalance refreshKey={refreshKey} month={filterMonth} year={filterYear} token={token} />
         )}
 
         <Box className="print-footer" sx={{ mt: 4, textAlign: 'center' }}>
@@ -266,21 +227,21 @@ function Dashboard() {
   );
 }
 
-// Sub-component remains similar but handles its own logic for specific months
-function MonthlyBalance({ refreshKey, month, year }) {
+function MonthlyBalance({ refreshKey, month, year, token }) {
   const [data, setData] = useState({ collections: 0, expenses: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Step 1: Sanitize filters - convert "All" to empty string
         const mParam = month === "All" ? "" : month;
         const yParam = year === "All" ? "" : year;
 
-        // Step 2: Construct query parameters
+        // ✅ AUTHENTICATION: Use the token for balance calculation
+        const config = { headers: { Authorization: `Bearer ${token}` } };
+
         const [colRes, expRes] = await Promise.all([
-          axios.get(`/collections?month=${mParam}&year=${yParam}`),
-          axios.get(`/expenses?month=${mParam}&year=${yParam}`)
+          axios.get(`/collections?month=${mParam}&year=${yParam}`, config),
+          axios.get(`/expenses?month=${mParam}&year=${yParam}`, config)
         ]);
 
         setData({ 
@@ -290,7 +251,7 @@ function MonthlyBalance({ refreshKey, month, year }) {
       } catch (err) { console.error(err); }
     };
     fetchData();
-  }, [refreshKey, month, year]);
+  }, [refreshKey, month, year, token]);
 
   const balance = data.collections - data.expenses;
 

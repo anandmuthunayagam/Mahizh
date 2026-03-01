@@ -1,4 +1,6 @@
 import React from "react";
+// ✅ IMPORT: Added useOutletContext to receive session data from MainLayout
+import { useOutletContext } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -20,14 +22,13 @@ import S2 from "../assets/homes/S2.png";
 const homeImages = { G1, F1, F2, S1, S2 };
 
 function HomeCard({ home, selectedMonth, selectedYear }) {
+  // ✅ CONTEXT: Fetch the userRole passed down from MainLayout context
+  const { userRole } = useOutletContext();
+  
   const isPaid = home.status === "PAID";
-  const isAdmin = () => {
-    return localStorage.getItem("role") === "admin";
-  };
 
-console.log(selectedMonth, selectedYear);
-
-  //const homeCardString = `${selectedMonth.substring(0, 3)} '${selectedYear.toString().slice(-2)}`;
+  // ✅ UPDATED: Use userRole from context instead of localStorage
+  const isAdmin = () => userRole === "admin";
 
   const whatsappMessage = encodeURIComponent(
     `Hello ${home.ownerName},\n\n` +
@@ -64,7 +65,6 @@ console.log(selectedMonth, selectedYear);
             width: '100%',
         }}
       >
-        {/* Image */}
         <CardMedia
           component="img"
           height="200"
@@ -73,7 +73,6 @@ console.log(selectedMonth, selectedYear);
         />
 
         <CardContent>
-          {/* Header */}
           <Box
             display="flex"
             justifyContent="space-between"
@@ -83,17 +82,14 @@ console.log(selectedMonth, selectedYear);
             <Typography variant="h6" fontWeight='bold' color="#B87333">{home.homeNo}</Typography>
             
             <Chip
-              
               label={isPaid ? "PAID" : "DUE"}
               color={isPaid ? "success" : "warning"}
               size="small"
             />
           </Box>
 
-          {/* Owner */}
           <Typography 
-            noWrap // Truncates with "..."
-            // OR use line-clamp for multi-line truncation:
+            noWrap 
             sx={{
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -105,8 +101,7 @@ console.log(selectedMonth, selectedYear);
             Owner: {home.owner.name}
           </Typography>
           <Typography 
-            noWrap // Truncates with "..."
-            // OR use line-clamp for multi-line truncation:
+            noWrap 
             sx={{
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -119,10 +114,8 @@ console.log(selectedMonth, selectedYear);
             Contact: {home.owner.phone}
           </Typography>
           <br></br>
-           {/* Owner */}
           <Typography 
-            noWrap // Truncates with "..."
-            // OR use line-clamp for multi-line truncation:
+            noWrap 
             sx={{
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -134,8 +127,7 @@ console.log(selectedMonth, selectedYear);
             Resident: {home.resident.name}
           </Typography>
           <Typography 
-            noWrap // Truncates with "..."
-            // OR use line-clamp for multi-line truncation:
+            noWrap 
             sx={{
               display: '-webkit-box',
               WebkitLineClamp: 3,
@@ -148,8 +140,7 @@ console.log(selectedMonth, selectedYear);
             Contact: {home.resident.phone}
           </Typography>
 
-          {/* WhatsApp Button */}
-         
+          {/* ✅ UPDATED: The button visibility now relies on the session context */}
           {isAdmin() && !isPaid ? (
             <Button
               fullWidth
@@ -158,6 +149,7 @@ console.log(selectedMonth, selectedYear);
               href={whatsappUrl}
               target="_blank"
               sx={{
+                mt: 2,
                 backgroundColor: "#25D366",
                 color: "#000",
                 fontWeight: "bold",

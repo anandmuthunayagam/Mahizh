@@ -9,10 +9,9 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DownloadIcon from '@mui/icons-material/Download';
 import CloseIcon from '@mui/icons-material/Close';
 
-function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
+// ✅ UPDATED: Now accepting token as a prop
+function ExpenseTable({ refreshKey, filterMonth, filterYear, token }) {
   const [expenses, setExpenses] = useState([]);
-  
-  // States for Preview Modal
   const [openPreview, setOpenPreview] = useState(false);
   const [previewData, setPreviewData] = useState({ url: "", type: "" });
 
@@ -20,7 +19,12 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
     const fetchFiltered = async () => {
       try {
         const res = await axios.get("/expenses", {
-          params: { month: filterMonth === "All" ? "" : filterMonth, year: filterYear === "All" ? "" : filterYear }
+          params: { 
+            month: filterMonth === "All" ? "" : filterMonth, 
+            year: filterYear === "All" ? "" : filterYear 
+          },
+          // ✅ AUTHENTICATION: Added header
+          headers: { Authorization: `Bearer ${token}` }
         });
         setExpenses(res.data);
       } catch (err) {
@@ -28,13 +32,14 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
       }
     };
     fetchFiltered();
-  }, [refreshKey, filterMonth, filterYear]);
+  }, [refreshKey, filterMonth, filterYear, token]);
 
-  // NEW: Handle Internal Modal Preview
   const handlePreview = async (expenseId) => {
     try {
       const response = await axios.get(`/expenses/attachment/${expenseId}`, {
-        responseType: 'blob'
+        responseType: 'blob',
+        // ✅ AUTHENTICATION: Required for secure file access
+        headers: { Authorization: `Bearer ${token}` }
       });
       const contentType = response.headers['content-type']; 
       const fileURL = URL.createObjectURL(response.data);
@@ -49,7 +54,9 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
   const handleDownload = async (expenseId) => {
     try {
       const response = await axios.get(`/expenses/attachment/${expenseId}`, {
-        responseType: 'blob' 
+        responseType: 'blob',
+        // ✅ AUTHENTICATION: Required for secure file access
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       const contentDisposition = response.headers['content-disposition'];
@@ -68,7 +75,6 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
       link.setAttribute('download', fileName); 
       document.body.appendChild(link);
       link.click();
-      
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
@@ -107,7 +113,6 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
                           <VisibilityIcon sx={{ color: "#38bdf8" }} />
                         </IconButton>
                       </Tooltip>
-                      
                       <Tooltip title="Download">
                         <IconButton onClick={() => handleDownload(e._id)}>
                           <DownloadIcon sx={{ color: "#10b981" }} /> 
@@ -119,17 +124,15 @@ function ExpenseTable({ refreshKey, filterMonth, filterYear }) {
                   )}
                 </TableCell>
               </TableRow>
-              
             ))}
             {expenses.length === 0 && (
-                        <TableRow><TableCell colSpan={5} align="center" sx={{ color: "#475569", py: 4 }}>No records found for this period.</TableCell></TableRow>
-                      )}
+              <TableRow><TableCell colSpan={5} align="center" sx={{ color: "#475569", py: 4 }}>No records found for this period.</TableCell></TableRow>
+            )}
           </TableBody>
         </Table>
         </Box>
       </Paper>
 
-      {/* --- PREVIEW MODAL --- */}
       <Modal
         open={openPreview}
         onClose={() => { setOpenPreview(false); URL.revokeObjectURL(previewData.url); }}
