@@ -50,7 +50,7 @@ app.listen(PORT,'0.0.0.0', () => {
  * @desc    Health check / Warm-up endpoint for Serverless Functions
  * @access  Public
  */
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
   req.log('Health check endpoint hit');
   res.status(200).json({
     status: 'UP',
