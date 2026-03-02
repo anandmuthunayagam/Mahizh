@@ -52,6 +52,7 @@ mongoose.connect(process.env.MONGO_URI)
 // Test route
 app.get("/", (req, res) => {
   res.send("Apartment Maintenance API running");
+  req.log("Apartment Maintenance API running");
 });
 
 const PORT = process.env.PORT || 10000;
