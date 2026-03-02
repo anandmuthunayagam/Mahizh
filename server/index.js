@@ -29,6 +29,7 @@ app.use("/api/reports", reportsRoutes);
 app.use("/api/resident", residentRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
@@ -49,7 +50,8 @@ app.listen(PORT,'0.0.0.0', () => {
  * @desc    Health check / Warm-up endpoint for Serverless Functions
  * @access  Public
  */
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
+  req.log('Health check endpoint hit');
   res.status(200).json({
     status: 'UP',
     timestamp: new Date().toISOString(),
