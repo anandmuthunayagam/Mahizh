@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 const User = require("../models/User");
 const auth = require("../middleware/auth");
+const mongoose = require('mongoose');
 
 const router = express.Router();
 
@@ -141,5 +142,21 @@ router.put("/admin/users/:id", auth(["admin"]), async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }); 
+
+router.get('/health', (req, res) => {
+  try {
+    // Check if the database is connected
+    const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+    
+    res.status(200).json({
+      server: 'Online',
+      database: dbStatus
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'Error', message: err.message });
+  }
+});
+
+
 module.exports = router;
 

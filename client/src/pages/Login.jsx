@@ -35,6 +35,18 @@ function Login() {
   // ✅ SESSION PERSISTENCE WAKE-UP
   // This pings your backend as soon as the user lands on the login page.
   // This helps "warm up" Vercel functions while the user is typing their credentials.
+
+  useEffect(() => {
+    const apiwarmUp = async () => {
+      try {
+        await axios.get(`https://mahizhconnect.onrender.com/`); // Assumes you have route
+      } catch (err) {
+        console.log("Server is warming up...");
+      }
+    };
+    apiwarmUp();
+  }, []);
+
   useEffect(() => {
     const warmUp = async () => {
       try {
