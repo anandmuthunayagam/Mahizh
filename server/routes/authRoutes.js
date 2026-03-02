@@ -28,6 +28,7 @@ router.post("/admin/register", async (req, res) => {
   }
 });
 
+
 // ✅ NEW UNIFIED LOGIN (Replaces separate admin/user login endpoints)
 router.post("/login", async (req, res) => {
   try {
