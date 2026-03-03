@@ -28,59 +28,74 @@ router.post("/admin/register", async (req, res) => {
   }
 });
 
-// ADMIN LOGIN
-router.post("/admin/login", async (req, res) => {
-  const { username, password } = req.body;
 
-  const admin = await Admin.findOne({ username });
-  if (!admin) return res.status(401).json({ message: "Invalid credentials" });
+// ✅ NEW UNIFIED LOGIN (Replaces separate admin/user login endpoints)
+router.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-  const isMatch = await bcrypt.compare(password, admin.password);
-  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    // 1. Try finding in Admin collection first
+    let account = await Admin.findOne({ username });
+    let role = "admin";
 
-  const token = jwt.sign(
-    { id: admin._id, role: "admin" },
-    "SECRET_KEY",
-    { expiresIn: "1d" }
-  );
+    // 2. If not found in Admin, search in User collection
+    if (!account) {
+      account = await User.findOne({ username });
+      role = "user";
+    }
 
-  res.json({ token, role: "admin" });
+    // 3. If still not found, return error
+    if (!account) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 4. Verify Password
+    const isMatch = await bcrypt.compare(password, account.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // 5. Generate Token (with role and homeNo for users)
+    const tokenPayload = { 
+      id: account._id, 
+      role: role 
+    };
+    
+    // Include homeNo in payload if it's a resident/user
+    if (role === "user") {
+        tokenPayload.homeNo = account.homeNo;
+    }
+
+    const token = jwt.sign(
+      tokenPayload,
+      "SECRET_KEY", // Note: Use process.env.JWT_SECRET in production
+      { expiresIn: "1d" }
+    );
+
+    // 6. Respond with token and detected role
+    res.json({ 
+        token, 
+        role, 
+        username: account.username,
+        homeNo: account.homeNo || null 
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error during login" });
+  }
 });
 
-// USER LOGIN
-router.post("/user/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  const user = await User.findOne({ username });
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-
-  const token = jwt.sign(
-    { id: user._id, role: "user", homeNo: user.homeNo },
-    "SECRET_KEY",
-    { expiresIn: "1d" }
-  );
-
-  res.json({ token, role: "user" });
-});
-
-// CREATE USERS BY ADMIN
-
-// ADMIN → CREATE USER
+// ✅ ADMIN → CREATE USER
 router.post("/admin/create-user", auth(["admin"]), async (req, res) => {
   try {
     const { username, password, homeNo } = req.body;
 
-    // Basic validation
     if (!username || !password || !homeNo) {
       return res.status(400).json({
         message: "Username, password and homeNo are required",
       });
     }
 
-    // Check duplicate username
     const existingUser = await User.findOne({ username });
     if (existingUser) {
       return res.status(400).json({
@@ -88,12 +103,11 @@ router.post("/admin/create-user", auth(["admin"]), async (req, res) => {
       });
     }
 
-    // Create new USER (role fixed as user)
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
       username,
-      password:hashedPassword,
+      password: hashedPassword,
       homeNo,
       role: "user",
     });
@@ -111,7 +125,7 @@ router.post("/admin/create-user", auth(["admin"]), async (req, res) => {
   }
 });
 
-//Admin → Get all users
+// ✅ ADMIN → GET ALL USERS
 router.get("/admin/users", auth(["admin"]), async (req, res) => {
   try {
     const users = await User.find({}, { password: 0 }); // Exclude password field
@@ -121,7 +135,7 @@ router.get("/admin/users", auth(["admin"]), async (req, res) => {
   }
 });
 
-//Admin -> Delete user
+// ✅ ADMIN → DELETE USER
 router.delete("/admin/users/:id", auth(["admin"]), async (req, res) => {
   try { 
     await User.findByIdAndDelete(req.params.id);
@@ -131,23 +145,27 @@ router.delete("/admin/users/:id", auth(["admin"]), async (req, res) => {
   }
 });
 
-//Admin -> Update user
+// ✅ ADMIN → UPDATE USER
 router.put("/admin/users/:id", auth(["admin"]), async (req, res) => {
   try {
     const { username, password, homeNo } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await User.findByIdAndUpdate(req.params.id, { username, password: hashedPassword, homeNo });
+    const updateData = { username, homeNo };
+    
+    if (password) {
+        updateData.password = await bcrypt.hash(password, 10);
+    }
+    
+    await User.findByIdAndUpdate(req.params.id, updateData);
     res.json({ message: "User updated" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 }); 
 
+// ✅ HEALTH CHECK
 router.get('/health', (req, res) => {
   try {
-    // Check if the database is connected
     const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
-    
     res.status(200).json({
       server: 'Online',
       database: dbStatus
@@ -157,6 +175,4 @@ router.get('/health', (req, res) => {
   }
 });
 
-
 module.exports = router;
-
