@@ -41,6 +41,46 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
 
   const whatsappUrl = `https://wa.me/91${home.ownerContact}?text=${whatsappMessage}`;
 
+  const getStatusDetails = () => {
+  const isPaid = home.status === "PAID";
+  if (isPaid) return { label: "PAID", color: "success" };
+
+  const MONTHS = [
+  "All", "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
+  const now = new Date();
+    const currentMonthIdx = now.getMonth(); // 0-11
+    const currentYear = now.getFullYear();
+
+    // Convert selection to index (Subtract 1 because MONTHS[0] is "All")
+    const selectedMonthIdx = MONTHS.indexOf(selectedMonth) - 1; 
+    const selectedYearNum = parseInt(selectedYear);
+
+    // 2. Check if it is OVERDUE (Past months)
+    const isPast = selectedYearNum < currentYear || 
+                   (selectedYearNum === currentYear && selectedMonthIdx < currentMonthIdx);
+
+    if (isPast) {
+      return { label: "OVERDUE", color: "error" };
+    }
+
+    // 3. For Current and Future months: Show "Due by next month start"
+    // We calculate the 1st of the month following the selected one
+    const dueDate = new Date(selectedYearNum, selectedMonthIdx + 1, 1);
+    const formattedDate = dueDate.toLocaleDateString('en-GB', { 
+      day: '2-digit', 
+      month: 'short' 
+    });
+
+    return { 
+      label: `DUE by ${formattedDate}`, 
+      color: selectedMonthIdx === currentMonthIdx ? "warning" : "info" 
+    };
+  };
+
+  const status = getStatusDetails();
+
   return (
     <motion.div
       animate={
@@ -82,10 +122,11 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
             <Typography variant="h6" fontWeight='bold' color="#B87333">{home.homeNo}</Typography>
             
             <Chip
-              label={isPaid ? "PAID" : "DUE"}
-              color={isPaid ? "success" : "warning"}
-              size="small"
-            />
+  label={status.label}
+  color={status.color}
+  size="small"
+  sx={{ fontWeight: 'bold' }}
+/>
           </Box>
 
           <Typography 
