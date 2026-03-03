@@ -1,14 +1,14 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  //baseURL: "http://localhost:5000/api",
   baseURL: import.meta.env.VITE_API_URL,
 });
 
-// Request interceptor
+// ✅ UPDATED TO sessionStorage
+// Matches the persistence strategy used in Login.jsx
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token"); // Changed from localStorage
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -16,7 +16,6 @@ axiosInstance.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
 
 axiosInstance.interceptors.response.use(
   (response) => response,
@@ -26,14 +25,15 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Unauthorized
+    // ✅ UPDATED TO sessionStorage
+    // Handles unauthorized errors by clearing the correct storage
     if (
-        error.response?.status === 401 &&
-        error.config.url.includes("/auth")
-        ) {
-            localStorage.clear();
-            window.location.href = "/login";
-          }
+      error.response?.status === 401 &&
+      !error.config.url.includes("/auth/login") // Don't redirect if the login itself fails
+    ) {
+      sessionStorage.clear(); // Changed from localStorage
+      window.location.href = "/login";
+    }
 
     return Promise.reject(error);
   }
