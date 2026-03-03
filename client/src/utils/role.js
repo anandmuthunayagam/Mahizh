@@ -1,3 +1,3 @@
 export const isAdmin = () => {
-  return localStorage.getItem("role") === "admin";
+  return sessionStorage.getItem("role") === "admin";
 };
