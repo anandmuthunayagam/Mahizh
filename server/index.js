@@ -35,7 +35,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
  * @access  Public
  */
 app.get('/api/health', (req, res) => {
-  req.log('Health check endpoint hit');
+  console.log('Health check endpoint hit');
   res.status(200).json({
     status: 'UP',
     timestamp: new Date().toISOString(),
