@@ -160,27 +160,27 @@ function MonthlySummary({ token }) {
 }
 
 const styles = {
-  container: { 
-    backgroundColor: "#020617", 
-    border: "1px solid #1e293b", 
-    borderRadius: 3, 
-    p: { xs: 2, md: 3 }, 
-    width: '100%', 
-    boxSizing: 'border-box' 
-  },
-  card: { 
-    backgroundColor: "#0F172A", 
-    border: "1px solid #1e293b", 
-    p: 2.5, 
-    borderRadius: 2, 
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column'
-  },
+  container: { backgroundColor: "#020617", border: "1px solid #1e293b", borderRadius: 3, p: 3, width: '100%' },
+  title: { color: "#64748b", fontWeight: 700 },
   sectionTitle: { color: "#38bdf8", fontWeight: 600, mb: 1 },
-  select: { width: 140, "& .MuiOutlinedInput-root": { color: "white", "& fieldset": { borderColor: "#1e293b" } } },
-  listRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, mb: 1, bgcolor: '#1e293b', borderRadius: 1 },
-  waButton: { color: '#25D366', borderColor: '#25D366', fontSize: '0.65rem', textTransform: 'none' }
+  divider: { borderColor: "#1e293b", my: 2 },
+  card: { backgroundColor: "#0F172A", border: "1px solid #1e293b", p: 2, borderRadius: 2 },
+  select: {
+    width: 150,
+    "& .MuiOutlinedInput-root": {
+      color: "white",
+      "& fieldset": { borderColor: "#1e293b" },
+    },
+    "& .MuiInputLabel-root": { color: "#94a3b8" },
+  },
+  listRow: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    p: 1.5, mb: 1, bgcolor: '#1e293b', border: '1px solid #334155', borderRadius: 1
+  },
+  remindButton: {
+    color: '#25D366', borderColor: '#25D366', fontSize: '0.7rem',
+    '&:hover': { borderColor: '#1ebe5d', bgcolor: 'rgba(37, 211, 102, 0.1)' }
+  }
 };
 
 export default MonthlySummary;
