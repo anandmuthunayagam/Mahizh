@@ -219,7 +219,7 @@ const ChartCard = ({ title, children }) => (
 
 const styles = {
   container: { backgroundColor: "#020617", border: "1px solid #1e293b", borderRadius: 3, p: 3, width: '100%' },
-  title: { color: "#e5e7eb", fontWeight: 700 },
+  title: { color: "#64748b", fontWeight: 700 },
   sectionTitle: { color: "#38bdf8", fontWeight: 600, mb: 1 },
   divider: { borderColor: "#1e293b", my: 2 },
   card: { backgroundColor: "#0F172A", border: "1px solid #1e293b", p: 2, borderRadius: 2 },

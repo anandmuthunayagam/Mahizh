@@ -68,7 +68,7 @@ function Home() {
 
   return (
     <Fade in={true} timeout={800}>
-      <Box ref={contentRef} sx={{ p: { xs: 2, md: 4 }, backgroundColor: "#020617", minHeight: "100vh" }}>
+      <Box ref={contentRef} sx={{ p: { xs: 1, md: 1 }, backgroundColor: "#020617", minHeight: "100vh" }}>
         
         {/* --- EXPORT HEADER --- */}
         <Box 
@@ -92,7 +92,7 @@ function Home() {
         </Box>
         <Box sx={{ p: 3,pl: 0, }}>
         <Typography variant="h5" sx={{ color:  '#64748b', fontWeight: 700 }}>
-          Monthly Insights
+          Mahizh - Monthly Insights
         </Typography>
         </Box>
 
