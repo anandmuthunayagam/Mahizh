@@ -5,7 +5,6 @@ import {
   Typography,
   TextField,
   MenuItem,
-  Grid,
   Divider,
   CircularProgress,
   Button,
@@ -26,27 +25,12 @@ import {
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import axios from "../utils/api/axios";
 
-/* ================= CONSTANTS ================= */
-const MONTHS = [
-  "January","February","March","April","May","June",
-  "July","August","September","October","November","December"
-];
-
-const startYear = 2012;
-const currentYearValue = new Date().getFullYear();
-const YEARS = Array.from(
-  { length: currentYearValue - startYear + 2 }, 
-  (_, i) => startYear + i
-).reverse();
-
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const COLORS = ["#4ade80", "#f87171"];
-const CURRENT_MONTH = new Date().getMonth(); 
-const CURRENT_YEAR = new Date().getFullYear();
 
-/* ================= COMPONENT ================= */
 function MonthlySummary({ token }) {
-  const [month, setMonth] = useState(CURRENT_MONTH);
-  const [year, setYear] = useState(CURRENT_YEAR);
+  const [month, setMonth] = useState(new Date().getMonth());
+  const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,190 +39,167 @@ function MonthlySummary({ token }) {
       if (!token) return;
       setLoading(true);
       try {
-        const monthName = MONTHS[month];
-        const config = {
-          params: { month: monthName, year },
-          headers: { Authorization: `Bearer ${token}` }
-        };
-
+        const config = { params: { month: MONTHS[month], year }, headers: { Authorization: `Bearer ${token}` } };
         const [colRes, expRes, homesRes] = await Promise.all([
           axios.get("/collections", config),
           axios.get("/expenses", config),
           axios.get("/owner-residents/home-status", config),
         ]);
-
         const totalCollections = colRes.data.reduce((sum, item) => sum + item.amount, 0);
         const totalExpenses = expRes.data.reduce((sum, item) => sum + item.amount, 0);
-        const pendingHomes = (homesRes.data || []).filter((h) => h.status !== "PAID");
-
         setData({
-          totalCollections,
-          totalExpenses,
           pieData: [
-            { name: "Collections", value: totalCollections },
-            { name: "Expenses", value: totalExpenses },
+            { name: "Income", value: totalCollections },
+            { name: "Expense", value: totalExpenses }
           ],
-          pendingHomes,
+          pendingHomes: (homesRes.data || []).filter((h) => h.status !== "PAID"),
         });
-      } catch (error) {
-        console.error("Error fetching summary data:", error);
-        setData({ totalCollections: 0, totalExpenses: 0, pieData: [], pendingHomes: [] });
-      } finally {
-        setLoading(false);
-      }
+      } catch (e) { console.error(e); } finally { setLoading(false); }
     };
-
     fetchData();
   }, [month, year, token]);
 
   const handleWhatsAppRemind = (home) => {
-    const message = encodeURIComponent(
-      `Hello ${home.owner.name},\n\nReminder for Home ${home.homeNo} maintenance (${MONTHS[month]} ${year}).\n\nStatus: Pending.`
-    );
+    const message = encodeURIComponent(`Hello ${home.owner.name}, Reminder for Home ${home.homeNo} maintenance.`);
     window.open(`https://wa.me/91${home.owner.phone}?text=${message}`, "_blank");
   };
 
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
-        <CircularProgress sx={{ color: '#38bdf8' }} />
-      </Box>
-    );
-  }
+  if (loading) return <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}><CircularProgress /></Box>;
 
   return (
     <Paper sx={styles.container}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={styles.title}>Financial Performance Summary</Typography>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <TextField
-            select size="small" label="Month"
-            value={month}
-            onChange={(e) => setMonth(e.target.value)}
-            sx={styles.select}
-          >
-            {MONTHS.map((m, index) => <MenuItem key={m} value={index}>{m}</MenuItem>)}
+      {/* Header */}
+      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" spacing={2} sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ color: "#64748b", fontWeight: 700 }}>Financial Performance Summary</Typography>
+        <Stack direction="row" spacing={2}>
+          <TextField select size="small" value={month} onChange={(e) => setMonth(e.target.value)} sx={styles.select}>
+            {MONTHS.map((m, i) => <MenuItem key={m} value={i}>{m}</MenuItem>)}
           </TextField>
-          <TextField
-            select size="small" label="Year"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            sx={styles.select}
-          >
-            {YEARS.map((y) => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+          <TextField select size="small" value={year} onChange={(e) => setYear(e.target.value)} sx={styles.select}>
+            {[2024, 2025, 2026].map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
           </TextField>
-        </Box>
+        </Stack>
       </Stack>
 
-      <Divider sx={styles.divider} />
+      <Divider sx={{ borderColor: "#1e293b", mb: 4 }} />
 
-      <Grid container spacing={3} alignItems="stretch">
+      {/* CSS FLEXBOX REPLACEMENT FOR MUI GRID 
+          This forces 3 equal columns across the full width 
+      */}
+      <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' }, 
+          gap: 3, 
+          width: '100%', 
+          alignItems: 'stretch' 
+      }}>
+        
         {/* 1. Bar Chart */}
-        <Grid item xs={12} md={4}>
-          <ChartCard title="Income vs Expense">
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Paper sx={styles.card}>
+            <Typography sx={styles.sectionTitle}>Income vs Expense</Typography>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={data?.pieData || []}>
-                <XAxis dataKey="name" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', color: '#fff' }} />
-                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                  {(data?.pieData || []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                  <LabelList dataKey="value" position="top" fill="#fff" />
+              <BarChart data={data?.pieData} margin={{ top: 25, right: 10, left: 0, bottom: 5 }}>
+                <XAxis dataKey="name" stroke="#94a3b8" axisLine={false} tickLine={false} />
+                <YAxis hide />
+                <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b' }} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={50}>
+                  {data?.pieData.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
+                  <LabelList dataKey="value" position="top" fill="#fff" formatter={(v) => `₹${v.toLocaleString()}`} />
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </ChartCard>
-        </Grid>
+          </Paper>
+        </Box>
 
         {/* 2. Pie Chart */}
-        <Grid item xs={12} md={4}>
-          <ChartCard title="Allocation Ratio">
-            <ResponsiveContainer width="100%" height={300}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Paper sx={styles.card}>
+            <Typography sx={styles.sectionTitle}>Allocation Ratio</Typography>
+            <ResponsiveContainer width="100%" height={260}>
               <PieChart>
-                <Pie
-                  data={data?.pieData || []}
-                  innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value"
-                >
-                  {(data?.pieData || []).map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
+                <Pie data={data?.pieData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value" cx="50%" cy="50%">
+                  {data?.pieData.map((_, i) => <Cell key={i} fill={COLORS[i]} stroke="none" />)}
                 </Pie>
-                <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', color: '#fff' }} />
+                <RechartsTooltip />
               </PieChart>
             </ResponsiveContainer>
-            <Stack direction="row" justifyContent="center" spacing={3}>
-              <Typography sx={{ color: '#4ade80', fontSize: '0.8rem' }}>● Income</Typography>
-              <Typography sx={{ color: '#f87171', fontSize: '0.8rem' }}>● Expense</Typography>
+            <Stack direction="row" justifyContent="center" spacing={2} sx={{ mt: 1 }}>
+              <Typography sx={{ color: COLORS[0], fontSize: '0.75rem', fontWeight: 600 }}>● Income</Typography>
+              <Typography sx={{ color: COLORS[1], fontSize: '0.75rem', fontWeight: 600 }}>● Expense</Typography>
             </Stack>
-          </ChartCard>
-        </Grid>
+          </Paper>
+        </Box>
 
         {/* 3. Pending Collections */}
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ ...styles.card, height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Paper sx={{ 
+            ...styles.card, 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column' 
+          }}>
             <Typography sx={styles.sectionTitle}>
-              Pending Payments ({data?.pendingHomes?.length || 0})
+              Pending Payments ({data?.pendingHomes?.length})
             </Typography>
-            <Box sx={{ flexGrow: 1, maxHeight: 310, overflow: 'auto', mt: 1 }}>
-              {!data?.pendingHomes?.length ? (
-                <Typography sx={{ color: '#94a3b8', textAlign: 'center', py: 2 }}>All clear!</Typography>
+            
+            {/* REMOVED maxHeight and overflowY to eliminate scrollbar */}
+            <Box sx={{ flexGrow: 1, mt: 1 }}>
+              {data?.pendingHomes.length === 0 ? (
+                <Typography sx={{ color: "#94a3b8", textAlign: 'center', py: 4 }}>
+                  All clear!
+                </Typography>
               ) : (
-                data.pendingHomes.map((home) => (
+                data?.pendingHomes.map((home) => (
                   <Paper key={home.homeNo} sx={styles.listRow}>
                     <Box>
-                      <Typography sx={{ color: '#fff', fontWeight: 600, fontSize: '0.85rem' }}>Home: {home.homeNo}</Typography>
-                      <Typography sx={{ color: '#94a3b8', fontSize: '0.75rem' }}>{home.owner.name}</Typography>
+                      <Typography sx={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600 }}>
+                        Home: {home.homeNo}
+                      </Typography>
+                      <Typography sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
+                        {home.owner.name}
+                      </Typography>
                     </Box>
-                    <Button
-                      size="small" variant="outlined"
-                      startIcon={<WhatsAppIcon sx={{ fontSize: '1rem !important' }} />}
+                    <Button 
+                      size="small" variant="outlined" 
+                      startIcon={<WhatsAppIcon sx={{ fontSize: '1rem !important' }} />} 
                       onClick={() => handleWhatsAppRemind(home)}
-                      sx={styles.remindButton}
-                    >
-                      Remind
-                    </Button>
+                      sx={styles.waButton}
+                    >Remind</Button>
                   </Paper>
                 ))
               )}
             </Box>
           </Paper>
-        </Grid>
-      </Grid>
+        </Box>
+
+      </Box>
     </Paper>
   );
 }
 
-const ChartCard = ({ title, children }) => (
-  <Paper sx={{ ...styles.card, height: '100%' }}>
-    <Typography sx={styles.sectionTitle}>{title}</Typography>
-    {children}
-  </Paper>
-);
-
 const styles = {
-  container: { backgroundColor: "#020617", border: "1px solid #1e293b", borderRadius: 3, p: 3, width: '100%' },
-  title: { color: "#64748b", fontWeight: 700 },
+  container: { 
+    backgroundColor: "#020617", 
+    border: "1px solid #1e293b", 
+    borderRadius: 3, 
+    p: { xs: 2, md: 3 }, 
+    width: '100%', 
+    boxSizing: 'border-box' 
+  },
+  card: { 
+    backgroundColor: "#0F172A", 
+    border: "1px solid #1e293b", 
+    p: 2.5, 
+    borderRadius: 2, 
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column'
+  },
   sectionTitle: { color: "#38bdf8", fontWeight: 600, mb: 1 },
-  divider: { borderColor: "#1e293b", my: 2 },
-  card: { backgroundColor: "#0F172A", border: "1px solid #1e293b", p: 2, borderRadius: 2 },
-  select: {
-    width: 150,
-    "& .MuiOutlinedInput-root": {
-      color: "white",
-      "& fieldset": { borderColor: "#1e293b" },
-    },
-    "& .MuiInputLabel-root": { color: "#94a3b8" },
-  },
-  listRow: {
-    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    p: 1.5, mb: 1, bgcolor: '#1e293b', border: '1px solid #334155', borderRadius: 1
-  },
-  remindButton: {
-    color: '#25D366', borderColor: '#25D366', fontSize: '0.7rem',
-    '&:hover': { borderColor: '#1ebe5d', bgcolor: 'rgba(37, 211, 102, 0.1)' }
-  }
+  select: { width: 140, "& .MuiOutlinedInput-root": { color: "white", "& fieldset": { borderColor: "#1e293b" } } },
+  listRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, mb: 1, bgcolor: '#1e293b', borderRadius: 1 },
+  waButton: { color: '#25D366', borderColor: '#25D366', fontSize: '0.65rem', textTransform: 'none' }
 };
 
 export default MonthlySummary;
