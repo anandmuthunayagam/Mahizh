@@ -8,11 +8,19 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import axios from "../utils/api/axios";
 import { useSnackbar } from "../utils/context/SnackbarContext";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 const categories = ["Maintenance", "Water", "Corpus Fund", "Others"];
+// Generate years dynamically from 2012 to Current Year + 1
+const startYear = 2012;
+const currentYearValue = new Date().getFullYear();
+const YEARS = Array.from(
+  { length: currentYearValue - startYear + 2 }, 
+  (_, i) => startYear + i
+).reverse();
 
 // ✅ UPDATED: Accepting token as a prop
 function CollectionsManager({ token }) {
@@ -26,7 +34,14 @@ function CollectionsManager({ token }) {
   const [selectedCol, setSelectedCol] = useState(null);
   const [editAmount, setEditAmount] = useState("");
   const [editMonth, setEditMonth] = useState("");
+  const [editYear, setEditYear] = useState("");
   const [editCategory, setEditCategory] = useState("");
+
+  // Filter States (Default to current month/year)
+    const now = new Date();
+    const [filterMonth, setFilterMonth] = useState(now.toLocaleString('default', { month: 'long' }));
+    const [filterYear, setFilterYear] = useState(now.getFullYear());
+  
 
   useEffect(() => {
     if (token) fetchCollections();
@@ -37,6 +52,7 @@ function CollectionsManager({ token }) {
     try {
       // ✅ AUTHENTICATION: Pass the session token
       const res = await axios.get("/collections", {
+        params: { month: filterMonth, year: filterYear },
         headers: { Authorization: `Bearer ${token}` }
       });
       setCollections(res.data);
@@ -73,6 +89,7 @@ function CollectionsManager({ token }) {
       await axios.put(`/collections/${selectedCol._id}`, {
         amount: Number(editAmount),
         month: editMonth,
+        year:editYear,
         category: editCategory
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -91,17 +108,69 @@ function CollectionsManager({ token }) {
   );
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Stack direction="row" justifyContent="space-between" sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ color: "white", fontWeight: 700 }}>Collections Log</Typography>
-        <TextField
-          placeholder="Search home or month..."
-          size="small"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={searchStyle}
-        />
-      </Stack>
+    
+      <Box sx={{ width: "100%" }}>
+          <Stack 
+              direction={{ xs: 'column', md: 'row' }} 
+              justifyContent="space-between" 
+              alignItems="center" 
+              spacing={2} 
+              sx={{ mb: 3 }}
+            >
+              {/* Left Side: Title */}
+              <Typography variant="h5" sx={{ color: "white", fontWeight: 700, whiteSpace: 'nowrap' }}>
+                Collections Log
+              </Typography>
+      
+              {/* Right Side: Grouped Controls */}
+              <Stack 
+                direction="row" 
+                spacing={1.5} 
+                alignItems="center" 
+                sx={{ width: { xs: '100%', md: 'auto' }, flexWrap: 'wrap', justifyContent: 'flex-end' }}
+              >
+                <TextField
+                  select
+                  size="small"
+                  value={filterMonth}
+                  onChange={(e) => setFilterMonth(e.target.value)}
+                  sx={{ ...styles.inputField, width: '120px' }} // Fixed width for alignment
+                >
+                  {MONTHS.map(m => <MenuItem key={m} value={m}>{m}</MenuItem>)}
+                </TextField>
+      
+                <TextField
+                  size="small"
+                  value={filterYear}
+                  onChange={(e) => setFilterYear(e.target.value)}
+                  sx={{ ...styles.inputField, width: '100px' }} // Fixed width for alignment
+                >
+                  {YEARS.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+                </TextField>
+      
+                <Button
+                  variant="contained"
+                  startIcon={<FilterAltIcon />}
+                  onClick={fetchCollections}
+                  sx={{ 
+                    height: '40px', 
+                    background: "linear-gradient(135deg, #6366f1, #22d3ee)", 
+                    fontWeight: 700,
+                    textTransform: 'none'
+                  }}
+                >
+                  Refresh
+                </Button>
+      
+                <TextField
+                  placeholder="Search..."
+                  size="small"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  sx={{ ...searchStyle, width: '200px' }}
+                />
+              </Stack>
+            </Stack>
 
       <TableContainer component={Paper} sx={{ bgcolor: "#0F172A", border: "1px solid #1e293b", borderRadius: 3 }}>
         {loading ? (
@@ -141,6 +210,9 @@ function CollectionsManager({ token }) {
           <TextField fullWidth label="Amount" type="number" value={editAmount} onChange={(e) => setEditAmount(e.target.value)} margin="dense" sx={inputStyle} />
           <TextField select fullWidth label="Month" value={editMonth} onChange={(e) => setEditMonth(e.target.value)} margin="dense" sx={inputStyle}>
             {MONTHS.map(m => <MenuItem key={m} value={m}>{m}</MenuItem>)}
+          </TextField>
+          <TextField select fullWidth label="Year" type="number" value={editYear} onChange={(e) => setEditYear(e.target.value)} margin="dense" sx={inputStyle} >
+            {YEARS.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
           </TextField>
           <TextField select fullWidth label="Category" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} margin="dense" sx={inputStyle}>
             {categories.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
