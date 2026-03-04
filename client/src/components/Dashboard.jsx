@@ -11,7 +11,8 @@ import {
   Divider,
   Grid,
   Button,
-  Tooltip
+  Tooltip,
+  IconButton
 } from "@mui/material";
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -190,9 +191,31 @@ function Dashboard() {
         {isAdmin() && (
         <Box sx={{ mb: 4, display: 'flex', justifyContent: 'flex-end' }} className="no-print no-export">
           <Stack direction="row" spacing={2}>
-            <Tooltip title="Excel"><Button variant="contained" startIcon={<TableChartIcon />} onClick={exportToExcel} sx={{ bgcolor: "#10b981", minWidth: 0 }} /></Tooltip>
-            <Tooltip title="PDF"><Button variant="contained" startIcon={<PictureAsPdfIcon />} onClick={handlePrint} sx={{ bgcolor: "#ef4444", minWidth: 0 }} /></Tooltip>
-            <Tooltip title="Screenshot"><Button variant="contained" startIcon={<PhotoCameraIcon />} onClick={exportImage} sx={{ bgcolor: "#3b82f6", minWidth: 0 }} /></Tooltip>
+            <Tooltip title="Excel">
+              <IconButton
+                onClick={exportToExcel} 
+                sx={{ bgcolor: "#10b981", color: "white", borderRadius: 2, '&:hover': { bgcolor: "#059669" } }}
+              >
+                <TableChartIcon />
+              </IconButton>
+            </Tooltip>        
+            <Tooltip title="PDF">
+              <IconButton 
+                onClick={handlePrint} 
+                sx={{ bgcolor: "#ef4444", color: "white", borderRadius: 2, '&:hover': { bgcolor: "#dc2626" } }}
+              >
+                <PictureAsPdfIcon />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Screenshot">
+              <IconButton 
+                onClick={exportImage} 
+                sx={{ bgcolor: "#3b82f6", color: "white", borderRadius: 2, '&:hover': { bgcolor: "#2563eb" } }}
+              >
+                <PhotoCameraIcon />
+              </IconButton>
+            </Tooltip>
             
             <Paper sx={{ p: 1, bgcolor: "#1e293b", display: 'flex', gap: 1.5, borderRadius: 2 }}>
               <TextField select size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={{ "& .MuiOutlinedInput-root": { color: "white" } }}>
