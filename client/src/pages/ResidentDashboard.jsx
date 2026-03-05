@@ -98,6 +98,7 @@ function ResidentDashboard() {
                 home={homeData}
                 selectedMonth={homeData.displayMonth}
                 selectedYear={homeData.displayYear}
+                isClickable={true}
                 sx={{ 
                   width: '100%',
                   boxShadow: homeData?.status?.toUpperCase() === "PAID" 

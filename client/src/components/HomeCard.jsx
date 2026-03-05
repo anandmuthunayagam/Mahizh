@@ -1,6 +1,6 @@
 import React from "react";
 // ✅ IMPORT: Added useOutletContext to receive session data from MainLayout
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -21,7 +21,7 @@ import S2 from "../assets/homes/S2.png";
 
 const homeImages = { G1, F1, F2, S1, S2 };
 
-function HomeCard({ home, selectedMonth, selectedYear }) {
+function HomeCard({ home, selectedMonth, selectedYear,isClickable = false }) {
   // ✅ CONTEXT: Fetch the userRole passed down from MainLayout context
   const { userRole } = useOutletContext();
   
@@ -29,6 +29,16 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
 
   // ✅ UPDATED: Use userRole from context instead of localStorage
   const isAdmin = () => userRole === "admin";
+
+  const navigate = useNavigate(); // Initialize navigation
+
+  const handleCardClick = () => {
+    // Navigate to the detail page
+    // Only navigate if the prop is true
+    if (isClickable) {
+      navigate(`/home-details/${home.homeNo}`);
+    }
+  };
 
   const whatsappMessage = encodeURIComponent(
     `Hello ${home.ownerName},\n\n` +
@@ -67,8 +77,8 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
     }
 
     // 3. For Current and Future months: Show "Due by next month start"
-    // We calculate the 1st of the month following the selected one
-    const dueDate = new Date(selectedYearNum, selectedMonthIdx + 1, 1);
+    // We calculate the 5th of the month following the selected one
+    const dueDate = new Date(selectedYearNum, selectedMonthIdx + 1, 5);
     const formattedDate = dueDate.toLocaleDateString('en-GB', { 
       day: '2-digit', 
       month: 'short' 
@@ -84,6 +94,9 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
 
   return (
     <motion.div
+      layoutId={isClickable ? `card-${home.homeNo}` : undefined} // Unique ID for the whole card
+      onClick={handleCardClick}
+      style={{ cursor: isClickable ? 'pointer' : 'default' }}
       animate={
         !isPaid
           ? { scale: [1, 1.03, 1] }
@@ -106,13 +119,14 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
             width: '100%',
         }}
       >
+        <motion.div layoutId={`image-${home.homeNo}`}> {/* Shared ID for the image */}
         <CardMedia
           component="img"
           height="200"
           image={homeImages[home.homeNo]}
           alt={home.homeNo}
         />
-
+        </motion.div>
         <CardContent>
           <Box
             display="flex"
@@ -123,10 +137,10 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
             <Typography variant="h6" fontWeight='bold' color="#B87333">{home.homeNo}</Typography>
             
             <Chip
-  label={status.label}
-  color={status.color}
-  size="small"
-  sx={{ fontWeight: 'bold' }}
+              label={status.label}
+              color={status.color}
+              size="small"
+              sx={{ fontWeight: 'bold' }}
 />
           </Box>
 
