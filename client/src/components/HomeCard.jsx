@@ -42,6 +42,7 @@ function HomeCard({ home, selectedMonth, selectedYear }) {
   const whatsappUrl = `https://wa.me/91${home.ownerContact}?text=${whatsappMessage}`;
 
   const getStatusDetails = () => {
+    
   const isPaid = home.status === "PAID";
   if (isPaid) return { label: "PAID", color: "success" };
 

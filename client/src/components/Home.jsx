@@ -36,12 +36,12 @@ function Home() {
   useEffect(() => {
     // ✅ AUTHENTICATION: Pass the session token in the request headers
     axios.get("/owner-residents/home-status", { 
-      params: { month, year },
+      params: { month, year,category: "Maintenance" },
       headers: { Authorization: `Bearer ${token}` } 
     })
       .then((res) => setHomes(res.data))
       .catch(console.error);
-  }, [month, year, token]); // Re-run if token changes (e.g., session expires)
+  }, [month, year,token]); // Re-run if token changes (e.g., session expires)
 
   const exportImage = async () => {
     if (contentRef.current === null) return;

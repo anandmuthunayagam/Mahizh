@@ -90,7 +90,7 @@ router.get("/home-status", auth(), async (req, res) => {
   try {
     const { month, year } = req.query;
     const homes = await OwnerResident.find({}).lean();
-    const collections = await Collection.find({ month, year: Number(year) }).lean();
+    const collections = await Collection.find({ month, year: Number(year),category:"Maintenance" }).lean();
 
     const result = homes.map((home) => {
       // Find the specific collection record for this month/year

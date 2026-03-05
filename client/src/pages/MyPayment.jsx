@@ -52,7 +52,7 @@ function MyPayments() {
           <Table>
             <TableHead>
               <TableRow sx={{ bgcolor: "#1e293b" }}>
-                {["Month", "Year", "Amount", "Category"].map((header) => (
+                {["Month", "Year", "Amount", "Category", "Paid By"].map((header) => (
                   <TableCell 
                     key={header} 
                     sx={{ color: "#94a3b8", fontWeight: 700, borderBottom: "none" }}
@@ -80,11 +80,14 @@ function MyPayments() {
                   <TableCell sx={{ color: "white", borderBottom: "1px solid #1e293b" }}>
                     {r.category || <span style={{ color: '#475569', fontStyle: 'italic' }}>General</span>}
                   </TableCell>
+                   <TableCell sx={{ color: "white", borderBottom: "1px solid #1e293b" }}>
+                    {r.category === "Corpus Fund" ? r.ownerName : r.residentName}
+                  </TableCell>
                 </TableRow>
               ))}
               {rows.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} align="center" sx={{ color: "#94a3b8", py: 4 }}>
+                  <TableCell colSpan={5} align="center" sx={{ color: "#94a3b8", py: 4 }}>
                     No payment records found.
                   </TableCell>
                 </TableRow>
