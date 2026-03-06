@@ -72,10 +72,10 @@ function HomeDetails() {
           border: "1px solid #1e293b" 
         }}
       >
-        <Grid container sx={{ height: "100%" }}>
+        <Grid container sx={{ height: "100%",width: "100%" }}>
           
           {/* LEFT: IMAGE + TOP OVERLAY GUIDELINES */}
-          <Grid item xs={12} md={6} sx={{ height: { xs: "35%", md: "100%" }, position: "relative" }}>
+          <Grid item xs={12} md={6} sx={{ height: { xs: "50%", md: "100%" }, position: "relative" }}>
             <motion.img
               layoutId={`image-${homeNo}`}
               src={homeImages[homeNo]}
@@ -96,7 +96,8 @@ function HomeDetails() {
                     bgcolor: "rgba(15, 23, 42, 0.85)", 
                     backdropFilter: "blur(12px)", 
                     border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "16px"
+                    borderRadius: "16px",
+                    
                   }}>
                     <Stack direction="row" spacing={1} alignItems="center" mb={0.5}>
                       <InfoOutlinedIcon fontSize="small" sx={{ color: "#38bdf8" }} />
@@ -122,16 +123,22 @@ function HomeDetails() {
             sx={{ 
               p: { xs: 2, md: 4 }, 
               bgcolor: "#0f172a", 
-              height: { xs: "65%", md: "100%" },
+              height: { xs: "100%", md: "100%" },
+              width: { xs: "100%", md: "45%" },
               display: "flex",
-              flexDirection: "column"
+              flexDirection: "column",
+              overflowY: "auto", // 🚀 ADD THIS: Allows content to be reached if it's too tall
+    "&::-webkit-scrollbar": { display: "none" }, // Optional: hide scrollbar for clean look
+    msOverflowStyle: "none", 
+    scrollbarWidth: "none"
+              
             }}
           >
             <Stack spacing={4} sx={{ width: "100%", height: "100%" }}>
               
               {/* 1. UNIT SPECS - FULL WIDTH */}
               <Box sx={{ width: "100%" }}>
-                <Stack direction="row" spacing={1} alignItems="center" mb={2}>
+                <Stack direction="row" spacing={1} alignItems="center" mb={2} width="100%">
                   <HomeOutlinedIcon fontSize="small" sx={{ color: "#fbbf24" }} />
                   <Typography variant="caption" color="#94a3b8" fontWeight="bold" sx={{ letterSpacing: 1 }}>
                     UNIT SPECIFICATIONS
@@ -139,24 +146,14 @@ function HomeDetails() {
                 </Stack>
                 
                 <Stack spacing={1.5} sx={{ width: "100%" }}>
-                  <DetailBox label="EB Service #" value="1234567890"  />
-                  <DetailBox label="Common EB # " value="0987654321" />
-                  <DetailBox label="Property Tax Info" value="₹5,000 /yr" />
-                  <DetailBox label="Water Tax Info" value="₹2,000 /yr" />
+                  <DetailBox1 label="EB Service Number" value="1234567890"  />
+                  <DetailBox1 label="Common EB Service Number" value="0987654321" />
+                  <DetailBox2 label1="Property Tax Info" value1="₹5,000 /yr" label2="Property Tax #" value2="1234" />
+                  <DetailBox2 label1="Water Tax Info" value1="₹2,000 /yr" label2="Water Tax #" value2="9876" />
                 </Stack>
               </Box>
 
-              {/* 2. PROTOCOLS - NOW STRETCHED TO 100% */}
-              <Box sx={{ width: "100%" }}>
-                <Typography variant="caption" color="#94a3b8" fontWeight="bold" sx={{ letterSpacing: 1, display: 'block', mb: 2 }}>
-                  SOCIETY PROTOCOLS
-                </Typography>
-                <Stack spacing={2} sx={{ width: "100%" }}>
-                  <ProtocolRow title="Moving In/Out" text="Inform admin team 7 days in advance." />
-                  <ProtocolRow title="Security/CCTV" text="Request CCTV config with Owner/admin." />
-                   
-                </Stack>
-              </Box>
+              
 
             </Stack>
           </Grid>
@@ -168,7 +165,7 @@ function HomeDetails() {
 }
 
 /* UI COMPONENTS - Optimized for stretching */
-const DetailBox = ({ label, value }) => (
+const DetailBox1 = ({ label, value }) => (
   <Paper elevation={0} sx={{ 
     p: 2.5, 
     width: "100%", // Ensures it fills the horizontal space
@@ -185,6 +182,45 @@ const DetailBox = ({ label, value }) => (
   </Paper>
 );
 
+const DetailBox2 = ({ label1, value1, label2, value2 }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      p: 2.5,
+      width: "100%",
+      bgcolor: "#1e293b",
+      border: "1px solid #334155",
+      borderRadius: "12px",
+      display: "flex",
+      flexDirection: "column", // Stack the two lines vertically
+      gap: 1.5, // Space between the two lines
+      boxSizing: "border-box",
+    }}
+  >
+    {/* Line 1: EB Service Details */}
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Typography variant="body2" color="#94a3b8" fontWeight="bold">
+        {label1}
+      </Typography>
+      <Typography variant="h6" color="white" fontWeight="bold" sx={{ fontSize: "1rem" }}>
+        {value1}
+      </Typography>
+    </Box>
+
+    {/* Subtle Divider */}
+    <Box sx={{ height: "1px", bgcolor: "#334155", width: "100%", opacity: 0.5 }} />
+
+    {/* Line 2: Common EB Details */}
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <Typography variant="body2" color="#94a3b8" fontWeight="bold">
+        {label2}
+      </Typography>
+      <Typography variant="h6" color="#38bdf8" fontWeight="bold" sx={{ fontSize: "1rem" }}>
+        {value2}
+      </Typography>
+    </Box>
+  </Paper>
+);
 const ProtocolRow = ({ title, text }) => (
   <Box sx={{ 
     p: 2, 
