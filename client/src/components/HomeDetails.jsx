@@ -128,9 +128,9 @@ function HomeDetails() {
               display: "flex",
               flexDirection: "column",
               overflowY: "auto", // 🚀 ADD THIS: Allows content to be reached if it's too tall
-    "&::-webkit-scrollbar": { display: "none" }, // Optional: hide scrollbar for clean look
-    msOverflowStyle: "none", 
-    scrollbarWidth: "none"
+              "&::-webkit-scrollbar": { display: "none" }, // Optional: hide scrollbar for clean look
+              msOverflowStyle: "none", 
+              scrollbarWidth: "none"
               
             }}
           >
@@ -148,8 +148,8 @@ function HomeDetails() {
                 <Stack spacing={1.5} sx={{ width: "100%" }}>
                   <DetailBox1 label="EB Service Number" value="1234567890"  />
                   <DetailBox1 label="Common EB Service Number" value="0987654321" />
-                  <DetailBox2 label1="Property Tax Info" value1="₹5,000 /yr" label2="Property Tax #" value2="1234" />
-                  <DetailBox2 label1="Water Tax Info" value1="₹2,000 /yr" label2="Water Tax #" value2="9876" />
+                  <DetailBox1 label="Property Tax #" value="1234" />
+                  <DetailBox1 label="Water Tax #" value="9876" />
                 </Stack>
               </Box>
 
