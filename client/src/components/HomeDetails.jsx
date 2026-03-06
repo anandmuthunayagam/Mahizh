@@ -146,10 +146,7 @@ function HomeDetails() {
                 </Stack>
                 
                 <Stack spacing={1.5} sx={{ width: "100%" }}>
-                  <DetailBox1 label="EB Service Number" value="1234567890"  />
-                  <DetailBox1 label="Common EB Service Number" value="0987654321" />
-                  <DetailBox1 label="Property Tax #" value="1234" />
-                  <DetailBox1 label="Water Tax #" value="9876" />
+                  <DetailBox4 l1="Owner Name" v1="John Doe" l2="Contact" v2="+91 98765 43210" l3="Email" v3="john.doe@example.com" l4="Owner ID" v4="PROP-001" />
                 </Stack>
               </Box>
 
@@ -234,6 +231,39 @@ const ProtocolRow = ({ title, text }) => (
   }}>
     <Typography variant="caption" color="#fbbf24" fontWeight="bold" display="block">{title}</Typography>
     <Typography variant="body2" color="white" sx={{ mt: 0.5 }}>{text}</Typography>
+  </Box>
+);
+const DetailBox4 = ({ l1, v1, l2, v2, l3, v3, l4, v4 }) => (
+  <Paper
+    elevation={0}
+    sx={{
+      p: { xs: 2, md: 3 },
+      width: "100%",
+      bgcolor: "#1e293b",
+      border: "1px solid #334155",
+      borderRadius: "16px",
+      display: "flex",
+      flexDirection: "column",
+      gap: { xs: 1, md: 2 },
+      boxSizing: "border-box",
+    }}
+  >
+    <DataRow label={l1} value={v1} color="white" />
+    <DataRow label={l2} value={v2} color="#38bdf8" />
+    <DataRow label={l3} value={v3} color="white" />
+    <DataRow label={l4} value={v4} color="#fbbf24" />
+  </Paper>
+);
+
+// Small helper to keep the code clean
+const DataRow = ({ label, value, color }) => (
+  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Typography sx={{ color: "#94a3b8", fontWeight: "bold", fontSize: { xs: "0.65rem", md: "0.85rem" } }}>
+      {label}
+    </Typography>
+    <Typography sx={{ color: color, fontWeight: "bold", fontSize: { xs: "0.8rem", md: "1rem" } }}>
+      {value}
+    </Typography>
   </Box>
 );
 
