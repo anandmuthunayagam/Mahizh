@@ -55,7 +55,7 @@ function HomeDetails() {
         <IconButton onClick={() => navigate(-1)} sx={{ color: "white", mr: 1 }}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h6" fontWeight="bold" color="white">
+        <Typography variant="h6" fontWeight="bold" color="#64748b">
           Home Details: {homeNo}
         </Typography>
       </Box>
@@ -146,7 +146,7 @@ function HomeDetails() {
                 </Stack>
                 
                 <Stack spacing={1.5} sx={{ width: "100%" }}>
-                  <DetailBox4 l1="Owner Name" v1="John Doe" l2="Contact" v2="+91 98765 43210" l3="Email" v3="john.doe@example.com" l4="Owner ID" v4="PROP-001" />
+                  <DetailBox4 l1="EB Service #" v1="1234567890" l2="Common EB Service #" v2="0987654321" l3="Property Tax #" v3="1234" l4="Water Tax #" v4="9876" />
                 </Stack>
               </Box>
 
@@ -251,7 +251,7 @@ const DetailBox4 = ({ l1, v1, l2, v2, l3, v3, l4, v4 }) => (
     <DataRow label={l1} value={v1} color="white" />
     <DataRow label={l2} value={v2} color="#38bdf8" />
     <DataRow label={l3} value={v3} color="white" />
-    <DataRow label={l4} value={v4} color="#fbbf24" />
+    <DataRow label={l4} value={v4} color="#38bdf8" />
   </Paper>
 );
 
