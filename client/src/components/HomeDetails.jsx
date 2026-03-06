@@ -200,9 +200,11 @@ const DetailBox2 = ({ label1, value1, label2, value2 }) => (
     {/* Line 1: EB Service Details */}
     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <Typography variant="body2" color="#94a3b8" fontWeight="bold">
+        sx={{fontSize: { xs: "0.5rem", md: "0.875rem" }}}
         {label1}
       </Typography>
-      <Typography variant="h6" color="white" fontWeight="bold" sx={{ fontSize: "1rem" }}>
+      <Typography variant="h6" color="white" fontWeight="bold" >
+        sx={{fontSize: { xs: "0.5rem", md: "0.875rem" }}}
         {value1}
       </Typography>
     </Box>
@@ -212,7 +214,7 @@ const DetailBox2 = ({ label1, value1, label2, value2 }) => (
 
     {/* Line 2: Common EB Details */}
     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <Typography variant="body2" color="#94a3b8" fontWeight="bold">
+      <Typography variant="body3" color="#94a3b8" fontWeight="bold">
         {label2}
       </Typography>
       <Typography variant="h6" color="#38bdf8" fontWeight="bold" sx={{ fontSize: "1rem" }}>
