@@ -143,7 +143,7 @@ function HomeCard({ home, selectedMonth, selectedYear,isClickable = false }) {
               sx={{ fontWeight: 'bold' }}
 />
           </Box>
-
+          {/*
           <Typography 
             noWrap 
             sx={{
@@ -170,6 +170,7 @@ function HomeCard({ home, selectedMonth, selectedYear,isClickable = false }) {
             Contact: {home.owner.phone}
           </Typography>
           <br></br>
+          */}
           <Typography 
             noWrap 
             sx={{
@@ -197,6 +198,7 @@ function HomeCard({ home, selectedMonth, selectedYear,isClickable = false }) {
           </Typography>
 
           {/* ✅ UPDATED: The button visibility now relies on the session context */}
+          
           {isAdmin() && !isPaid ? (
             <Button
               fullWidth

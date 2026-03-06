@@ -147,6 +147,7 @@ function HomeDetails() {
                 
                 <Stack spacing={1.5} sx={{ width: "100%" }}>
                   <DetailBox4 l1="EB Service #" v1="1234567890" l2="Common EB Service #" v2="0987654321" l3="Property Tax #" v3="1234" l4="Water Tax #" v4="9876" />
+                  <DetailBox4 l1="EB Service #" v1="1234567890" l2="Common EB Service #" v2="0987654321" l3="Property Tax #" v3="1234" l4="Water Tax #" v4="9876" />
                 </Stack>
               </Box>
 
