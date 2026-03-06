@@ -19,6 +19,13 @@ import F2 from "../assets/homes/F2.png";
 import S1 from "../assets/homes/S1.png";
 import S2 from "../assets/homes/S2.png";
 
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import PhoneOutlinedIcon from "@mui/icons-material/PhoneOutlined";
+import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
+import BoltIcon from "@mui/icons-material/Bolt";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+import WaterDropOutlinedIcon from "@mui/icons-material/WaterDropOutlined";
+
 const homeImages = { G1, F1, F2, S1, S2 };
 
 const guidelines = [
@@ -146,9 +153,21 @@ function HomeDetails() {
                 </Stack>
                 
                 <Stack spacing={1.5} sx={{ width: "100%" }}>
-                  <DetailBox4 l1="EB Service #" v1="1234567890" l2="Common EB Service #" v2="0987654321" l3="Property Tax #" v3="1234" l4="Water Tax #" v4="9876" />
-                  <DetailBox4 l1="EB Service #" v1="1234567890" l2="Common EB Service #" v2="0987654321" l3="Property Tax #" v3="1234" l4="Water Tax #" v4="9876" />
-                </Stack>
+  <Box>
+    <DetailBox2 
+      label1="Owner Name" value1="Anand" Icon1={PersonOutlineIcon}
+      label2="Contact" value2="98*****939" Icon2={PhoneOutlinedIcon}
+    />
+  </Box>
+  <Box>
+    <DetailBox4 
+      l1="EB Service #" v1="1234567890" i1={ElectricalServicesIcon}
+      l2="Common EB Service #" v2="0987654321" i2={BoltIcon}
+      l3="Property Tax #" v3="1234" i3={ReceiptLongIcon}
+      l4="Water Tax #" v4="9876" i4={WaterDropOutlinedIcon}
+    />
+  </Box>
+</Stack>
               </Box>
 
               
@@ -180,47 +199,7 @@ const DetailBox1 = ({ label, value }) => (
   </Paper>
 );
 
-const DetailBox2 = ({ label1, value1, label2, value2 }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      p: 2.5,
-      width: "100%",
-      bgcolor: "#1e293b",
-      border: "1px solid #334155",
-      borderRadius: "12px",
-      display: "flex",
-      flexDirection: "column", // Stack the two lines vertically
-      gap: 1.5, // Space between the two lines
-      boxSizing: "border-box",
-    }}
-  >
-    {/* Line 1: EB Service Details */}
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <Typography variant="body2" color="#94a3b8" fontWeight="bold">
-        sx={{fontSize: { xs: "0.5rem", md: "0.875rem" }}}
-        {label1}
-      </Typography>
-      <Typography variant="h6" color="white" fontWeight="bold" >
-        sx={{fontSize: { xs: "0.5rem", md: "0.875rem" }}}
-        {value1}
-      </Typography>
-    </Box>
 
-    {/* Subtle Divider */}
-    <Box sx={{ height: "1px", bgcolor: "#334155", width: "100%", opacity: 0.5 }} />
-
-    {/* Line 2: Common EB Details */}
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <Typography variant="body3" color="#94a3b8" fontWeight="bold">
-        {label2}
-      </Typography>
-      <Typography variant="h6" color="#38bdf8" fontWeight="bold" sx={{ fontSize: "1rem" }}>
-        {value2}
-      </Typography>
-    </Box>
-  </Paper>
-);
 const ProtocolRow = ({ title, text }) => (
   <Box sx={{ 
     p: 2, 
@@ -234,38 +213,38 @@ const ProtocolRow = ({ title, text }) => (
     <Typography variant="body2" color="white" sx={{ mt: 0.5 }}>{text}</Typography>
   </Box>
 );
-const DetailBox4 = ({ l1, v1, l2, v2, l3, v3, l4, v4 }) => (
-  <Paper
-    elevation={0}
-    sx={{
-      p: { xs: 2, md: 3 },
-      width: "100%",
-      bgcolor: "#1e293b",
-      border: "1px solid #334155",
-      borderRadius: "16px",
-      display: "flex",
-      flexDirection: "column",
-      gap: { xs: 1, md: 2 },
-      boxSizing: "border-box",
-    }}
-  >
-    <DataRow label={l1} value={v1} color="white" />
-    <DataRow label={l2} value={v2} color="#38bdf8" />
-    <DataRow label={l3} value={v3} color="white" />
-    <DataRow label={l4} value={v4} color="#38bdf8" />
+// Updated DetailBox2
+const DetailBox2 = ({ label1, value1, Icon1, label2, value2, Icon2 }) => (
+  <Paper elevation={0} sx={{ p: 2, width: "100%", bgcolor: "#1e293b", border: "1px solid #334155", borderRadius: "12px", display: "flex", flexDirection: "column", gap: 1.5, boxSizing: "border-box" }}>
+    <DataRow label={label1} value={value1} color="white" Icon={Icon1} />
+    <Box sx={{ height: "1px", bgcolor: "#334155", width: "100%", opacity: 0.5 }} />
+    <DataRow label={label2} value={value2} color="#38bdf8" Icon={Icon2} />
+  </Paper>
+);
+
+// Updated DetailBox4
+const DetailBox4 = ({ l1, v1, i1, l2, v2, i2, l3, v3, i3, l4, v4, i4 }) => (
+  <Paper elevation={0} sx={{ p: 2, width: "100%", bgcolor: "#1e293b", border: "1px solid #334155", borderRadius: "16px", display: "flex", flexDirection: "column", gap: 1.2, boxSizing: "border-box" }}>
+    <DataRow label={l1} value={v1} color="white" Icon={i1} />
+    <DataRow label={l2} value={v2} color="#38bdf8" Icon={i2} />
+    <DataRow label={l3} value={v3} color="white" Icon={i3} />
+    <DataRow label={l4} value={v4} color="#38bdf8" Icon={i4} />
   </Paper>
 );
 
 // Small helper to keep the code clean
-const DataRow = ({ label, value, color }) => (
-  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-    <Typography sx={{ color: "#94a3b8", fontWeight: "bold", fontSize: { xs: "0.65rem", md: "0.85rem" } }}>
-      {label}
-    </Typography>
+// Updated DataRow with Icon Support
+const DataRow = ({ label, value, color, Icon }) => (
+  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+    <Stack direction="row" spacing={1} alignItems="center">
+      {Icon && <Icon sx={{ color: "#94a3b8", fontSize: { xs: "0.9rem", md: "1.1rem" } }} />}
+      <Typography sx={{ color: "#94a3b8", fontWeight: "bold", fontSize: { xs: "0.65rem", md: "0.85rem" } }}>
+        {label}
+      </Typography>
+    </Stack>
     <Typography sx={{ color: color, fontWeight: "bold", fontSize: { xs: "0.8rem", md: "1rem" } }}>
       {value}
     </Typography>
   </Box>
 );
-
 export default HomeDetails;
