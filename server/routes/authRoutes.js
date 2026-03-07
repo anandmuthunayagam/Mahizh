@@ -174,5 +174,10 @@ router.get('/health', (req, res) => {
     res.status(500).json({ status: 'Error', message: err.message });
   }
 });
+// Warm-up / Health Check Route
+router.get('/', (req, res) => {
+  res.status(200).send("Server is awake");
+});
+
 
 module.exports = router;
