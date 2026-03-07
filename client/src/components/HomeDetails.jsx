@@ -226,7 +226,7 @@ const DetailBox2 = ({ label1, value1, i1, ic1, label2, value2, i2, ic2 }) => (
   <Paper elevation={0} sx={{ p: 2.5, width: "100%", bgcolor: "#1e293b", border: "1px solid #334155", borderRadius: "16px" }}>
     <Stack spacing={2}>
       <DataRow label={label1} value={value1} color="white" Icon={i1} iconColor={ic1} />
-      <Box sx={{ height: "1px", bgcolor: "#334155", width: "100%", opacity: 0.5 }} />
+      
       <DataRow label={label2} value={value2} color="#38bdf8" Icon={i2} iconColor={ic2} />
     </Stack>
   </Paper>
