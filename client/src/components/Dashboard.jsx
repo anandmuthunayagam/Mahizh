@@ -182,8 +182,8 @@ function Dashboard() {
             </Box>
         </Box>
 
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" sx={{ color: isExporting ? '#94a3b8' : '#64748b', fontWeight: 700 }}>
+        <Box sx={{ mb: 3,pt:0 }}>
+          <Typography variant="h5" sx={{ color: isExporting ? '#94a3b8' : '#64748b', fontWeight: 700, fontSize: { xs: '1.1rem', md: '1.5rem' }  }}>
             Dashboard Overview  {filterMonth === "All" ? "-" : "- " + filterMonth} {filterYear === "All" ? "Life-to-Date" : filterYear}
           </Typography>
         </Box>

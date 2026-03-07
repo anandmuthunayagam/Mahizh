@@ -38,8 +38,8 @@ function MyPayments() {
 
   return (
     <Paper elevation={0} sx={{ backgroundColor: "#020617", borderRadius: 2, overflow: "hidden" }}>
-      <Box sx={{ p: 3 }}>
-        <Typography variant="h5" sx={{ color:  '#64748b', fontWeight: 700 }}>
+      <Box sx={{ p: 3,pt:0 }}>
+        <Typography variant="h5" sx={{ color:  '#64748b', fontWeight: 700, fontSize: { xs: '1.1rem', md: '1.5rem' }  }}>
           My Payment History
         </Typography>
       </Box>

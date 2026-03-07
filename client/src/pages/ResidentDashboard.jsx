@@ -83,8 +83,8 @@ function ResidentDashboard() {
   return (
     <Fade in={true} timeout={800}>
       <Box sx={{ p: { xs: 1, md: 1 }, backgroundColor: "#020617", minHeight: "100vh" }}>
-        <Box sx={{ p: 3, pl: 0, }}>
-        <Typography variant="h5" sx={{ color:  '#64748b', fontWeight: 700 }}>
+        <Box sx={{ p: 3, pl: 0,pt:0 }}>
+        <Typography variant="h5" sx={{ color:  '#64748b', fontWeight: 700, fontSize: { xs: '1.1rem', md: '1.5rem' }  }}>
           My Home Card - {new Date().getFullYear()}
         </Typography>
         </Box>

@@ -29,7 +29,7 @@ const MONTHS = ["January","February","March","April","May","June","July","August
 const COLORS = ["#4ade80", "#f87171"];
 
 function MonthlySummary({ token }) {
-  const [month, setMonth] = useState(new Date().getMonth());
+  const [month, setMonth] = useState(new Date().getMonth()-1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,7 +70,7 @@ function MonthlySummary({ token }) {
     <Paper sx={styles.container}>
       {/* Header */}
       <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems="center" spacing={2} sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ color: "#64748b", fontWeight: 700 }}>Financial Performance Summary</Typography>
+        <Typography variant="h5" sx={{ color: "#64748b", fontWeight: 700, fontSize: { xs: '1.1rem', md: '1.5rem' }  }}>Financial Performance Summary</Typography>
         <Stack direction="row" spacing={2}>
           <TextField select size="small" value={month} onChange={(e) => setMonth(e.target.value)} sx={styles.select}>
             {MONTHS.map((m, i) => <MenuItem key={m} value={i}>{m}</MenuItem>)}
@@ -157,7 +157,7 @@ function MonthlySummary({ token }) {
                         Home: {home.homeNo}
                       </Typography>
                       <Typography sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
-                        {home.owner.name}
+                        {home.resident.name}
                       </Typography>
                     </Box>
                     <Button 
