@@ -144,7 +144,7 @@ function HomeDetails() {
             <Stack spacing={4} sx={{ width: "100%", height: "100%" }}>
               
               {/* 1. UNIT SPECS - FULL WIDTH */}
-              <Box sx={{ width: "100%" }}>
+              <Box sx={{ width: "100%",display: { xs: "none"} }}>
                 <Stack direction="row" spacing={1} alignItems="center" mb={2} width="100%">
                   <HomeOutlinedIcon fontSize="small" sx={{ color: "#fbbf24" }} />
                   <Typography variant="caption" color="#94a3b8" fontWeight="bold" sx={{ letterSpacing: 1,display: { xs: "none", sm: "block" } }}>
