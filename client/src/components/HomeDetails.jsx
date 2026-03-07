@@ -159,20 +159,20 @@ function HomeDetails() {
                 
                 <Stack spacing={2} sx={{ width: "100%" }}>
   <DetailBox2 
-    label1="Owner Name" value1={"details.owner.name"} 
+    label1="Owner Name" value1={"Anand"} 
     i1={PersonOutlineIcon} ic1="#4ade80" // Emerald Green
-    label2="Contact" value2={"details.owner.phone"} 
+    label2="Contact" value2={"988****939"} 
     i2={PhoneOutlinedIcon} ic2="#60a5fa" // Sky Blue
   />
 
   <DetailBox4 
-    l1="EB Service #" v1={"details.ebServiceNo"} 
+    l1="EB Service #" v1={"1234567890"} 
     i1={ElectricalServicesIcon} ic1="#fbbf24" // Amber
-    l2="Common EB #" v2={"details.commonEbNo"} 
+    l2="Common EB #" v2={"0987654321"} 
     i2={BoltIcon} ic2="#f59e0b" // Orange
-    l3="Property Tax" v3={"details.propertyTaxNo"} 
+    l3="Property Tax" v3={"1234"} 
     i3={ReceiptLongIcon} ic3="#a78bfa" // Purple
-    l4="Water Tax" v4={"details.waterTaxNo"} 
+    l4="Water Tax" v4={"5678"} 
     i4={WaterDropOutlinedIcon} ic4="#22d3ee" // Cyan
   />
 </Stack>
