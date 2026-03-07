@@ -30,8 +30,8 @@ const homeImages = { G1, F1, F2, S1, S2 };
 
 const guidelines = [
   { title: "Financial Rules", body: "Maintenance is due by 5th of every month." },
-  { title: "Water Management", body: "Turn off the motors after use. Report leaks immediately." },
-  { title: "Waste Management", body: "Dispose garbage in trucks. Keep common areas clean." },
+  { title: "Water Management", body: "Turn off the motors after use. Address leaks immediately." },
+  { title: "Waste Management", body: "Dispose garbage in garbage trucks. Keep common areas clean." },
   { title: "Safety & Security", body: "Common areas are under 24/7 CCTV surveillance." },
 ];
 
@@ -54,7 +54,7 @@ function HomeDetails() {
       flexDirection: "column", 
       bgcolor: "#020617", 
       overflow: "hidden", 
-      p: { xs: 1, md: 2 } 
+      p: { xs: 0.5, md: 2 } 
     }}>
       
       {/* HEADER */}
@@ -82,7 +82,7 @@ function HomeDetails() {
         <Grid container sx={{ height: "100%",width: "100%" }}>
           
           {/* LEFT: IMAGE + TOP OVERLAY GUIDELINES */}
-          <Grid item xs={12} md={6} sx={{ height: { xs: "50%", md: "100%" }, position: "relative" }}>
+          <Grid item xs={12} md={6} sx={{ height: { xs: "45%", md: "100%" }, position: "relative" }}>
             <motion.img
               layoutId={`image-${homeNo}`}
               src={homeImages[homeNo]}
@@ -128,7 +128,7 @@ function HomeDetails() {
             xs={12} 
             md={6} 
             sx={{ 
-              p: { xs: 2, md: 4 }, 
+              p: { xs: 1, md: 4 }, 
               bgcolor: "#0f172a", 
               height: { xs: "100%", md: "100%" },
               width: { xs: "100%", md: "45%" },
@@ -152,21 +152,24 @@ function HomeDetails() {
                   </Typography>
                 </Stack>
                 
-                <Stack spacing={1.5} sx={{ width: "100%" }}>
-  <Box>
-    <DetailBox2 
-      label1="Owner Name" value1="Anand" Icon1={PersonOutlineIcon}
-      label2="Contact" value2="98*****939" Icon2={PhoneOutlinedIcon}
-    />
-  </Box>
-  <Box>
-    <DetailBox4 
-      l1="EB Service #" v1="1234567890" i1={ElectricalServicesIcon}
-      l2="Common EB Service #" v2="0987654321" i2={BoltIcon}
-      l3="Property Tax #" v3="1234" i3={ReceiptLongIcon}
-      l4="Water Tax #" v4="9876" i4={WaterDropOutlinedIcon}
-    />
-  </Box>
+                <Stack spacing={2} sx={{ width: "100%" }}>
+  <DetailBox2 
+    label1="Owner Name" value1={"details.owner.name"} 
+    i1={PersonOutlineIcon} ic1="#4ade80" // Emerald Green
+    label2="Contact" value2={"details.owner.phone"} 
+    i2={PhoneOutlinedIcon} ic2="#60a5fa" // Sky Blue
+  />
+
+  <DetailBox4 
+    l1="EB Service #" v1={"details.ebServiceNo"} 
+    i1={ElectricalServicesIcon} ic1="#fbbf24" // Amber
+    l2="Common EB #" v2={"details.commonEbNo"} 
+    i2={BoltIcon} ic2="#f59e0b" // Orange
+    l3="Property Tax" v3={"details.propertyTaxNo"} 
+    i3={ReceiptLongIcon} ic3="#a78bfa" // Purple
+    l4="Water Tax" v4={"details.waterTaxNo"} 
+    i4={WaterDropOutlinedIcon} ic4="#22d3ee" // Cyan
+  />
 </Stack>
               </Box>
 
@@ -213,37 +216,48 @@ const ProtocolRow = ({ title, text }) => (
     <Typography variant="body2" color="white" sx={{ mt: 0.5 }}>{text}</Typography>
   </Box>
 );
-// Updated DetailBox2
-const DetailBox2 = ({ label1, value1, Icon1, label2, value2, Icon2 }) => (
-  <Paper elevation={0} sx={{ p: 2, width: "100%", bgcolor: "#1e293b", border: "1px solid #334155", borderRadius: "12px", display: "flex", flexDirection: "column", gap: 1.5, boxSizing: "border-box" }}>
-    <DataRow label={label1} value={value1} color="white" Icon={Icon1} />
-    <Box sx={{ height: "1px", bgcolor: "#334155", width: "100%", opacity: 0.5 }} />
-    <DataRow label={label2} value={value2} color="#38bdf8" Icon={Icon2} />
+// 3. Updated DetailBox2 (for Owner/Contact)
+const DetailBox2 = ({ label1, value1, i1, ic1, label2, value2, i2, ic2 }) => (
+  <Paper elevation={0} sx={{ p: 2.5, width: "100%", bgcolor: "#1e293b", border: "1px solid #334155", borderRadius: "16px" }}>
+    <Stack spacing={2}>
+      <DataRow label={label1} value={value1} color="white" Icon={i1} iconColor={ic1} />
+      <Box sx={{ height: "1px", bgcolor: "#334155", width: "100%", opacity: 0.5 }} />
+      <DataRow label={label2} value={value2} color="#38bdf8" Icon={i2} iconColor={ic2} />
+    </Stack>
   </Paper>
 );
 
-// Updated DetailBox4
-const DetailBox4 = ({ l1, v1, i1, l2, v2, i2, l3, v3, i3, l4, v4, i4 }) => (
-  <Paper elevation={0} sx={{ p: 2, width: "100%", bgcolor: "#1e293b", border: "1px solid #334155", borderRadius: "16px", display: "flex", flexDirection: "column", gap: 1.2, boxSizing: "border-box" }}>
-    <DataRow label={l1} value={v1} color="white" Icon={i1} />
-    <DataRow label={l2} value={v2} color="#38bdf8" Icon={i2} />
-    <DataRow label={l3} value={v3} color="white" Icon={i3} />
-    <DataRow label={l4} value={v4} color="#38bdf8" Icon={i4} />
+// 4. Updated DetailBox4 (for EB/Taxes)
+const DetailBox4 = ({ l1, v1, i1, ic1, l2, v2, i2, ic2, l3, v3, i3, ic3, l4, v4, i4, ic4 }) => (
+  <Paper elevation={0} sx={{ p: 2.5, width: "100%", bgcolor: "#1e293b", border: "1px solid #334155", borderRadius: "20px" }}>
+    <Stack spacing={2}>
+      <DataRow label={l1} value={v1} color="white" Icon={i1} iconColor={ic1} />
+      <DataRow label={l2} value={v2} color="#38bdf8" Icon={i2} iconColor={ic2} />
+      <DataRow label={l3} value={v3} color="white" Icon={i3} iconColor={ic3} />
+      <DataRow label={l4} value={v4} color="#38bdf8" Icon={i4} iconColor={ic4} />
+    </Stack>
   </Paper>
 );
 
-// Small helper to keep the code clean
-// Updated DataRow with Icon Support
-const DataRow = ({ label, value, color, Icon }) => (
+// 2. Updated DataRow with Icon Color Support
+const DataRow = ({ label, value, color, Icon, iconColor }) => (
   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-    <Stack direction="row" spacing={1} alignItems="center">
-      {Icon && <Icon sx={{ color: "#94a3b8", fontSize: { xs: "0.9rem", md: "1.1rem" } }} />}
+    <Stack direction="row" spacing={1.5} alignItems="center">
+      {Icon && (
+        <Icon 
+          sx={{ 
+            color: iconColor || "#94a3b8", 
+            fontSize: { xs: "1.1rem", md: "1.3rem" },
+            filter: "drop-shadow(0px 0px 4px rgba(0,0,0,0.5))" // Adds depth
+          }} 
+        />
+      )}
       <Typography sx={{ color: "#94a3b8", fontWeight: "bold", fontSize: { xs: "0.65rem", md: "0.85rem" } }}>
         {label}
       </Typography>
     </Stack>
-    <Typography sx={{ color: color, fontWeight: "bold", fontSize: { xs: "0.8rem", md: "1rem" } }}>
-      {value}
+    <Typography sx={{ color: color, fontWeight: "bold", fontSize: { xs: "0.85rem", md: "1rem" } }}>
+      {value || "N/A"}
     </Typography>
   </Box>
 );
