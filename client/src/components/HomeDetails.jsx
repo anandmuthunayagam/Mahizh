@@ -54,7 +54,7 @@ function HomeDetails() {
       flexDirection: "column", 
       bgcolor: "#020617", 
       overflow: "hidden", 
-      p: { xs: 0.5, md: 2 } 
+      p: { xs: 0, md: 2 } 
     }}>
       
       {/* HEADER */}
