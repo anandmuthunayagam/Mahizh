@@ -1,9 +1,10 @@
-// Login.jsx - Updated for Unified Login
+// Login.jsx - Updated with Backdrop and Snackbar Support
 
 import React, { useState, useEffect } from "react";
 import {
   Box, Card, TextField, Typography, Button, Alert, 
-  IconButton, InputAdornment, CircularProgress
+  IconButton, InputAdornment, CircularProgress,
+  Backdrop, Snackbar // ✅ Added imports
 } from "@mui/material";
 import axios from "../utils/api/axios";
 import { useNavigate } from "react-router-dom";
@@ -16,22 +17,23 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  // role state is REMOVED
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate();
+  // ✅ New state for Snackbar management
+  const [status, setStatus] = useState({
+    open: false,
+    msg: "",
+    severity: "info"
+  });
 
-  // Keep your existing useEffect wake-up calls here...
-  // ✅ SESSION PERSISTENCE WAKE-UP
-  // This pings your backend as soon as the user lands on the login page.
-  // This helps "warm up" Vercel functions while the user is typing their credentials.
+  const navigate = useNavigate();
 
   useEffect(() => {
     const apiwarmUp = async () => {
       try {
-        await axios.get(`https://mahizhconnect.onrender.com/`); // Assumes you have route
+        await axios.get(`https://mahizhconnect.onrender.com/`); 
       } catch (err) {
         console.log("Server is warming up...");
       }
@@ -42,7 +44,7 @@ function Login() {
   useEffect(() => {
     const warmUp = async () => {
       try {
-        await axios.get(`${import.meta.env.VITE_API_URL}/health`); // Assumes you have a health route
+        await axios.get(`${import.meta.env.VITE_API_URL}/health`);
       } catch (err) {
         console.log("Server is warming up...");
       }
@@ -50,31 +52,76 @@ function Login() {
     warmUp();
   }, []);
 
+  // ✅ Helper to close Snackbar
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return;
+    setStatus({ ...status, open: false });
+  };
+
   const handleLogin = async () => {
     setError("");
     setLoading(true);
+    // ✅ Show "Logging in..." Snackbar immediately
+    setStatus({ open: true, msg: "Logging in...", severity: "info" });
 
     try {
-      // Hits the unified endpoint instead of role-specific ones
       const url = `${import.meta.env.VITE_API_URL}/auth/login`; 
       const res = await axios.post(url, { username, password });
 
-      // The role is now determined by the server response
       sessionStorage.setItem("token", res.data.token);
       sessionStorage.setItem("role", res.data.role);
       sessionStorage.setItem("username", res.data.username);
 
-      // Redirect remains the same, but 'role' comes from the API response
-      navigate("/mahizhconnect");
+      // ✅ Update Snackbar to Success
+      setStatus({ open: true, msg: "Login Successful!", severity: "success" });
+
+      // Small delay so user sees the success message before navigating
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/mahizhconnect");
+      }, 1000);
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid username or password");
-    } finally {
+      const errorMsg = err.response?.data?.message || "Invalid username or password";
+      setError(errorMsg);
+      // ✅ Update Snackbar to Error
+      setStatus({ open: true, msg: errorMsg, severity: "error" });
       setLoading(false);
     }
   };
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      
+      {/* ✅ 1. BACKDROP OVERLAY */}
+      <Backdrop
+        sx={{ 
+          color: '#38bdf8', 
+          zIndex: (theme) => theme.zIndex.drawer + 2, // Ensure it's above the Card
+          backdropFilter: 'blur(4px)',
+          bgcolor: 'rgba(2, 6, 23, 0.7)'
+        }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+
+      {/* ✅ 2. SNACKBAR NOTIFICATION */}
+      <Snackbar
+        open={status.open}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={status.severity} 
+          variant="filled" 
+          sx={{ width: '100%', borderRadius: '12px', fontWeight: 'bold' }}
+        >
+          {status.msg}
+        </Alert>
+      </Snackbar>
+
       <Card sx={{ width: 380, p: 4, bgcolor: "#020617", color: "#fff", borderRadius: 3, boxShadow: "0 20px 40px rgba(0,0,0,0.6)" }}>
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 2 }}>
           <Box component="img" src={mahizh} alt="Logo" sx={{ height: 90, width: 90, mb: 1.5, borderRadius: "50%", boxShadow: "0 4px 12px rgba(56,189,248,0.4)" }} />
@@ -85,6 +132,7 @@ function Login() {
           <Typography variant="body2" sx={{ color: "#94a3b8", mt: 0.5 }}>Please login to your account</Typography>
         </Box>
 
+        {/* Keeping old Error Alert as a fallback, though Snackbar now handles this too */}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         <TextField
@@ -121,15 +169,13 @@ function Login() {
           sx={{ "& .MuiOutlinedInput-root": { color: "#fff", "& fieldset": { borderColor: "#334155" }, "&:hover fieldset": { borderColor: "#38bdf8" }, "&.Mui-focused fieldset": { borderColor: "#38bdf8" } } }}
         />
 
-        {/* ROLE DROPDOWN TEXTFIELD REMOVED */}
-
         <Button
           fullWidth
           sx={{ mt: 3, py: 1.3, bgcolor: "#38bdf8", color: "#020617", fontWeight: 600, "&:hover": { bgcolor: "#0ea5e9", transform: "translateY(-1px)", boxShadow: "0 8px 20px rgba(56,189,248,0.4)" } }}
           onClick={handleLogin}
           disabled={loading}
         >
-          {loading ? <CircularProgress size={24} color="inherit" /> : "Log In"}
+          {loading ? "Processing..." : "Log In"}
         </Button>
       </Card>
     </Box>
