@@ -1,22 +1,50 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { ErrorBoundary } from "react-error-boundary";
-import { Box, Typography } from "@mui/material";
+import { 
+  Box, 
+  Typography, 
+  IconButton, 
+  Stack, 
+  SwipeableDrawer, 
+  List, 
+  ListItem, 
+  ListItemIcon, 
+  ListItemText, 
+  Divider, 
+  Button 
+} from "@mui/material";
 
-// Icons from your original SideBar.jsx
+// Icons
 import { 
   Dashboard as DashboardIcon, 
   Home as HomeIcon, 
   AdminPanelSettings, 
   BarChart, 
-  Logout as LogoutIcon 
+  Logout as LogoutIcon,
+  HelpOutline as HelpOutlineIcon, 
+  People as PeopleIcon
 } from '@mui/icons-material';
-import PeopleIcon from '@mui/icons-material/People';
 import mahizhLogo from '../assets/MahizhLogo.png';
 
 import { createTheme } from '@mui/material/styles';
+
+// ✅ 1. ADD PULSE ANIMATION KEYFRAMES
+const pulseAnimation = {
+  '@keyframes pulse': {
+    '0%': {
+      boxShadow: '0 0 0 0 rgba(56, 189, 248, 0.4)',
+    },
+    '70%': {
+      boxShadow: '0 0 0 10px rgba(56, 189, 248, 0)',
+    },
+    '100%': {
+      boxShadow: '0 0 0 0 rgba(56, 189, 248, 0)',
+    },
+  },
+};
 
 const darkTheme = createTheme({
   palette: {
@@ -60,14 +88,13 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ SESSION STORAGE MIGRATION: 
-  // Fetching data from sessionStorage instead of localStorage
   const token = sessionStorage.getItem("token");
   const userRole = sessionStorage.getItem("role");
   const username = sessionStorage.getItem("username");
 
+  const [helpOpen, setHelpOpen] = useState(false);
+
   useEffect(() => {
-    // If no token is found in this specific tab session, redirect to login
     if (!token) {
       navigate("/login");
     }
@@ -76,8 +103,6 @@ export default function MainLayout() {
   if (!token) return null;
 
   const handleLogout = () => {
-    // ✅ SESSION STORAGE MIGRATION: 
-    // Clearing the current tab session
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("username");
@@ -99,7 +124,7 @@ export default function MainLayout() {
     ),
     { kind: 'divider' },
     { segment: 'logout', title: 'Logout', icon: <LogoutIcon /> },
-  ], [userRole]); // Re-run if userRole changes
+  ], [userRole]);
 
   const router = React.useMemo(() => ({
     pathname: location.pathname,
@@ -110,6 +135,26 @@ export default function MainLayout() {
     },
   }), [location, navigate]);
 
+  const helpItems = React.useMemo(() => [
+    { 
+      title: 'Mahizh Connect', 
+      desc: 'Community hub for resident directories and maintenance monthly insights', 
+      icon: <PeopleIcon sx={{ color: '#38bdf8' }} /> 
+    },
+    { 
+      title: 'Dashboard', 
+      desc: 'Overview of monthly collections and expenses.', 
+      icon: <DashboardIcon sx={{ color: '#38bdf8' }} /> 
+    },
+    ...(userRole === 'admin' ? [
+      { title: 'Admin Panel', desc: 'Manage users and society data.', icon: <AdminPanelSettings sx={{ color: '#fbbf24' }} /> },
+      { title: 'Reports', desc: 'Track financial and defaulters data.', icon: <BarChart sx={{ color: '#fbbf24' }} /> }
+    ] : [
+      { title: 'My Home', desc: 'View unit specs, EB and Tax IDs.', icon: <HomeIcon sx={{ color: '#38bdf8' }} /> },
+      { title: 'My Payments', desc: 'Track your payment history with categories.', icon: <BarChart sx={{ color: '#38bdf8' }} /> }
+    ])
+  ], [userRole]);
+
   return (
     <AppProvider
       theme={darkTheme}
@@ -117,12 +162,8 @@ export default function MainLayout() {
       branding={{
         title: (
           <Box sx={{ display: "flex", gap: "5px" }}>
-            <Typography variant="h6" fontWeight={700} sx={{ color: '#fff' }}>
-              Mahizh
-            </Typography>
-            <Typography variant="h6" fontWeight={700} sx={{ color: 'rgb(56, 189, 248)' }}>
-              Connect
-            </Typography>
+            <Typography variant="h6" fontWeight={700} sx={{ color: '#fff' }}>Mahizh</Typography>
+            <Typography variant="h6" fontWeight={700} sx={{ color: 'rgb(56, 189, 248)' }}>Connect</Typography>
           </Box>
         ),
         logo: <img src={mahizhLogo} alt="Logo" style={{ borderRadius: '50%', height: 40 }} />,
@@ -132,18 +173,28 @@ export default function MainLayout() {
       <DashboardLayout 
         slots={{
           toolbarActions: () => (
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                mr: 2, 
-                color: '#94a3b8', 
-                display: { xs: 'none', sm: 'block' }, 
-                fontWeight: 500 
-              }}
-            >
-              {/* ✅ Welcome message now pulls from session storage */}
-              Welcome, {username || 'User'}!
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography 
+                variant="body1" 
+                sx={{ mr: 1, color: '#94a3b8', display: { xs: 'none', sm: 'block' }, fontWeight: 500 }}
+              >
+                Welcome, {username || 'User'}!
+              </Typography>
+              
+              {/* ✅ 2. APPLY PULSE ANIMATION TO ICONBUTTON */}
+              <Box sx={pulseAnimation}>
+                <IconButton 
+                  onClick={() => setHelpOpen(true)}
+                  sx={{ 
+                    color: "#38bdf8",
+                    animation: 'pulse 2s infinite', // Trigger the pulse
+                    borderRadius: '50%',
+                  }}
+                >
+                  <HelpOutlineIcon />
+                </IconButton>
+              </Box>
+            </Stack>
           ),
         }}
         sx={{
@@ -159,26 +210,68 @@ export default function MainLayout() {
           },
           '& .MuiDashboardLayout-main': {
             backgroundColor: "#020617",
-            transition: 'padding-left 225ms cubic-bezier(0.4, 0, 0.6, 1) 0ms',
           },
           '& .MuiDrawer-paper': {
             width: 'var(--toolpad-sidebar-width)',
             backgroundColor: "#0F172A",
             borderRight: "1px solid #1E293B",
           },
-          '& .MuiDrawer-paperMini': {
-            width: 'var(--toolpad-sidebar-mini-width) !important',
-          }
         }}
       >
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <Box sx={{ p: 3 }}>
-            {/* ✅ PASSING CONTEXT: 
-                This makes token, role, and username available to Home.jsx via useOutletContext() */}
-            <Outlet context={{ token, userRole, username }} /> 
+            <Outlet context={{ token, userRole, username }} />
           </Box>
         </ErrorBoundary>
       </DashboardLayout>
+
+      {/* ✅ 3. BOTTOM SHEET */}
+      <SwipeableDrawer
+        anchor="bottom"
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        onOpen={() => setHelpOpen(true)}
+        sx={{ zIndex: 2000 }}
+        PaperProps={{
+          sx: {
+            bgcolor: '#0f172a',
+            color: 'white',
+            borderTopLeftRadius: '20px',
+            borderTopRightRadius: '20px',
+            borderTop: '3px solid #38bdf8',
+            maxHeight: '80vh'
+          }
+        }}
+      >
+        <Box sx={{ p: 3, width: 'auto' }} role="presentation">
+          <Box sx={{ width: 40, height: 4, bgcolor: '#334155', borderRadius: 2, mx: 'auto', mb: 2 }} />
+          <Typography variant="h6" fontWeight={700} sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+            <HelpOutlineIcon sx={{ color: '#38bdf8' }} /> Mahizh Guide
+          </Typography>
+          <Divider sx={{ mb: 2, bgcolor: '#1e293b' }} />
+          <List>
+            {helpItems.map((item) => (
+              <ListItem key={item.title} sx={{ px: 0, py: 1.5 }}>
+                <ListItemIcon sx={{ minWidth: 45 }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={<Typography fontWeight={600} color="#f8fafc">{item.title}</Typography>}
+                  secondary={<Typography variant="body2" color="#94a3b8">{item.desc}</Typography>}
+                />
+              </ListItem>
+            ))}
+          </List>
+          <Button 
+            fullWidth 
+            variant="contained" 
+            onClick={() => setHelpOpen(false)}
+            sx={{ mt: 3, py: 1.2, bgcolor: '#38bdf8', color: '#020617', fontWeight: 'bold', borderRadius: '8px' }}
+          >
+            Close Guide
+          </Button>
+        </Box>
+      </SwipeableDrawer>
     </AppProvider>
   );
 }
