@@ -57,6 +57,7 @@ function Content() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/myhome" element={<ResidentDashboard />} />
           <Route path="/mypayments" element={<MyPayments />} />
+          <Route path="/myamenities" element={<MyAmenities />} />
           <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/logout" element={<LogoutButton />} />
         </Routes>

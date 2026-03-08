@@ -13,6 +13,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import Login from "./pages/Login";
 import ProtectedRoute from './components/ProtectedRoute';
 import HomeDetails from './components/HomeDetails';
+import MyAmenities from './pages/MyAmenities';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="reports" element={<Reports />} />
           <Route path="myhome" element={<ResidentDashboard />} />
           <Route path="mypayments" element={<MyPayments />} />
+          <Route path="/myamenities" element={<MyAmenities />} />
           <Route path="admindashboard" element={<AdminDashboard />} />
           <Route path="/home-details/:homeNo" element={<HomeDetails />} />
         </Route>

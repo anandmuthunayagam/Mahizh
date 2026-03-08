@@ -1,10 +1,11 @@
-// Login.jsx - Updated with Backdrop and Snackbar Support
+// Login.jsx - Updated with Looping Typing Animation and Blinking Cursor
 
 import React, { useState, useEffect } from "react";
 import {
   Box, Card, TextField, Typography, Button, Alert, 
   IconButton, InputAdornment, CircularProgress,
-  Backdrop, Snackbar // ✅ Added imports
+  Backdrop, Snackbar, 
+  Stack
 } from "@mui/material";
 import axios from "../utils/api/axios";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,34 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import { motion } from "framer-motion";
+
+// ✅ 1. Typing Animation Variants
+const sentenceVariants = {
+  hidden: { opacity: 1 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1, // Typing speed per letter
+    },
+  },
+};
+
+const letterVariants = {
+  hidden: { opacity: 0, display: "none" },
+  visible: {
+    opacity: 1,
+    display: "inline-block",
+    transition: {
+      opacity: {
+        repeat: Infinity,
+        duration: 5, // Total time for one full cycle (type + pause)
+        times: [0, 0.1, 0.9, 1], // Timing of each state
+        values: [0, 1, 1, 0], // Hidden -> Visible -> Stay -> Reset
+      }
+    },
+  },
+};
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -21,7 +50,6 @@ function Login() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // ✅ New state for Snackbar management
   const [status, setStatus] = useState({
     open: false,
     msg: "",
@@ -29,6 +57,14 @@ function Login() {
   });
 
   const navigate = useNavigate();
+
+  const floatAnimation = {
+    '@keyframes float': {
+      '0%': { transform: 'translateY(0px)' },
+      '50%': { transform: 'translateY(-10px)' },
+      '100%': { transform: 'translateY(0px)' },
+    }
+  };
 
   useEffect(() => {
     const apiwarmUp = async () => {
@@ -41,18 +77,6 @@ function Login() {
     apiwarmUp();
   }, []);
 
-  useEffect(() => {
-    const warmUp = async () => {
-      try {
-        await axios.get(`${import.meta.env.VITE_API_URL}/health`);
-      } catch (err) {
-        console.log("Server is warming up...");
-      }
-    };
-    warmUp();
-  }, []);
-
-  // ✅ Helper to close Snackbar
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') return;
     setStatus({ ...status, open: false });
@@ -61,7 +85,6 @@ function Login() {
   const handleLogin = async () => {
     setError("");
     setLoading(true);
-    // ✅ Show "Logging in..." Snackbar immediately
     setStatus({ open: true, msg: "Logging in...", severity: "info" });
 
     try {
@@ -72,10 +95,8 @@ function Login() {
       sessionStorage.setItem("role", res.data.role);
       sessionStorage.setItem("username", res.data.username);
 
-      // ✅ Update Snackbar to Success
-      setStatus({ open: true, msg: "Login Successful!", severity: "success" });
+      //setStatus({ open: true, msg: "Login Successful!", severity: "success" });
 
-      // Small delay so user sees the success message before navigating
       setTimeout(() => {
         setLoading(false);
         navigate("/mahizhconnect");
@@ -83,8 +104,6 @@ function Login() {
     } catch (err) {
       const errorMsg = err.response?.data?.message || "Invalid username or password";
       setError(errorMsg);
-      // ✅ Update Snackbar to Error
-      //setStatus({ open: true, msg: errorMsg, severity: "error" });
       setLoading(false);
     }
   };
@@ -92,23 +111,23 @@ function Login() {
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center" }}>
       
-      {/* ✅ 1. BACKDROP OVERLAY */}
       <Backdrop
         sx={{ 
           color: '#38bdf8', 
-          zIndex: (theme) => theme.zIndex.drawer + 2, // Ensure it's above the Card
+          zIndex: (theme) => theme.zIndex.drawer + 2,
           backdropFilter: 'blur(4px)',
           bgcolor: 'rgba(2, 6, 23, 0.7)'
         }}
         open={loading}
       >
-        <CircularProgress color="inherit" />
-        <Typography variant="body1" sx={{ color: "white", fontWeight: 500 }}>
-        Verifying Credentials...
-      </Typography>
+        <Stack alignItems="center" spacing={2}>
+          <CircularProgress color="inherit" />
+          <Typography variant="body1" sx={{ color: "white", fontWeight: 500 }}>
+            Verifying Credentials...
+          </Typography>
+        </Stack>
       </Backdrop>
 
-      {/* ✅ 2. SNACKBAR NOTIFICATION */}
       <Snackbar
         open={status.open}
         autoHideDuration={4000}
@@ -127,15 +146,54 @@ function Login() {
 
       <Card sx={{ width: 380, p: 4, bgcolor: "#020617", color: "#fff", borderRadius: 3, boxShadow: "0 20px 40px rgba(0,0,0,0.6)" }}>
         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 2 }}>
-          <Box component="img" src={mahizh} alt="Logo" sx={{ height: 90, width: 90, mb: 1.5, borderRadius: "50%", boxShadow: "0 4px 12px rgba(56,189,248,0.4)" }} />
-          <Box style={{ display: "flex", gap: "5px" }}>
-            <Typography variant="h5" fontWeight={600}>Mahizh</Typography>
-            <Typography variant="h5" fontWeight={600} color="#38bdf8">Connect</Typography>
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <Box 
+              component="img" 
+              src={mahizh} 
+              alt="Logo" 
+              sx={{ 
+                height: 90, width: 90, mb: 1.5, borderRadius: "50%", 
+                boxShadow: "0 4px 12px rgba(56,189,248,0.4)",
+                animation: 'float 3s ease-in-out infinite, pulseGlow 3s ease-in-out infinite',
+                ...floatAnimation,
+                '@keyframes pulseGlow': {
+                  '0%, 100%': { transform: 'scale(1)', boxShadow: '0 4px 12px rgba(56,189,248,0.4)' },
+                  '50%': { transform: 'scale(1.03)', boxShadow: '0 6px 20px rgba(56,189,248,0.6)' },
+                } 
+              }} 
+            />
+          </motion.div>
+
+          {/* ✅ 2. INTEGRATED LOOPING TYPING ANIMATION */}
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <motion.div
+              variants={sentenceVariants}
+              initial="hidden"
+              animate="visible"
+              style={{ display: "flex", gap: "5px" }}
+            >
+              <Typography variant="h5" fontWeight={700} sx={{ display: 'flex' }}>
+                {"Mahizh".split("").map((char, index) => (
+                  <motion.span key={index} variants={letterVariants}>{char}</motion.span>
+                ))}
+              </Typography>
+              <Typography variant="h5" fontWeight={700} color="#38bdf8" sx={{ display: 'flex' }}>
+                {"Connect".split("").map((char, index) => (
+                  <motion.span key={index} variants={letterVariants}>{char}</motion.span>
+                ))}
+              </Typography>
+            </motion.div>
+
+            
           </Box>
+          
           <Typography variant="body2" sx={{ color: "#94a3b8", mt: 0.5 }}>Please login to your account</Typography>
         </Box>
 
-        {/* Keeping old Error Alert as a fallback, though Snackbar now handles this too */}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         <TextField

@@ -3,6 +3,7 @@ import { AppProvider } from '@toolpad/core/AppProvider';
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { ErrorBoundary } from "react-error-boundary";
+
 import { 
   Box, 
   Typography, 
@@ -25,7 +26,8 @@ import {
   BarChart, 
   Logout as LogoutIcon,
   HelpOutline as HelpOutlineIcon, 
-  People as PeopleIcon
+  People as PeopleIcon,
+  Security as SecurityIcon
 } from '@mui/icons-material';
 import mahizhLogo from '../assets/MahizhLogo.png';
 
@@ -119,7 +121,9 @@ export default function MainLayout() {
         ]
       : [
           { segment: 'myhome', title: 'My Home', icon: <HomeIcon /> },
-          { segment: 'mypayments', title: 'My Payments', icon: <BarChart /> },
+          { segment: 'mypayments', title: 'My Payments', icon: <BarChart />, },
+          { segment: 'myamenities', title: 'My Amenities', icon: <SecurityIcon /> },
+          
         ]
     ),
     { kind: 'divider' },
@@ -147,10 +151,11 @@ export default function MainLayout() {
       icon: <DashboardIcon sx={{ color: '#38bdf8' }} /> 
     },
     ...(userRole === 'admin' ? [
-      { title: 'Admin Panel', desc: 'Manage users and society data.', icon: <AdminPanelSettings sx={{ color: '#fbbf24' }} /> },
-      { title: 'Reports', desc: 'Track financial and defaulters data.', icon: <BarChart sx={{ color: '#fbbf24' }} /> }
+      { title: 'Reports', desc: 'Track financial and defaulters data.', icon: <BarChart sx={{ color: '#fbbf24' }} /> },
+      { title: 'Admin Panel', desc: 'Manage users and society data.', icon: <AdminPanelSettings sx={{ color: '#fbbf24' }} /> }
+      
     ] : [
-      { title: 'My Home', desc: 'View unit specs, EB and Tax IDs.', icon: <HomeIcon sx={{ color: '#38bdf8' }} /> },
+      { title: 'My Home', desc: 'View unit specs, EB, Tax IDs and Resident Guidelines', icon: <HomeIcon sx={{ color: '#38bdf8' }} /> },
       { title: 'My Payments', desc: 'Track your payment history with categories.', icon: <BarChart sx={{ color: '#38bdf8' }} /> }
     ])
   ], [userRole]);
