@@ -27,7 +27,8 @@ import {
   Logout as LogoutIcon,
   HelpOutline as HelpOutlineIcon, 
   People as PeopleIcon,
-  Security as SecurityIcon
+  Security as SecurityIcon,
+  Apartment
 } from '@mui/icons-material';
 import mahizhLogo from '../assets/MahizhLogo.png';
 
@@ -122,7 +123,7 @@ export default function MainLayout() {
       : [
           { segment: 'myhome', title: 'My Home', icon: <HomeIcon /> },
           { segment: 'mypayments', title: 'My Payments', icon: <BarChart />, },
-          { segment: 'myamenities', title: 'My Amenities', icon: <SecurityIcon /> },
+          { segment: 'myamenities', title: 'My Amenities', icon: <Apartment /> },
           
         ]
     ),
@@ -156,7 +157,8 @@ export default function MainLayout() {
       
     ] : [
       { title: 'My Home', desc: 'View unit specs, EB, Tax IDs and Resident Guidelines', icon: <HomeIcon sx={{ color: '#38bdf8' }} /> },
-      { title: 'My Payments', desc: 'Track your payment history with categories.', icon: <BarChart sx={{ color: '#38bdf8' }} /> }
+      { title: 'My Payments', desc: 'Track your payment history with categories.', icon: <BarChart sx={{ color: '#38bdf8' }} /> },
+      {title: 'My Amenities',desc: 'Community infrastructure status and maintenance schedules.',icon:<Apartment sx={{ color: '#38bdf8' }} />}
     ])
   ], [userRole]);
 
@@ -267,14 +269,7 @@ export default function MainLayout() {
               </ListItem>
             ))}
           </List>
-          <Button 
-            fullWidth 
-            variant="contained" 
-            onClick={() => setHelpOpen(false)}
-            sx={{ mt: 3, py: 1.2, bgcolor: '#38bdf8', color: '#020617', fontWeight: 'bold', borderRadius: '8px' }}
-          >
-            Close Guide
-          </Button>
+          
         </Box>
       </SwipeableDrawer>
     </AppProvider>

@@ -97,7 +97,7 @@ const MyAmenities = () => {
             <List dense disablePadding>
               <ListItem sx={{ px: 0 }}>
                 <ListItemIcon sx={{ minWidth: 30, color: '#38bdf8' }}><Videocam fontSize="small" /></ListItemIcon>
-                <ListItemText primary="CCTV" secondary="7 Cameras Active" secondaryTypographyProps={{ color: '#64748b' }} />
+                <ListItemText primary="CCTV" secondary="7 Active Cameras" secondaryTypographyProps={{ color: '#64748b' }} />
               </ListItem>
               <ListItem sx={{ px: 0, mt: 0.5 }}>
                 <ListItemIcon sx={{ minWidth: 30, color: '#38bdf8' }}><InfoOutlined fontSize="small" /></ListItemIcon>
