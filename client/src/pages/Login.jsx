@@ -103,6 +103,9 @@ function Login() {
         open={loading}
       >
         <CircularProgress color="inherit" />
+        <Typography variant="body1" sx={{ color: "white", fontWeight: 500 }}>
+        Verifying Credentials...
+      </Typography>
       </Backdrop>
 
       {/* ✅ 2. SNACKBAR NOTIFICATION */}
