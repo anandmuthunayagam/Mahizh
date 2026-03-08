@@ -84,7 +84,7 @@ function Login() {
       const errorMsg = err.response?.data?.message || "Invalid username or password";
       setError(errorMsg);
       // ✅ Update Snackbar to Error
-      setStatus({ open: true, msg: errorMsg, severity: "error" });
+      //setStatus({ open: true, msg: errorMsg, severity: "error" });
       setLoading(false);
     }
   };
