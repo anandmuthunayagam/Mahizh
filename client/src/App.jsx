@@ -9,11 +9,15 @@ import Reports from "./components/Reports";
 import MahizhConnect from "./components/MahizhConnect";
 import ResidentDashboard from "./pages/ResidentDashboard";
 import MyPayments from "./pages/MyPayment";
-import AdminDashboard from "./components/AdminDashboard";
 import Login from "./pages/Login";
 import ProtectedRoute from './components/ProtectedRoute';
 import HomeDetails from './components/HomeDetails';
 import MyAmenities from './pages/MyAmenities';
+import UserManagement from './components/UserManagement';
+import PropertyManagement from './components/PropertyManagement';
+import CollectionManagement from './components/CollectionManagement';
+import ExpenseManagement from './components/ExpenseManagement';
+import AdminPanel from './components/AdminPanel';
 
 function App() {
   return (
@@ -33,7 +37,12 @@ function App() {
           <Route path="myhome" element={<ResidentDashboard />} />
           <Route path="mypayments" element={<MyPayments />} />
           <Route path="/myamenities" element={<MyAmenities />} />
-          <Route path="admindashboard" element={<AdminDashboard />} />
+          <Route path="adminpanel" element={<AdminPanel />} />
+          <Route path="users" element={<UserManagement />} />
+          <Route path='properties' element={<PropertyManagement />} />
+          <Route path='collections' element={<CollectionManagement />} />
+          <Route path='expenses' element={<ExpenseManagement />} />
+
           <Route path="/home-details/:homeNo" element={<HomeDetails />} />
         </Route>
       </Routes>

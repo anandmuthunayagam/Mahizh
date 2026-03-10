@@ -113,23 +113,35 @@ export default function MainLayout() {
   };
 
   const NAVIGATION = React.useMemo(() => [
-    { segment: 'mahizhconnect', title: 'Mahizh Connect', icon: <PeopleIcon /> },
-    { segment: 'dashboard', title: 'Dashboard', icon: <DashboardIcon /> },
-    ...(userRole === "admin" 
-      ? [
-          { segment: 'reports', title: 'Reports', icon: <BarChart /> },
-          { segment: 'admindashboard', title: 'Admin Panel', icon: <AdminPanelSettings /> },
-        ]
-      : [
-          { segment: 'myhome', title: 'My Home', icon: <HomeIcon /> },
-          { segment: 'mypayments', title: 'My Payments', icon: <BarChart />, },
-          { segment: 'myamenities', title: 'My Amenities', icon: <Apartment /> },
-          
-        ]
-    ),
-    { kind: 'divider' },
-    { segment: 'logout', title: 'Logout', icon: <LogoutIcon /> },
-  ], [userRole]);
+  { 
+    segment: 'mahizhconnect', 
+    title: 'Mahizh Connect', 
+    icon: <PeopleIcon sx={{ color: '#fbbf24 !important' }} /> // Amber
+  },
+  { 
+    segment: 'dashboard', 
+    title: 'Dashboard', 
+    icon: <DashboardIcon sx={{ color: '#38bdf8 !important' }} /> // Theme Blue
+  },
+  ...(userRole === "admin" 
+    ? [
+        { segment: 'reports', title: 'Reports', icon: <BarChart sx={{ color: '#a855f7 !important' }} /> }, // Purple
+        { segment: 'adminpanel', title: 'Admin Panel', icon: <AdminPanelSettings sx={{ color: '#94a3b8 !important' }} /> },
+        
+      ]
+    : [
+        { segment: 'myhome', title: 'My Home', icon: <HomeIcon sx={{ color: '#38bdf8 !important' }} /> },
+        { segment: 'mypayments', title: 'My Payments', icon: <BarChart sx={{ color: '#4ade80 !important' }} /> },
+        { segment: 'myamenities', title: 'My Amenities', icon: <Apartment sx={{ color: '#818cf8 !important' }} /> },
+      ]
+  ),
+  { kind: 'divider' },
+  { 
+    segment: 'logout', 
+    title: 'Logout', 
+    icon: <LogoutIcon sx={{ color: '#f43f5e !important' }} /> // Rose/Red
+  },
+], [userRole]);
 
   const router = React.useMemo(() => ({
     pathname: location.pathname,
@@ -165,7 +177,9 @@ export default function MainLayout() {
   return (
     <AppProvider
       theme={darkTheme}
+      
       navigation={NAVIGATION}
+      
       branding={{
         title: (
           <Box sx={{ display: "flex", gap: "5px" }}>
@@ -177,6 +191,7 @@ export default function MainLayout() {
       }}
       router={router}
     >
+       <Box sx={pulseAnimation}>
       <DashboardLayout 
         slots={{
           toolbarActions: () => (
@@ -231,6 +246,7 @@ export default function MainLayout() {
           </Box>
         </ErrorBoundary>
       </DashboardLayout>
+      </Box>
 
       {/* ✅ 3. BOTTOM SHEET */}
       <SwipeableDrawer
