@@ -25,11 +25,13 @@ export default function AdminPanel() {
   };
 
   return (
+     <Paper sx={styles.container}>
     <Box sx={{ 
       display: "flex", 
       flexDirection: "column", 
       height: "100vh", 
-      bgcolor: "#020617", 
+      bgcolor: "#020617",
+      borderRadius: 3, 
       color: "white" 
     }}>
       
@@ -37,8 +39,8 @@ export default function AdminPanel() {
       <Paper elevation={0} sx={{ 
         borderBottom: "1px solid rgba(255,255,255,0.1)", 
         px: 2, 
-        bgcolor: "#0F172A",
-        borderRadius: 0
+        bgcolor: "#020617",
+        borderRadius: 3
       }}>
         <Tabs 
           value={pillar} 
@@ -97,5 +99,29 @@ export default function AdminPanel() {
         </Box>
       </Box>
     </Box>
+    </Paper>
   );
 }
+  const styles = {
+  container: { 
+    backgroundColor: "#020617", 
+    border: "1px solid #1e293b", 
+    borderRadius: 3, 
+    p: { xs: 2, md: 3 }, 
+    width: '100%', 
+    boxSizing: 'border-box' 
+  },
+  card: { 
+    backgroundColor: "#0F172A", 
+    border: "1px solid #1e293b", 
+    p: 2.5, 
+    borderRadius: 2, 
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  sectionTitle: { color: "#38bdf8", fontWeight: 600, mb: 1 },
+  select: { width: 140, "& .MuiOutlinedInput-root": { color: "white", "& fieldset": { borderColor: "#1e293b" } } },
+  listRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 1.5, mb: 1, bgcolor: '#1e293b', borderRadius: 1 },
+  waButton: { color: '#25D366', borderColor: '#25D366', fontSize: '0.65rem', textTransform: 'none' }
+};
