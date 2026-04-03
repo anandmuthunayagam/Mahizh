@@ -21,7 +21,13 @@ import axios from "../utils/api/axios";
 const MONTHS = ["All", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 const startYear = 2012;
 const currentYearValue = new Date().getFullYear();
-const YEARS = ['All', ...Array.from({ length: currentYearValue - startYear + 1 }, (_, i) => startYear + i).reverse()];
+const YEARS = [
+  'All',
+  ...Array.from(
+    { length: currentYearValue - startYear + 1 }, 
+    (_, i) => startYear + i
+  ).reverse()
+];
 
 export default function ExpenseManagement() {
   const [rows, setRows] = useState([]);
@@ -31,8 +37,6 @@ export default function ExpenseManagement() {
   
   const [openPreview, setOpenPreview] = useState(false);
   const [previewData, setPreviewData] = useState({ url: '', type: '' });
-  
-  // ✅ RESTORED FILTERS
   const [filterMonth, setFilterMonth] = useState("All");
   const [filterYear, setFilterYear] = useState("All");
   
@@ -45,7 +49,11 @@ export default function ExpenseManagement() {
         params: { month: filterMonth, year: filterYear },
         headers: { Authorization: `Bearer ${token}` }
       });
-      setRows(res.data.map(exp => ({ ...exp, id: exp._id })));
+      setRows(res.data.map(exp => ({ 
+        ...exp, 
+        id: exp._id,
+        date: exp.date ? new Date(exp.date) : null 
+      })));
     } catch (err) {
       setSnackbar({ open: true, msg: 'Failed to fetch expenses', severity: 'error' });
     } finally {
@@ -63,26 +71,61 @@ export default function ExpenseManagement() {
         responseType: 'blob',
         headers: { Authorization: `Bearer ${token}` }
       });
+      const contentType = response.headers['content-type']; 
       const fileURL = URL.createObjectURL(response.data);
-      setPreviewData({ url: fileURL, type: response.headers['content-type'] });
+      setPreviewData({ url: fileURL, type: contentType });
       setOpenPreview(true);
     } catch (error) {
       setSnackbar({ open: true, msg: "Error loading preview", severity: 'error' });
     }
   };
 
+  // ✅ FIXED DOWNLOAD LOGIC
+  const handleDownloadReceipt = async (expenseId) => {
+    try {
+      const response = await axios.get(`/expenses/attachment/${expenseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob' 
+      });
+      
+      const contentType = response.headers['content-type'];
+      // Create blob with the correct MIME type from the server
+      const blob = new Blob([response.data], { type: contentType });
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Determine extension based on content type
+      const extension = contentType.includes('pdf') ? 'pdf' : 'jpg';
+      link.setAttribute('download', `receipt-${expenseId}.${extension}`);
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      setSnackbar({ open: true, msg: 'Download failed', severity: 'error' });
+    }
+  };
+
   const processRowUpdate = async (newRow) => {
     try {
+      const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' };
       const formData = new FormData();
       formData.append('title', newRow.title);
       formData.append('amount', newRow.amount);
       
-      const dateObj = new Date(newRow.date);
-      formData.append('date', dateObj.toISOString().split('T')[0]);
+      // Local Date Fix
+      const dateObj = newRow.date instanceof Date ? newRow.date : new Date(newRow.date);
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const localDateString = `${year}-${month}-${day}`;
       
-      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      formData.append('month', monthNames[dateObj.getMonth()]);
-      formData.append('year', dateObj.getFullYear());
+      formData.append('date', localDateString);
+      formData.append('month', MONTHS[dateObj.getMonth() + 1]);
+      formData.append('year', year);
 
       if (newRow.receiptFile) {
         formData.append('attachment', newRow.receiptFile);
@@ -90,52 +133,46 @@ export default function ExpenseManagement() {
 
       let response;
       if (newRow.isNew) {
-        response = await axios.post("/expenses", formData, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
-        });
+        response = await axios.post("/expenses", formData, { headers });
       } else {
-        response = await axios.put(`/expenses/${newRow.id}`, formData, {
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
-        });
+        response = await axios.put(`/expenses/${newRow.id}`, formData, { headers });
       }
 
-      // ✅ Prepare updated data for the grid
-      const savedData = { 
-        ...response.data.data, 
-        id: response.data.data._id, 
+      const savedData = response.data.data;
+      const updatedRow = { 
+        ...savedData, 
+        id: savedData._id, 
         isNew: false,
-        // Force the grid to see the attachment if a file was just uploaded
-        hasAttachment: response.data.data.hasAttachment || !!newRow.receiptFile 
+        date: new Date(savedData.date),
+        hasAttachment: savedData.hasAttachment || !!newRow.receiptFile
       };
-      
+
+      setRows((prev) => prev.map((row) => (row.id === newRow.id ? updatedRow : row)));
       setSnackbar({ open: true, msg: 'Expense saved successfully!', severity: 'success' });
       
-      // Update local state immediately
-      setRows((prev) => prev.map((row) => (row.id === newRow.id ? savedData : row)));
-      
-      return savedData;
+      return updatedRow;
     } catch (err) {
-      setSnackbar({ open: true, msg: 'Save failed: Check file size (5MB limit)', severity: 'error' });
+      setSnackbar({ open: true, msg: 'Save failed', severity: 'error' });
       throw err;
     }
   };
 
   const handleAddExpense = () => {
     const id = `new-${Math.random()}`;
-    const today = new Date().toISOString().split('T')[0];
-    const newRow = { id, title: '', amount: 0, date: today, isNew: true, hasAttachment: false };
-    setRows((oldRows) => [newRow, ...oldRows]);
-    setRowModesModel((prev) => ({ ...prev, [id]: { mode: GridRowModes.Edit, fieldToFocus: 'title' } }));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setRows((oldRows) => [{ id, title: '', amount: 0, date: today, isNew: true, hasAttachment: false }, ...oldRows]);
+    setRowModesModel((oldModel) => ({ ...oldModel, [id]: { mode: GridRowModes.Edit, fieldToFocus: 'title' } }));
   };
 
   const columns = [
-    { field: 'title', headerName: 'Expense Title', flex: 1.5, editable: true },
-    { field: 'amount', headerName: 'Amount', type: 'number', flex: 0.8, editable: true },
-    { field: 'date', headerName: 'Date', type: 'date', flex: 1, editable: true, valueGetter: (p) => p ? new Date(p) : null },
+    { field: 'title', headerName: 'Expense Title', flex: 1.5, minWidth: 200, editable: true },
+    { field: 'amount', headerName: 'Amount', type: 'number', flex: 0.8, minWidth: 100, editable: true },
+    { field: 'date', headerName: 'Date', flex: 1, minWidth: 130, editable: true, type: 'date' },
     {
       field: 'receipt',
       headerName: 'Receipt',
-      width: 150,
+      width: 140,
       renderCell: (params) => {
         const isInEditMode = rowModesModel[params.id]?.mode === GridRowModes.Edit;
         if (isInEditMode) {
@@ -147,9 +184,7 @@ export default function ExpenseManagement() {
                 hidden 
                 onChange={(e) => {
                   const file = e.target.files[0];
-                  // ✅ CRITICAL: Using setEditCellValue to update the DataGrid's internal state
                   params.api.setEditCellValue({ id: params.id, field: 'receiptFile', value: file });
-                  // Force a re-render so "Ready" shows up
                   setRows(prev => prev.map(r => r.id === params.id ? { ...r, receiptFile: file } : r));
                 }} 
               />
@@ -157,10 +192,15 @@ export default function ExpenseManagement() {
           );
         }
         return params.row.hasAttachment ? (
-          <IconButton size="small" onClick={() => handlePreview(params.row.id)} sx={{ color: '#38bdf8' }}>
-            <VisibilityIcon fontSize="small" />
-          </IconButton>
-        ) : <Typography variant="caption" color="gray">No Receipt</Typography>;
+          <Stack direction="row" spacing={1}>
+            <IconButton size="small" onClick={() => handlePreview(params.row.id)} sx={{ color: '#38bdf8' }}>
+              <VisibilityIcon fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClick={() => handleDownloadReceipt(params.row.id)} sx={{ color: '#94a3b8' }}>
+              <FileDownloadIcon fontSize="small" />
+            </IconButton>
+          </Stack>
+        ) : <Typography variant="caption" color="gray">No File</Typography>;
       }
     },
     {
@@ -170,18 +210,15 @@ export default function ExpenseManagement() {
       width: 100,
       getActions: ({ id }) => {
         const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem icon={<SaveIcon color="primary" />} label="Save" onClick={() => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })} />,
-            <GridActionsCellItem icon={<CancelIcon color="error" />} label="Cancel" onClick={() => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View, ignoreModifications: true } })} />,
-          ];
-        }
-        return [
+        return isInEditMode ? [
+          <GridActionsCellItem icon={<SaveIcon color="primary" />} label="Save" onClick={() => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } })} />,
+          <GridActionsCellItem icon={<CancelIcon color="error" />} label="Cancel" onClick={() => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View, ignoreModifications: true } })} />,
+        ] : [
           <GridActionsCellItem icon={<EditIcon sx={{ color: '#38bdf8' }} />} label="Edit" onClick={() => setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } })} />,
           <GridActionsCellItem icon={<DeleteIcon color="error" />} label="Delete" onClick={async () => {
             if(window.confirm("Delete this expense?")) {
-              await axios.delete(`/expenses/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-              fetchExpenses();
+               await axios.delete(`/expenses/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+               fetchExpenses();
             }
           }} />,
         ];
@@ -191,11 +228,10 @@ export default function ExpenseManagement() {
 
   return (
     <Container maxWidth="xl" sx={{ py: 2 }}>
-      {/* ✅ HEADER WITH RESTORED FILTERS */}
-      <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2 }}>
+      <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'flex-end' }, gap: 2 }}>
         <Box>
-          <Typography variant="h5" fontWeight={700} color="#64748b">Expense Management</Typography>
-          <Typography variant="body2" color="#94a3b8">Manage and track all community expenditures.</Typography>
+          <Typography variant="h5" sx={{ color: "#64748b", fontWeight: 700 }}>Expense Management</Typography>
+          <Typography variant="body1" color="#94a3b8">Manage community expenditures and receipts.</Typography>
         </Box>
 
         <Stack direction="row" spacing={2} alignItems="center">
@@ -207,22 +243,22 @@ export default function ExpenseManagement() {
             {YEARS.map((y) => <MenuItem key={y} value={y}>{y}</MenuItem>)}
           </TextField>
 
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddExpense} sx={{ bgcolor: '#38bdf8', color: '#020617' }}>
-            Add
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleAddExpense} sx={{ bgcolor: '#38bdf8', color: '#020617', fontWeight: 'bold' }}>
+            Add Expense
           </Button>
         </Stack>
       </Box>
 
-      <Paper sx={{ height: 500, bgcolor: '#0F172A', borderRadius: 4, overflow: 'hidden', border: '1px solid #1e293b' }}>
+      <Paper sx={{ height: 450, bgcolor: '#0F172A', borderRadius: 4, border: '1px solid #1e293b', overflow: 'hidden' }}>
         <DataGrid 
           rows={rows} 
           columns={columns} 
           loading={loading} 
-          editMode="row"
-          rowModesModel={rowModesModel}
-          onRowModesModelChange={(m) => setRowModesModel(m)}
-          processRowUpdate={processRowUpdate}
-          slots={{ toolbar: GridToolbarQuickFilter }}
+          editMode="row" 
+          rowModesModel={rowModesModel} 
+          onRowModesModelChange={setRowModesModel}
+          processRowUpdate={processRowUpdate} 
+          slots={{ toolbar: GridToolbarQuickFilter }} 
           sx={{ 
             color: 'white', border: 'none', 
             '& .MuiDataGrid-columnHeaders': { bgcolor: '#020617', color: '#38bdf8' },
@@ -232,16 +268,20 @@ export default function ExpenseManagement() {
       </Paper>
 
       <Dialog open={openPreview} onClose={() => setOpenPreview(false)} maxWidth="md" fullWidth PaperProps={{ sx: { bgcolor: '#0F172A', color: 'white' } }}>
-        <DialogTitle>Receipt Preview</DialogTitle>
-        <DialogContent sx={{ display: 'flex', justifyContent: 'center' }}>
-          {previewData.type?.includes('image') ? <img src={previewData.url} alt="Receipt" style={{ maxWidth: '100%' }} /> : <iframe src={previewData.url} width="100%" height="500px" />}
+        <DialogTitle sx={{ borderBottom: '1px solid #1e293b' }}>Receipt Preview</DialogTitle>
+        <DialogContent sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+          {previewData.type.includes('image') ? (
+            <img src={previewData.url} alt="Receipt" style={{ maxWidth: '100%', borderRadius: '8px' }} />
+          ) : (
+            <iframe src={previewData.url} title="PDF Preview" width="100%" height="600px" style={{ border: 'none' }} />
+          )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenPreview(false)} sx={{ color: '#94a3b8' }}>Close</Button>
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
         <Alert severity={snackbar.severity} variant="filled">{snackbar.msg}</Alert>
       </Snackbar>
     </Container>
